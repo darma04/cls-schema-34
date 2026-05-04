@@ -40,6 +40,7 @@
                 <div class="card-body">
                     <form method="post" class="needs-validation" novalidate>
                         {% csrf_token %}
+                        <fieldset {% if is_readonly_mode %}disabled{% endif %}>
                         
                         {% if form.errors %}
                         <div class="alert alert-danger alert-dismissible" role="alert">
@@ -157,6 +158,7 @@
                                 {% if is_edit %}Update Permission{% else %}Simpan Permission{% endif %}
                             </button>
                         </div>
+                        </fieldset>
                     </form>
                 </div>
             </div>

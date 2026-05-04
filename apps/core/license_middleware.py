@@ -78,7 +78,7 @@ class SaaSLicenseMiddleware:
             try:
                 error_body = json.loads(e.read().decode('utf-8'))
                 msg = error_body.get('message', 'Validasi Lisensi Gagal.')
-            except:
+            except Exception:
                 msg = str(e)
             return self._forbidden_page(f"Akses Dilarang: {msg}")
             

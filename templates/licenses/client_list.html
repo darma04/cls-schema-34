@@ -36,12 +36,14 @@
             <p class="text-muted mb-0">Kelola data klien / perusahaan pengguna layanan</p>
         </div>
         <div class="d-flex gap-2">
+            {% if can_create.licenses.klien %}
             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importModal">
                 <i class="ri-upload-2-line me-1"></i>Import Klien
             </button>
             <a href="{% url 'licenses_ui:client_create' %}" class="btn btn-primary">
                 <i class="ri-add-line me-1"></i>Tambah Klien
             </a>
+            {% endif %}
         </div>
     </div>
 
@@ -149,14 +151,26 @@
                         <td>{{ client.phone|default:"-" }}</td>
                         <td>{{ client.created_at|date:"d M Y" }}</td>
                         <td>
+                            {% if can_edit.licenses.klien or can_delete.licenses.klien %}
                             <div class="dropdown">
                                 <button type="button" class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
                                 <div class="dropdown-menu">
+                                    {% if can_edit.licenses.klien %}
                                     <a class="dropdown-item" href="{% url 'licenses_ui:client_update' client.pk %}"><i class="ri-edit-line me-2"></i>Edit Klien</a>
+                                    {% endif %}
+                                    {% if can_edit.licenses.klien and can_delete.licenses.klien %}
                                     <div class="dropdown-divider"></div>
+                                    {% endif %}
+                                    {% if can_delete.licenses.klien %}
                                     <a class="dropdown-item text-danger" href="javascript:void(0);" onclick="confirmDeleteClient('{% url 'licenses_ui:client_delete' client.pk %}', '{{ client.name|escapejs }}', '{{ client.email|escapejs }}')"><i class="ri-delete-bin-line me-2"></i>Hapus Klien</a>
+                                    {% endif %}
                                 </div>
                             </div>
+                            {% else %}
+                            <span class="badge bg-label-secondary">
+                                <i class="ri-eye-line me-1"></i>View Only
+                            </span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

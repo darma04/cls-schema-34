@@ -175,6 +175,10 @@ def license_activate(request):
             "registered_domain": lic.registered_domain,
             "devices_used": lic.active_device_count,
             "devices_max": lic.max_devices,
+            "is_maintenance": lic.is_maintenance,
+            "maintenance_message": lic.maintenance_message,
+            "min_app_version": lic.min_app_version,
+            "force_update_url": lic.force_update_url,
         }
     })
 
@@ -265,6 +269,10 @@ def license_validate(request):
             "expires_at": lic.expires_at.isoformat() if lic.expires_at else None,
             "devices_used": lic.active_device_count,
             "devices_max": lic.max_devices,
+            "is_maintenance": lic.is_maintenance,
+            "maintenance_message": lic.maintenance_message,
+            "min_app_version": lic.min_app_version,
+            "force_update_url": lic.force_update_url,
         }
     })
 
@@ -384,5 +392,9 @@ def license_status(request, key):
             "devices_used": lic.active_device_count,
             "devices_max": lic.max_devices,
             "active_devices": devices,
+            "is_maintenance": lic.is_maintenance,
+            "maintenance_message": lic.maintenance_message,
+            "min_app_version": lic.min_app_version,
+            "force_update_url": lic.force_update_url,
         }
     })

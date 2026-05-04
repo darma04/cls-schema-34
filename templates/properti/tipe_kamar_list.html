@@ -17,7 +17,9 @@
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div><h4 class="mb-1"><i class="ri-home-gear-line me-2"></i>Daftar Tipe Kamar</h4><p class="text-muted mb-0">Kelola tipe kamar dan harga sewa</p></div>
+        {% if can_create.properti %}
         <a href="{% url 'properti:tipe_kamar_add' %}" class="btn btn-primary"><i class="ri-add-line me-1"></i>Tambah Tipe</a>
+        {% endif %}
     </div>
 
     <!-- Filter Card -->
@@ -85,14 +87,22 @@
                         <td><span class="text-muted" style="font-size:13px;">{{ t.fasilitas|truncatechars:60|default:"-" }}</span></td>
                         <td>{% if t.aktif %}<span class="badge bg-label-success">Aktif</span>{% else %}<span class="badge bg-label-danger">Nonaktif</span>{% endif %}</td>
                         <td>
+                            {% if can_edit.properti or can_delete.properti %}
                             <div class="dropdown">
                                 <button type="button" class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
                                 <div class="dropdown-menu">
+                                    {% if can_edit.properti %}
                                     <a class="dropdown-item" href="{% url 'properti:tipe_kamar_edit' t.pk %}"><i class="ri-edit-line me-2"></i>Edit</a>
+                                    {% endif %}
+                                    {% if can_delete.properti %}
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item text-danger" href="javascript:void(0);" onclick="confirmDelete({{ t.pk }},'{{ t.nama }}')"><i class="ri-delete-bin-line me-2"></i>Hapus</a>
+                                    {% endif %}
                                 </div>
                             </div>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -136,8 +146,8 @@
     .dataTables_wrapper .dataTables_filter input { border: 1px solid #d9dee3; border-radius: 0.375rem; padding: 0.4375rem 0.875rem; }
     .dataTables_wrapper .dataTables_length select { border: 1px solid #d9dee3; border-radius: 0.375rem; padding: 0.4375rem 2rem 0.4375rem 0.875rem; }
     .dataTables_wrapper .dataTables_paginate .paginate_button { padding: 0.438rem 0.875rem; border-radius: 0.375rem; margin: 0 0.125rem; border: none; background: transparent; color: #697a8d; }
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #52d123 !important; color: white !important; border: none; }
-    .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled) { background: rgba(82, 209, 35, 0.08) !important; border: none; color: #52d123 !important; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #696cff !important; color: white !important; border: none; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled) { background: rgba(105, 108, 255, 0.08) !important; border: none; color: #696cff !important; }
     .card-datatable { padding-bottom: 0; }
     .datatables-tipekamar thead th { font-weight: 600; font-size: 0.8125rem; text-transform: none; letter-spacing: 0; }
 </style>
@@ -181,12 +191,9 @@ function exportToPDF()   { SimkosExport.buildPDF('#tipeKamarTable',   PDF_INFO, 
 
 var deleteId = null;
 function confirmDelete(id, name) { deleteId = id; $('#deleteName').text(name); $('#deleteModal .delete-error-msg').remove();
-
     new bootstrap.Modal(document.getElementById('deleteModal')).show(); }
 $('#confirmDeleteBtn').on('click', function() { if (!deleteId) return; $(this).prop('disabled',true).html('<span class="spinner-border spinner-border-sm me-1"></span>Menghapus...'); $.ajax({ url: '/properti/tipe-kamar/' + deleteId + '/delete/', type: 'POST', headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value}, success: function(r) { if (r.success) { $('#deleteModal').modal('hide'); location.reload(); } else { $('#deleteModal .modal-body').append('<div class="delete-error-msg alert alert-danger d-flex align-items-start mt-3 mb-0" role="alert"><i class="ri-error-warning-line me-2 fs-5"></i><div>' + (r.message || 'Gagal menghapus data.') + '</div></div>'); } }, error: function(xhr) { var msg = 'Terjadi kesalahan pada server. Silakan coba lagi.';
-
             try { var r = JSON.parse(xhr.responseText); if (r.message) msg = r.message; } catch(e) {}
-
             $('#deleteModal .modal-body').append('<div class="delete-error-msg alert alert-danger d-flex align-items-start mt-3 mb-0" role="alert"><i class="ri-error-warning-line me-2 fs-5"></i><div>' + msg + '</div></div>'); } }); });
 </script>
 {% endblock page_js %}

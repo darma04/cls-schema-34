@@ -28,6 +28,7 @@
 
     <form method="post" id="telegramForm">
         {% csrf_token %}
+        <fieldset {% if is_readonly_mode %}disabled{% endif %}>
 
         <div class="row">
             <!-- Form Pengaturan (Kiri) -->
@@ -38,7 +39,7 @@
                         <h5 class="mb-0">Konfigurasi Bot</h5>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="aktif" name="aktif"
-                                   {% if pengaturan.aktif %}checked{% endif %}>
+                                   {% if pengaturan.aktif %}checked{% endif %} {% if not can_edit.automation.pengaturan_telegram %}disabled{% endif %}>
                             <label class="form-check-label" for="aktif">
                                 {% if pengaturan.aktif %}
                                 <span class="badge bg-label-success">Aktif</span>
@@ -55,7 +56,7 @@
                                 <input type="text" class="form-control" id="bot_token" name="bot_token"
                                        value="{{ pengaturan.bot_token }}"
                                        placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
-                                       onfocus="this.select()">
+                                       onfocus="this.select()" {% if not can_edit.automation.pengaturan_telegram %}disabled{% endif %}>
                                 <small class="text-muted">Dapatkan dari <a href="https://t.me/BotFather" target="_blank">@BotFather</a> di Telegram</small>
                             </div>
                             <div class="mb-3 col-md-12">
@@ -64,11 +65,11 @@
                                     <input type="text" class="form-control" id="chat_id" name="chat_id"
                                            value="{{ pengaturan.chat_id }}"
                                            placeholder="-1001234567890"
-                                           onfocus="this.select()">
-                                    <button type="button" class="btn btn-outline-secondary" id="btnClearChatId" title="Kosongkan Chat ID">
+                                           onfocus="this.select()" {% if not can_edit.automation.pengaturan_telegram %}disabled{% endif %}>
+                                    <button type="button" class="btn btn-outline-secondary" id="btnClearChatId" title="Kosongkan Chat ID" {% if not can_edit.automation.pengaturan_telegram %}disabled{% endif %}>
                                         <i class="ri-close-line"></i>
                                     </button>
-                                    <button type="button" class="btn btn-outline-info" id="btnDeteksiChatId" title="Deteksi Chat ID otomatis dari pesan masuk ke bot">
+                                    <button type="button" class="btn btn-outline-info" id="btnDeteksiChatId" title="Deteksi Chat ID otomatis dari pesan masuk ke bot" {% if not can_edit.automation.pengaturan_telegram %}disabled{% endif %}>
                                         <i class="ri-search-eye-line me-1"></i>Deteksi
                                     </button>
                                 </div>
@@ -102,7 +103,7 @@
                                     </div>
                                     <div class="form-check form-switch mb-0">
                                         <input class="form-check-input" type="checkbox" name="notif_aktivasi"
-                                               {% if pengaturan.notif_aktivasi %}checked{% endif %}>
+                                               {% if pengaturan.notif_aktivasi %}checked{% endif %} {% if not can_edit.automation.pengaturan_telegram %}disabled{% endif %}>
                                     </div>
                                 </div>
                             </div>
@@ -116,7 +117,7 @@
                                     </div>
                                     <div class="form-check form-switch mb-0">
                                         <input class="form-check-input" type="checkbox" name="notif_kadaluarsa"
-                                               {% if pengaturan.notif_kadaluarsa %}checked{% endif %}>
+                                               {% if pengaturan.notif_kadaluarsa %}checked{% endif %} {% if not can_edit.automation.pengaturan_telegram %}disabled{% endif %}>
                                     </div>
                                 </div>
                             </div>
@@ -130,7 +131,7 @@
                                     </div>
                                     <div class="form-check form-switch mb-0">
                                         <input class="form-check-input" type="checkbox" name="notif_pembelian"
-                                               {% if pengaturan.notif_pembelian %}checked{% endif %}>
+                                               {% if pengaturan.notif_pembelian %}checked{% endif %} {% if not can_edit.automation.pengaturan_telegram %}disabled{% endif %}>
                                     </div>
                                 </div>
                             </div>
@@ -144,7 +145,7 @@
                                     </div>
                                     <div class="form-check form-switch mb-0">
                                         <input class="form-check-input" type="checkbox" name="notif_suspend"
-                                               {% if pengaturan.notif_suspend %}checked{% endif %}>
+                                               {% if pengaturan.notif_suspend %}checked{% endif %} {% if not can_edit.automation.pengaturan_telegram %}disabled{% endif %}>
                                     </div>
                                 </div>
                             </div>
@@ -155,9 +156,11 @@
                 <!-- Tombol Simpan -->
                 <div class="card mb-4">
                     <div class="card-body">
+                        {% if can_edit.automation.pengaturan_telegram %}
                         <button type="submit" class="btn btn-primary me-2" id="btnSimpan">
                             <i class="ri-save-line me-1"></i>Simpan Pengaturan
                         </button>
+                        {% endif %}
                         <button type="button" class="btn btn-label-secondary" onclick="testKirim()" id="testBtn">
                             <i class="ri-send-plane-line me-1"></i>Test Kirim
                         </button>
@@ -237,6 +240,7 @@
                 {% endif %}
             </div>
         </div>
+        </fieldset>
     </form>
 
     <!-- Alert Response -->

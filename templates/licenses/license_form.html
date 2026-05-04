@@ -26,6 +26,7 @@
                 <div class="card-body">
                     <form method="post" novalidate>
                         {% csrf_token %}
+                        <fieldset {% if is_readonly_mode %}disabled{% endif %}>
 
                         {% if form.errors %}
                         <div class="alert alert-danger alert-dismissible" role="alert">
@@ -104,6 +105,36 @@
                             </div>
                         </div>
 
+                        <h5 class="card-title mb-3 mt-4">
+                            <i class="ri-alert-line me-2 text-warning"></i>Maintenance & Perintah Update
+                        </h5>
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <div class="form-check form-switch mt-2">
+                                    {{ form.is_maintenance }}
+                                    <label class="form-check-label" for="id_is_maintenance">Aktifkan Mode Maintenance</label>
+                                </div>
+                                <div class="form-text mt-1">Jika ON, software klien akan terblokir dan otomatis menampilkan layar perbaikan.</div>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label" for="id_maintenance_message">Pesan Maintenance</label>
+                                {{ form.maintenance_message }}
+                            </div>
+                            
+                            <hr class="my-2">
+                            
+                            <div class="col-md-6">
+                                <label class="form-label" for="id_min_app_version">Minimal Versi Aplikasi</label>
+                                {{ form.min_app_version }}
+                                <div class="form-text">Batas versi software untuk mewajibkan Update.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="id_force_update_url">URL Update Klien</label>
+                                {{ form.force_update_url }}
+                                <div class="form-text">URL tindakan (contoh: WhatsApp) ketika klien diblokir karena wajib update.</div>
+                            </div>
+                        </div>
+
                         {% if not is_edit %}
                         <div class="alert alert-info mt-3" role="alert">
                             <div class="d-flex align-items-center">
@@ -125,6 +156,7 @@
                                 <i class="ri-close-line me-2"></i>Batal
                             </a>
                         </div>
+                        </fieldset>
                     </form>
                 </div>
             </div>

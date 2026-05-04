@@ -17,7 +17,9 @@
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div><h4 class="mb-1"><i class="ri-user-heart-line me-2"></i>Daftar Penyewa</h4><p class="text-muted mb-0">Kelola data penyewa/penghuni kost & kontrakan</p></div>
+        {% if can_create.penyewa %}
         <a href="{% url 'penyewa:add' %}" class="btn btn-primary"><i class="ri-add-line me-1"></i>Tambah Penyewa</a>
+        {% endif %}
     </div>
 
     <!-- Filter Card -->
@@ -87,15 +89,27 @@
                         <td>{{ p.pekerjaan|default:"-" }}</td>
                         <td>{% if p.status == 'aktif' %}<span class="badge bg-label-success">Aktif</span>{% elif p.status == 'nonaktif' %}<span class="badge bg-label-secondary">Nonaktif</span>{% else %}<span class="badge bg-label-danger">Blacklist</span>{% endif %}</td>
                         <td>
+                            {% if can_edit.penyewa or can_delete.penyewa %}
                             <div class="dropdown">
                                 <button type="button" class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
                                 <div class="dropdown-menu">
+                                    {% if can_view.penyewa %}
                                     <a class="dropdown-item" href="{% url 'penyewa:detail' p.pk %}"><i class="ri-eye-line me-2"></i>Lihat Detail</a>
+                                    {% endif %}
+                                    {% if can_edit.penyewa %}
                                     <a class="dropdown-item" href="{% url 'penyewa:edit' p.pk %}"><i class="ri-edit-line me-2"></i>Edit</a>
+                                    {% endif %}
+                                    {% if can_delete.penyewa %}
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item text-danger" href="javascript:void(0);" onclick="confirmDelete({{ p.pk }},'{{ p.nama }}')" ><i class="ri-delete-bin-line me-2"></i>Hapus</a>
+                                    {% endif %}
                                 </div>
                             </div>
+                            {% elif can_view.penyewa %}
+                            <a href="{% url 'penyewa:detail' p.pk %}" class="badge bg-label-secondary"><i class="ri-eye-line me-1"></i>View Only</a>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -130,8 +144,8 @@
     .dataTables_wrapper .dataTables_filter input { border: 1px solid #d9dee3; border-radius: 0.375rem; padding: 0.4375rem 0.875rem; }
     .dataTables_wrapper .dataTables_length select { border: 1px solid #d9dee3; border-radius: 0.375rem; padding: 0.4375rem 2rem 0.4375rem 0.875rem; }
     .dataTables_wrapper .dataTables_paginate .paginate_button { padding: 0.438rem 0.875rem; border-radius: 0.375rem; margin: 0 0.125rem; border: none; background: transparent; color: #697a8d; }
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #52d123 !important; color: white !important; border: none; }
-    .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled) { background: rgba(82, 209, 35, 0.08) !important; border: none; color: #52d123 !important; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #696cff !important; color: white !important; border: none; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled) { background: rgba(105, 108, 255, 0.08) !important; border: none; color: #696cff !important; }
     .card-datatable { padding-bottom: 0; }
     .datatables-penyewa thead th { font-weight: 600; font-size: 0.8125rem; text-transform: none; letter-spacing: 0; }
 </style>
@@ -178,12 +192,9 @@ function exportToPDF() { SimkosExport.buildPDF('#penyewaTable', PDF_INFO, FOOTER
 
 var deleteId = null;
 function confirmDelete(id, name) { deleteId = id; $('#deleteName').text(name); $('#deleteModal .delete-error-msg').remove();
-
     new bootstrap.Modal(document.getElementById('deleteModal')).show(); }
 $('#confirmDeleteBtn').on('click', function () { if (!deleteId) return; $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>Menghapus...'); $.ajax({ url: '/penyewa/' + deleteId + '/delete/', type: 'POST', headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value }, success: function (r) { if (r.success) { $('#deleteModal').modal('hide'); location.reload(); } else { $('#deleteModal .modal-body').append('<div class="delete-error-msg alert alert-danger d-flex align-items-start mt-3 mb-0" role="alert"><i class="ri-error-warning-line me-2 fs-5"></i><div>' + (r.message || 'Gagal menghapus data.') + '</div></div>'); } }, error: function (xhr) { var msg = 'Terjadi kesalahan pada server. Silakan coba lagi.';
-
             try { var r = JSON.parse(xhr.responseText); if (r.message) msg = r.message; } catch(e) {}
-
             $('#deleteModal .modal-body').append('<div class="delete-error-msg alert alert-danger d-flex align-items-start mt-3 mb-0" role="alert"><i class="ri-error-warning-line me-2 fs-5"></i><div>' + msg + '</div></div>'); } }); });
 </script>
 {% endblock page_js %}

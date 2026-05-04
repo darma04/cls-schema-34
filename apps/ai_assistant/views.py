@@ -14,11 +14,14 @@ from django.views.decorators.csrf import csrf_exempt
 from web_project import TemplateLayout
 from .models import AIAssistantConfig, ChatHistory, ChatFeedback
 from .intents import detect_intent, gather_data
+from apps.core.mixins import ReadPermissionMixin, permission_required_func
 
 logger = logging.getLogger(__name__)
 
 
-class AIAssistantIndexView(LoginRequiredMixin, TemplateView):
+class AIAssistantIndexView(LoginRequiredMixin, ReadPermissionMixin, TemplateView):
+    permission_module = 'ai'
+    permission_sub_module = 'ai_chat'
     template_name = 'ai_assistant/index.html'
 
     def get_context_data(self, **kwargs):
@@ -32,7 +35,9 @@ class AIAssistantIndexView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class AIAssistantDashboardView(LoginRequiredMixin, TemplateView):
+class AIAssistantDashboardView(LoginRequiredMixin, ReadPermissionMixin, TemplateView):
+    permission_module = 'ai'
+    permission_sub_module = 'ai_dashboard'
     template_name = 'ai_assistant/dashboard.html'
 
     def get_context_data(self, **kwargs):
@@ -174,6 +179,7 @@ class AIAssistantDashboardView(LoginRequiredMixin, TemplateView):
 
 
 @login_required
+@permission_required_func('create', 'ai', 'ai_chat')
 def chat_api(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
@@ -307,6 +313,7 @@ def _call_groq(config, system_prompt, user_message, ssl_ctx):
 
 
 @login_required
+@permission_required_func('write', 'ai', 'ai_chat')
 def config_api(request):
     if request.method == 'POST':
         config = AIAssistantConfig.load()
@@ -336,6 +343,7 @@ def config_api(request):
 
 
 @login_required
+@permission_required_func('delete', 'ai', 'ai_chat')
 def clear_history(request):
     if request.method == 'POST':
         ChatHistory.objects.filter(user=request.user).delete()

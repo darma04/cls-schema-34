@@ -41,6 +41,44 @@ from django.shortcuts import redirect                   # Fungsi redirect
 from django.contrib import messages                      # Framework pesan flash
 from django.core.exceptions import PermissionDenied      # Exception 403 Forbidden
 from apps.core.permissions import has_permission         # Fungsi cek permission
+from functools import wraps                              # Untuk decorator FBV
+
+
+# ==================== DECORATOR UNTUK FUNCTION-BASED VIEWS ====================
+
+def permission_required_func(action, module, sub_module=None):
+    """
+    Decorator untuk function-based views yang mengecek RBAC permission.
+    Equivalent dari ReadPermissionMixin / CreatePermissionMixin untuk FBV.
+
+    Cara pakai:
+        @login_required
+        @permission_required_func('read', 'tenant_management')
+        def tenant_list(request):
+            ...
+
+    Parameter:
+    - action: 'read', 'create', 'write'/'update', 'delete'
+    - module: Nama modul (contoh: 'tenant_management')
+    - sub_module: Nama sub-modul (opsional)
+    """
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+            # Superuser bypass semua
+            if request.user.is_superuser:
+                return view_func(request, *args, **kwargs)
+
+            # Cek permission dari database
+            if not has_permission(request.user, action, module, sub_module):
+                module_name = sub_module or module
+                raise PermissionDenied(
+                    f"Anda tidak memiliki akses {action} untuk {module_name.replace('_', ' ').title()}"
+                )
+
+            return view_func(request, *args, **kwargs)
+        return wrapper
+    return decorator
 
 
 class SubModulePermissionMixin:
@@ -109,6 +147,29 @@ class SubModulePermissionMixin:
 
         # Permission diizinkan → lanjutkan ke view asli
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        """Inject RBAC variables into context for global UI gating."""
+        context = {}
+        if hasattr(super(), 'get_context_data'):
+            context = super().get_context_data(**kwargs)
+        
+        context['rbac_current_module'] = self.permission_module
+        context['rbac_current_sub_module'] = self.permission_sub_module
+        
+        user = getattr(self.request, 'user', None)
+        if user and not user.is_superuser:
+            from apps.core.permissions import has_permission
+            context['rbac_can_read'] = has_permission(user, 'read', self.permission_module, self.permission_sub_module)
+            context['rbac_can_create'] = has_permission(user, 'create', self.permission_module, self.permission_sub_module)
+            context['rbac_can_edit'] = has_permission(user, 'write', self.permission_module, self.permission_sub_module)
+            context['rbac_can_delete'] = has_permission(user, 'delete', self.permission_module, self.permission_sub_module)
+            context['is_readonly_mode'] = not context['rbac_can_edit']
+        else:
+            context['rbac_can_read'] = context['rbac_can_create'] = context['rbac_can_edit'] = context['rbac_can_delete'] = True
+            context['is_readonly_mode'] = False
+            
+        return context
 
 
 class ModulePermissionMixin:
@@ -218,6 +279,29 @@ class ReadPermissionMixin:
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        """Inject RBAC variables into context for global UI gating."""
+        context = {}
+        if hasattr(super(), 'get_context_data'):
+            context = super().get_context_data(**kwargs)
+        
+        context['rbac_current_module'] = self.permission_module
+        context['rbac_current_sub_module'] = self.permission_sub_module
+        
+        user = getattr(self.request, 'user', None)
+        if user and not user.is_superuser:
+            from apps.core.permissions import has_permission
+            context['rbac_can_read'] = has_permission(user, 'read', self.permission_module, self.permission_sub_module)
+            context['rbac_can_create'] = has_permission(user, 'create', self.permission_module, self.permission_sub_module)
+            context['rbac_can_edit'] = has_permission(user, 'write', self.permission_module, self.permission_sub_module)
+            context['rbac_can_delete'] = has_permission(user, 'delete', self.permission_module, self.permission_sub_module)
+            context['is_readonly_mode'] = not context['rbac_can_edit']
+        else:
+            context['rbac_can_read'] = context['rbac_can_create'] = context['rbac_can_edit'] = context['rbac_can_delete'] = True
+            context['is_readonly_mode'] = False
+            
+        return context
+
 
 class CreatePermissionMixin:
     """
@@ -241,6 +325,25 @@ class CreatePermissionMixin:
             raise PermissionDenied(f'Anda tidak memiliki akses untuk menambah data di {module_name.title()}')
 
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        if hasattr(super(), 'get_context_data'):
+            context = super().get_context_data(**kwargs)
+        context['rbac_current_module'] = self.permission_module
+        context['rbac_current_sub_module'] = self.permission_sub_module
+        user = getattr(self.request, 'user', None)
+        if user and not user.is_superuser:
+            from apps.core.permissions import has_permission
+            context['rbac_can_read'] = has_permission(user, 'read', self.permission_module, self.permission_sub_module)
+            context['rbac_can_create'] = has_permission(user, 'create', self.permission_module, self.permission_sub_module)
+            context['rbac_can_edit'] = has_permission(user, 'write', self.permission_module, self.permission_sub_module)
+            context['rbac_can_delete'] = has_permission(user, 'delete', self.permission_module, self.permission_sub_module)
+            context['is_readonly_mode'] = not context['rbac_can_edit']
+        else:
+            context['rbac_can_read'] = context['rbac_can_create'] = context['rbac_can_edit'] = context['rbac_can_delete'] = True
+            context['is_readonly_mode'] = False
+        return context
 
 
 class UpdatePermissionMixin:
@@ -266,6 +369,25 @@ class UpdatePermissionMixin:
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = {}
+        if hasattr(super(), 'get_context_data'):
+            context = super().get_context_data(**kwargs)
+        context['rbac_current_module'] = self.permission_module
+        context['rbac_current_sub_module'] = self.permission_sub_module
+        user = getattr(self.request, 'user', None)
+        if user and not user.is_superuser:
+            from apps.core.permissions import has_permission
+            context['rbac_can_read'] = has_permission(user, 'read', self.permission_module, self.permission_sub_module)
+            context['rbac_can_create'] = has_permission(user, 'create', self.permission_module, self.permission_sub_module)
+            context['rbac_can_edit'] = has_permission(user, 'write', self.permission_module, self.permission_sub_module)
+            context['rbac_can_delete'] = has_permission(user, 'delete', self.permission_module, self.permission_sub_module)
+            context['is_readonly_mode'] = not context['rbac_can_edit']
+        else:
+            context['rbac_can_read'] = context['rbac_can_create'] = context['rbac_can_edit'] = context['rbac_can_delete'] = True
+            context['is_readonly_mode'] = False
+        return context
+
 
 class DeletePermissionMixin:
     """
@@ -289,3 +411,22 @@ class DeletePermissionMixin:
             raise PermissionDenied(f'Anda tidak memiliki akses untuk menghapus data di {module_name.title()}')
 
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        if hasattr(super(), 'get_context_data'):
+            context = super().get_context_data(**kwargs)
+        context['rbac_current_module'] = self.permission_module
+        context['rbac_current_sub_module'] = self.permission_sub_module
+        user = getattr(self.request, 'user', None)
+        if user and not user.is_superuser:
+            from apps.core.permissions import has_permission
+            context['rbac_can_read'] = has_permission(user, 'read', self.permission_module, self.permission_sub_module)
+            context['rbac_can_create'] = has_permission(user, 'create', self.permission_module, self.permission_sub_module)
+            context['rbac_can_edit'] = has_permission(user, 'write', self.permission_module, self.permission_sub_module)
+            context['rbac_can_delete'] = has_permission(user, 'delete', self.permission_module, self.permission_sub_module)
+            context['is_readonly_mode'] = not context['rbac_can_edit']
+        else:
+            context['rbac_can_read'] = context['rbac_can_create'] = context['rbac_can_edit'] = context['rbac_can_delete'] = True
+            context['is_readonly_mode'] = False
+        return context

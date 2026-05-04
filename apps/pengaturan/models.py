@@ -45,6 +45,12 @@ class PengaturanPerusahaan(models.Model):
     maintenance_mode = models.BooleanField(default=False, verbose_name="Mode Maintenance")
     maintenance_message = models.TextField(blank=True, default='Sistem sedang dalam maintenance.', verbose_name="Pesan Maintenance")
 
+    # Dynamic Branding
+    auth_image = models.ImageField(upload_to='pengaturan/auth/', blank=True, null=True, verbose_name="Ilustrasi Login/Register")
+    auth_background_image = models.ImageField(upload_to='pengaturan/auth/', blank=True, null=True, verbose_name="Background Login/Register")
+    misc_image = models.ImageField(upload_to='pengaturan/misc/', blank=True, null=True, verbose_name="Ilustrasi Error/Maintenance")
+    misc_background_image = models.ImageField(upload_to='pengaturan/misc/', blank=True, null=True, verbose_name="Background Error/Maintenance")
+
     dibuat_pada = models.DateTimeField(auto_now_add=True)
     diupdate_pada = models.DateTimeField(auto_now=True)
 

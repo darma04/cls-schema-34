@@ -1,0 +1,287 @@
+{% extends 'layout/layout_vertical.html' %}
+{% comment %}
+==========================================================================
+   TENANT DETAIL - Detail Tenant (SIMS / SIMKOS / SERPTECH)
+   Layout konsisten dengan Sneat admin template
+==========================================================================
+{% endcomment %}
+{% load static %}
+
+{% block title %}Detail Tenant - Central License Server{% endblock title %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block content %}
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1"><i class="ri-server-line me-2"></i>Detail Tenant</h4>
+            <p class="text-muted mb-0">Informasi lengkap tenant pada server {% if tenant %}{{ tenant.software_label }}{% endif %}</p>
+        </div>
+        <a href="{% url 'licenses_ui:tenant_list' %}" class="btn btn-label-secondary">
+            <i class="ri-arrow-left-line me-1"></i>Kembali
+        </a>
+    </div>
+
+    {% if connection_error %}
+    <div class="alert alert-danger d-flex align-items-start" role="alert">
+        <i class="ri-error-warning-line me-2 fs-4"></i>
+        <div>
+            <strong>Tidak bisa terhubung ke Server</strong><br>
+            <span class="small">{{ connection_error }}</span>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if tenant %}
+    <div class="row g-4">
+        <!-- Informasi Tenant — Single Card -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <h5 class="mb-0"><i class="ri-information-line me-2"></i>Informasi Tenant</h5>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="badge bg-label-{{ tenant.software_color }}">{{ tenant.software_label }}</span>
+                        <span class="badge bg-label-success"><i class="ri-checkbox-circle-line me-1"></i>Aktif</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Row 1: Informasi Dasar -->
+                    <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 0.08em;">
+                        <i class="ri-database-2-line me-1"></i>Informasi Database
+                    </h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="p-3 rounded" style="background: #f8f7fa;">
+                                <label class="form-label text-muted mb-1 d-block" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;">Nama Tenant</label>
+                                <div class="fw-semibold">{{ tenant.nama }}</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="p-3 rounded" style="background: #f8f7fa;">
+                                <label class="form-label text-muted mb-1 d-block" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;">Schema Database</label>
+                                <div><span class="badge bg-label-info"><i class="ri-database-2-line me-1"></i>{{ tenant.schema_name }}</span></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="p-3 rounded" style="background: #f8f7fa;">
+                                <label class="form-label text-muted mb-1 d-block" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;">Domain / Subdomain</label>
+                                <div>
+                                    {% for domain in tenant.domains %}
+                                    <span class="badge bg-label-primary"><i class="ri-global-line me-1"></i>{{ domain }}</span>
+                                    {% empty %}
+                                    <span class="text-muted">-</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="p-3 rounded" style="background: #f8f7fa;">
+                                <label class="form-label text-muted mb-1 d-block" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;">Tanggal Dibuat</label>
+                                <div class="fw-medium">{{ tenant.created_at|truncatechars:10 }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Statistik -->
+                    <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 0.08em;">
+                        <i class="ri-bar-chart-line me-1"></i>Statistik Database
+                    </h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-sm-4 col-lg-2">
+                            <div class="border rounded p-3 text-center">
+                                <div class="avatar avatar-sm mx-auto mb-2">
+                                    <span class="avatar-initial rounded bg-label-primary"><i class="ri-table-line"></i></span>
+                                </div>
+                                <h5 class="mb-0">{{ tenant.table_count|default:"0" }}</h5>
+                                <small class="text-muted">Total Tabel</small>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-4 col-lg-2">
+                            <div class="border rounded p-3 text-center">
+                                <div class="avatar avatar-sm mx-auto mb-2">
+                                    <span class="avatar-initial rounded bg-label-success"><i class="ri-user-line"></i></span>
+                                </div>
+                                <h5 class="mb-0">{{ tenant.user_count|default:"0" }}</h5>
+                                <small class="text-muted">Total User</small>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-4 col-lg-2">
+                            <div class="border rounded p-3 text-center">
+                                <div class="avatar avatar-sm mx-auto mb-2">
+                                    <span class="avatar-initial rounded bg-label-warning"><i class="ri-shield-user-line"></i></span>
+                                </div>
+                                <h5 class="mb-0">{{ tenant.superusers|length|default:"0" }}</h5>
+                                <small class="text-muted">Superuser</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Superuser Details -->
+                    {% if tenant.superusers %}
+                    <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 0.08em;">
+                        <i class="ri-shield-user-line me-1"></i>Akun Superuser
+                    </h6>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="font-size: 0.8rem;">ID</th>
+                                    <th style="font-size: 0.8rem;">Username</th>
+                                    <th style="font-size: 0.8rem;">Email</th>
+                                    <th style="font-size: 0.8rem;">Password</th>
+                                    <th style="font-size: 0.8rem;">Status</th>
+                                    <th style="font-size: 0.8rem;">Dibuat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for su in tenant.superusers %}
+                                <tr>
+                                    <td><span class="badge bg-label-secondary">{{ su.id }}</span></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar avatar-xs me-2">
+                                                <span class="avatar-initial rounded-circle bg-label-primary">{{ su.username|first|upper }}</span>
+                                            </div>
+                                            <code class="fw-semibold" style="color: #7367f0;">{{ su.username }}</code>
+                                        </div>
+                                    </td>
+                                    <td><span style="font-size: 0.85rem;">{{ su.email|default:"-" }}</span></td>
+                                    <td>
+                                        <span class="text-muted" style="font-size: 0.8rem;">
+                                            <i class="ri-lock-line me-1"></i>Terenkripsi
+                                        </span>
+                                        <small class="d-block text-muted" style="font-size: 0.7rem;">Hanya tampil saat pembuatan</small>
+                                    </td>
+                                    <td>
+                                        {% if su.is_active %}
+                                        <span class="badge bg-label-success">Aktif</span>
+                                        {% else %}
+                                        <span class="badge bg-label-danger">Nonaktif</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span style="font-size: 0.85rem;">{{ su.date_joined|truncatechars:10 }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex align-items-center mt-3 px-1" style="font-size: 0.75rem;">
+                        <i class="ri-information-line me-1 text-primary"></i>
+                        <span class="text-muted">Password superuser dienkripsi dan hanya ditampilkan sekali saat pembuatan tenant. Gunakan fitur reset password jika lupa.</span>
+                    </div>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="mt-4 d-flex gap-2">
+                        {% for domain in tenant.domains %}
+                        <a href="http://{{ domain }}" target="_blank" class="btn btn-primary">
+                            <i class="ri-external-link-line me-1"></i>Buka Tenant
+                        </a>
+                        {% endfor %}
+                        {% if can_delete.tenant_management %}
+                        <button class="btn btn-label-danger" onclick="confirmDeleteTenant('{{ tenant.software }}', '{{ tenant.schema_name }}', '{{ tenant.nama }}')">
+                            <i class="ri-delete-bin-line me-1"></i>Hapus Tenant
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="ri-server-line ri-48px text-muted mb-3 d-block"></i>
+            <h5 class="text-muted">Tenant Tidak Ditemukan</h5>
+            <p class="text-muted mb-3">Data tenant tidak dapat dimuat dari server.</p>
+            <a href="{% url 'licenses_ui:tenant_list' %}" class="btn btn-primary"><i class="ri-arrow-left-line me-1"></i>Kembali ke Daftar</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}
+
+{% block page_js %}
+{% if tenant %}
+<script>
+    // ========== CSRF Token ==========
+    function getCsrfToken() {
+        const input = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (input) return input.value;
+        const cookies = document.cookie.split(';');
+        for (let c of cookies) { c = c.trim(); if (c.startsWith('cls_csrftoken=')) return c.substring('cls_csrftoken='.length); }
+        for (let c of cookies) { c = c.trim(); if (c.startsWith('csrftoken=')) return c.substring('csrftoken='.length); }
+        return '';
+    }
+
+    // ========== SweetAlert2 Delete ==========
+    function confirmDeleteTenant(softwareCode, schemaName, tenantName) {
+        if (typeof Swal === 'undefined') {
+            if (confirm('Yakin ingin menghapus tenant "' + tenantName + '"? Semua data akan dihapus permanen!')) {
+                deleteTenant(softwareCode, schemaName);
+            }
+            return;
+        }
+        Swal.fire({
+            icon: 'warning',
+            title: 'Konfirmasi Hapus Tenant',
+            html: '<p>Apakah Anda yakin ingin menghapus tenant <strong>"' + tenantName + '"</strong> dari <strong>' + softwareCode + '</strong>?</p>' +
+                  '<div class="alert alert-danger d-flex align-items-start mt-2 mb-0 text-start" style="background:rgba(255,62,29,0.08);border:1px solid rgba(255,62,29,0.3);border-radius:8px;padding:12px 16px;">' +
+                  '<i class="ri-error-warning-line me-2 fs-5 text-danger" style="margin-top:2px"></i>' +
+                  '<div class="text-danger" style="font-size:0.85rem;"><strong>PERINGATAN:</strong> Menghapus tenant akan menghapus SELURUH database klien ini secara permanen.</div></div>',
+            showCancelButton: true,
+            confirmButtonText: '<i class="ri-delete-bin-line me-1"></i>Ya, Hapus Permanen',
+            cancelButtonText: '<i class="ri-close-line me-1"></i>Batal',
+            customClass: { confirmButton: 'btn btn-danger', cancelButton: 'btn btn-label-secondary' },
+            buttonsStyling: false
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                Swal.fire({ title: 'Menghapus tenant dan semua data...', allowOutsideClick: false, didOpen: function() { Swal.showLoading(); } });
+                deleteTenant(softwareCode, schemaName);
+            }
+        });
+    }
+
+    function deleteTenant(softwareCode, schemaName) {
+        fetch('/licenses/tenants/' + softwareCode + '/' + schemaName + '/delete/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCsrfToken(), 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin'
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, confirmButtonText: 'OK', customClass: { confirmButton: 'btn btn-success' }, buttonsStyling: false }).then(function() { window.location.href = "{% url 'licenses_ui:tenant_list' %}"; });
+                } else {
+                    window.location.href = "{% url 'licenses_ui:tenant_list' %}";
+                }
+            } else {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message, confirmButtonText: 'OK', customClass: { confirmButton: 'btn btn-primary' }, buttonsStyling: false });
+                } else {
+                    alert('Gagal: ' + data.message);
+                }
+            }
+        })
+        .catch(function() {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({ icon: 'error', title: 'Error!', text: 'Terjadi kesalahan jaringan.', confirmButtonText: 'OK', customClass: { confirmButton: 'btn btn-primary' }, buttonsStyling: false });
+            } else {
+                alert('Terjadi kesalahan jaringan.');
+            }
+        });
+    }
+</script>
+{% endif %}
+{% endblock page_js %}

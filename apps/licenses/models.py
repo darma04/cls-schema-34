@@ -87,6 +87,24 @@ class LicenseKey(models.Model):
     activated_at = models.DateTimeField(null=True, blank=True, verbose_name="Tanggal Aktivasi")
     expires_at = models.DateTimeField(null=True, blank=True, verbose_name="Tanggal Kadaluarsa")
 
+    # === Maintenance & Force Update Control ===
+    is_maintenance = models.BooleanField(
+        default=False, verbose_name="Mode Maintenance",
+        help_text="Aktifkan untuk mengunci akses klien ini ke halaman maintenance."
+    )
+    maintenance_message = models.TextField(
+        blank=True, null=True, verbose_name="Pesan Maintenance",
+        help_text="Pesan yang akan ditampilkan di klien. Kosongkan untuk pesan default."
+    )
+    min_app_version = models.CharField(
+        max_length=20, default="v1.0", verbose_name="Minimal Versi Aplikasi",
+        help_text="Versi minimal aplikasi klien agar bisa beroperasi. Contoh: v2.0"
+    )
+    force_update_url = models.URLField(
+        blank=True, null=True, verbose_name="URL Update",
+        help_text="URL tombol update jika versi klien lebih kecil dari Minimal Versi. Bisa link WhatsApp."
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

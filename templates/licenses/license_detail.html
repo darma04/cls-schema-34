@@ -27,15 +27,15 @@
                     <i class="ri-more-2-line"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    {% if can_view.licenses %}
+                    {% if can_view.licenses.kunci_lisensi %}
                     <li><a class="dropdown-item" href="{% url 'licenses_ui:licensekey_print' license.pk %}" target="_blank">
                         <i class="ri-file-pdf-2-line me-2"></i>Cetak Sertifikat</a></li>
                     {% endif %}
-                    {% if can_edit.licenses %}
+                    {% if can_edit.licenses.kunci_lisensi %}
                     <li><a class="dropdown-item" href="{% url 'licenses_ui:licensekey_update' license.pk %}">
                         <i class="ri-edit-line me-2"></i>Edit Lisensi</a></li>
                     {% endif %}
-                    {% if can_delete.licenses %}
+                    {% if can_delete.licenses.kunci_lisensi %}
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="{% url 'licenses_ui:licensekey_delete' license.pk %}">
                         <i class="ri-delete-bin-line me-2"></i>Hapus Lisensi</a></li>
@@ -108,6 +108,37 @@
                             <label class="form-label text-muted">Dibuat</label>
                             <p class="mb-0">{{ license.created_at|date:"d M Y, H:i" }}</p>
                         </div>
+                        
+                        <!-- Maintenance & Update Control -->
+                        <div class="col-12 mt-4 pt-3 border-top">
+                            <h6 class="text-muted fw-semibold mb-3"><i class="ri-settings-4-line me-2"></i>Status Kontrol Klien (Jarak Jauh)</h6>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label text-muted d-block">Mode Maintenance</label>
+                                    {% if license.is_maintenance %}
+                                    <span class="badge bg-label-warning"><i class="ri-alert-line me-1"></i>AKTIF</span>
+                                    {% else %}
+                                    <span class="badge bg-label-success"><i class="ri-check-line me-1"></i>NONAKTIF</span>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-muted">Min Versi Aplikasi</label>
+                                    <p class="mb-0 text-primary fw-bold">{{ license.min_app_version }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-muted">URL Update</label>
+                                    <p class="mb-0 text-truncate" title="{{ license.force_update_url|default:'-' }}"><a href="{{ license.force_update_url }}" target="_blank">{{ license.force_update_url|default:"-" }}</a></p>
+                                </div>
+                                {% if license.is_maintenance %}
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Pesan Maintenance Saat Ini</label>
+                                    <div class="alert alert-warning py-2 mb-0">
+                                        <small>{{ license.maintenance_message|default:"Sistem sedang dalam perbaikan rutin." }}</small>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -160,9 +191,13 @@
                                             <i class="ri-more-2-line"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
+                                            {% if can_edit.licenses.kunci_lisensi %}
                                             <a class="dropdown-item text-danger" href="#" onclick="unlinkDevice({{ binding.pk }}, '{{ binding.device_name|default:binding.hardware_id|truncatechars:16 }}'); return false;">
                                                 <i class="ri-link-unlink me-2"></i>Unlink Perangkat
                                             </a>
+                                            {% else %}
+                                            <span class="dropdown-item text-muted disabled"><i class="ri-eye-line me-2"></i>View Only</span>
+                                            {% endif %}
                                         </div>
                                     </div>
                                     {% else %}
@@ -301,7 +336,7 @@
             </div>
 
             <!-- Cetak Sertifikat Card -->
-            {% if can_view.licenses %}
+            {% if can_view.licenses.kunci_lisensi %}
             <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="ri-printer-line me-2"></i>Cetak Dokumen</h5>

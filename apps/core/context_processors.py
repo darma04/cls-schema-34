@@ -56,6 +56,10 @@ class PermissionChecker:
     # Mapping ini menjembatani perbedaan tersebut.
     SLUG_TO_MODULE = {
         'users': 'user_management',        # Manajemen User: slug 'users' → module 'user_management'
+        'ai_assistant': 'ai',              # AI Manajemen: slug 'ai-assistant' → module 'ai'
+        'tenants': 'tenant_management',    # Tenant Management: slug 'tenants' → module 'tenant_management'
+        'access_control': 'access_control', # Access Control: slug 'access-control' → module 'access_control'
+        'activity_log': 'activity_log',    # Log Aktivitas: slug 'activity-log' → module 'activity_log'
     }
 
     def __init__(self, user, action, module=None):
@@ -125,6 +129,15 @@ class AccessibleSubsChecker:
     untuk modul yang sama dalam 1 request.
     """
 
+    # Mapping slug menu → kode modul database (sama dengan PermissionChecker)
+    SLUG_TO_MODULE = {
+        'users': 'user_management',
+        'ai_assistant': 'ai',
+        'tenants': 'tenant_management',
+        'access_control': 'access_control',
+        'activity_log': 'activity_log',
+    }
+
     def __init__(self, user):
         """
         Inisialisasi checker.
@@ -151,6 +164,9 @@ class AccessibleSubsChecker:
         """
         # Normalisasi nama modul
         normalized = module.replace('-', '_').lower()
+
+        # Terapkan slug→module mapping jika ada
+        normalized = self.SLUG_TO_MODULE.get(normalized, normalized)
 
         # Cek cache dulu
         if normalized not in self._cache:

@@ -72,7 +72,7 @@
                         <div>
                             <p class="text-muted mb-1">Total Pemasukan</p>
                             <h4 class="mb-0 text-success">Rp {{ total_pemasukan|floatformat:0|intcomma }}</h4>
-                            <small class="text-muted">{{ total_trx_masuk }} transaksi</small>
+                            <small class="text-success"><i class="ri-arrow-up-circle-line"></i> {{ total_trx_masuk }} transaksi masuk</small>
                         </div>
                         <div class="avatar"><span class="avatar-initial rounded bg-label-success"><i class="ri-arrow-up-circle-line ri-24px"></i></span></div>
                     </div>
@@ -86,7 +86,7 @@
                         <div>
                             <p class="text-muted mb-1">Total Pengeluaran</p>
                             <h4 class="mb-0 text-danger">Rp {{ total_pengeluaran|floatformat:0|intcomma }}</h4>
-                            <small class="text-muted">{{ total_trx_keluar }} transaksi</small>
+                            <small class="text-danger"><i class="ri-arrow-down-circle-line"></i> {{ total_trx_keluar }} transaksi keluar</small>
                         </div>
                         <div class="avatar"><span class="avatar-initial rounded bg-label-danger"><i class="ri-arrow-down-circle-line ri-24px"></i></span></div>
                     </div>
@@ -116,8 +116,8 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <p class="text-muted mb-1">Total Transaksi</p>
-                            <h4 class="mb-0">{{ total_trx_masuk|add:total_trx_keluar }}</h4>
-                            <small class="text-muted">masuk + keluar</small>
+                            <h4 class="mb-0 text-primary">{{ total_trx_masuk|add:total_trx_keluar }}</h4>
+                            <small class="text-primary"><i class="ri-exchange-line"></i> masuk + keluar</small>
                         </div>
                         <div class="avatar"><span class="avatar-initial rounded bg-label-primary"><i class="ri-exchange-line ri-24px"></i></span></div>
                     </div>

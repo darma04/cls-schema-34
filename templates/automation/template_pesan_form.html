@@ -23,6 +23,13 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
+                        <fieldset {% if is_readonly_mode %}disabled{% endif %}>
+
+                        {% if is_readonly_mode %}
+                        <div class="alert alert-warning mb-4">
+                            <i class="ri-alert-line me-1"></i> Anda tidak memiliki akses untuk mengubah template. Form ini hanya dalam mode baca (Read-only).
+                        </div>
+                        {% endif %}
 
                         <div class="mb-3">
                             <label class="form-label" for="id_nama">Nama Template</label>
@@ -45,10 +52,13 @@
                             </div>
                         </div>
 
+                        {% if can_edit.automation.template_pesan %}
                         <button type="submit" class="btn btn-primary me-2">
                             <i class="ri-save-line me-1"></i>Simpan
                         </button>
+                        {% endif %}
                         <a href="{% url 'automation:template_pesan_list' %}" class="btn btn-outline-secondary">Batal</a>
+                        </fieldset>
                     </form>
                 </div>
             </div>
@@ -104,5 +114,14 @@ function insertVar(varName) {
     textarea.selectionStart = textarea.selectionEnd = start + insert.length;
     textarea.focus();
 }
+
+// -- Read-only Gating --
+{% if is_readonly_mode %}
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.btn-label-primary').forEach(function(btn) {
+        btn.disabled = true; // Nonaktifkan tombol sisipkan variabel
+    });
+});
+{% endif %}
 </script>
 {% endblock page_js %}

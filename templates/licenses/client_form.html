@@ -28,6 +28,7 @@
                 <div class="card-body">
                     <form method="post" novalidate>
                         {% csrf_token %}
+                        <fieldset {% if is_readonly_mode %}disabled{% endif %}>
 
                         {% if form.errors %}
                         <div class="alert alert-danger alert-dismissible" role="alert">
@@ -95,6 +96,7 @@
                                 <i class="ri-close-line me-2"></i>Batal
                             </a>
                         </div>
+                        </fieldset>
                     </form>
                 </div>
             </div>

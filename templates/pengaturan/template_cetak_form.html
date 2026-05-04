@@ -31,6 +31,13 @@
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
+                        <fieldset {% if is_readonly_mode %}disabled{% endif %}>
+
+                        {% if is_readonly_mode %}
+                        <div class="alert alert-warning mb-4">
+                            <i class="ri-alert-line me-1"></i> Anda tidak memiliki akses untuk mengubah template cetak. Form ini hanya dalam mode baca (Read-only).
+                        </div>
+                        {% endif %}
 
                         <!-- Informasi Template -->
                         <div class="row mb-4">
@@ -170,10 +177,13 @@
                             <a href="{% url 'pengaturan:template_cetak_list' %}" class="btn btn-label-secondary">
                                 <i class="ri-close-line me-1"></i>Batal
                             </a>
+                            {% if can_edit.pengaturan.template_cetak %}
                             <button type="submit" class="btn btn-primary">
                                 <i class="ri-save-line me-1"></i>Simpan
                             </button>
+                            {% endif %}
                         </div>
+                        </fieldset>
                     </form>
                 </div>
             </div>
@@ -203,5 +213,7 @@
     document.querySelectorAll('input[type="checkbox"]').forEach(el => {
         el.classList.add('form-check-input');
     });
+
+    // Gating JS dihapus karena format readonly distandarisasi menggunakan fieldset
 </script>
 {% endblock page_js %}

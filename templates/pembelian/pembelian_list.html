@@ -19,11 +19,48 @@
 {% block content %}
 <div class="container-xxl flex-grow-1 container-p-y">
     <h4 class="py-3 mb-4"><span class="text-muted fw-light">Pembelian /</span> Daftar Transaksi</h4>
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-lg-3"><div class="card"><div class="card-body text-center"><h3 class="mb-1">{{ total_pembelian }}</h3><small class="text-muted">Total Transaksi</small></div></div></div>
-        <div class="col-6 col-lg-3"><div class="card"><div class="card-body text-center"><h3 class="mb-1 text-success">{{ total_completed }}</h3><small class="text-muted">Selesai</small></div></div></div>
-        <div class="col-6 col-lg-3"><div class="card"><div class="card-body text-center"><h3 class="mb-1 text-warning">{{ total_pending }}</h3><small class="text-muted">Pending</small></div></div></div>
-        <div class="col-6 col-lg-3"><div class="card"><div class="card-body text-center"><h3 class="mb-1 text-primary">Rp {{ total_pendapatan|floatformat:0|intcomma }}</h3><small class="text-muted">Total Pendapatan</small></div></div></div>
+    <!-- Summary Cards -->
+    <div class="row mb-4 g-3">
+        <div class="col-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div><p class="text-muted mb-1">Total Transaksi</p><h4 class="mb-0">{{ total_pembelian }}</h4><small class="text-muted">semua status</small></div>
+                        <div class="avatar"><span class="avatar-initial rounded bg-label-primary"><i class="ri-shopping-cart-2-line ri-24px"></i></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div><p class="text-muted mb-1">Transaksi Selesai</p><h4 class="mb-0 text-success">{{ total_completed }}</h4><small class="text-success"><i class="ri-checkbox-circle-line"></i> completed</small></div>
+                        <div class="avatar"><span class="avatar-initial rounded bg-label-success"><i class="ri-check-double-line ri-24px"></i></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div><p class="text-muted mb-1">Transaksi Pending</p><h4 class="mb-0 text-warning">{{ total_pending }}</h4><small class="text-warning"><i class="ri-time-line"></i> menunggu proses</small></div>
+                        <div class="avatar"><span class="avatar-initial rounded bg-label-warning"><i class="ri-loader-4-line ri-24px"></i></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div><p class="text-muted mb-1">Total Pendapatan</p><h4 class="mb-0 text-primary">Rp {{ total_pendapatan|floatformat:0|intcomma }}</h4><small class="text-muted">dari transaksi selesai</small></div>
+                        <div class="avatar"><span class="avatar-initial rounded bg-label-primary"><i class="ri-money-dollar-circle-line ri-24px"></i></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Filter Card -->
@@ -147,15 +184,11 @@
                 <tfoot class="table-footer-summary">
                     <tr>
                         <td colspan="3" class="text-start ps-4 py-3" style="vertical-align: middle;">
-                            <div class="d-flex align-items-center justify-content-start">
-                                <i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i>
-                                <div class="text-start">
-                                    <strong class="d-block" style="font-size: 1rem;">RINGKASAN</strong>
-                                    <small class="text-muted" style="font-size: 0.75rem;">{{ total_pembelian }} Transaksi Terdaftar</small>
-                                </div>
-                            </div>
+                            <div class="d-flex align-items-center"><i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i><div class="text-start"><strong class="d-block" style="font-size: 1rem;">RINGKASAN</strong><small class="text-muted" style="font-size: 0.75rem;">{{ total_pembelian }} Transaksi Terdaftar</small></div></div>
                         </td>
-                        <td colspan="3" class="py-3"></td>
+                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-info d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>Rp {{ total_pendapatan|floatformat:0|intcomma }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Total Pendapatan</small></div></td>
+                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-success d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ total_completed }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Selesai</small></div></td>
+                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-warning d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ total_pending }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Pending</small></div></td>
                     </tr>
                 </tfoot>
             </table>

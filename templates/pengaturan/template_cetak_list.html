@@ -34,7 +34,7 @@
             <p class="text-muted mb-0">Kelola header, footer, dan tanda tangan untuk dokumen cetak</p>
         </div>
         <div class="d-flex gap-2">
-            {% if can_create.pengaturan %}
+            {% if can_create.pengaturan.template_cetak %}
             <a href="{% url 'pengaturan:template_cetak_create' %}" class="btn btn-primary">
                 <i class="ri-add-line me-1"></i>Tambah Template
             </a>
@@ -240,7 +240,7 @@
                             </td>
                             <td>{{ template.diupdate_pada|date:"d/m/Y H:i" }}</td>
                             <td>
-                                {% if can_edit.pengaturan %}
+                                {% if can_edit.pengaturan.template_cetak %}
                                 <div class="dropdown">
                                     <button type="button" class="btn btn-sm btn-icon dropdown-toggle hide-arrow"
                                         data-bs-toggle="dropdown">
@@ -263,7 +263,7 @@
                         <tr>
                             <td colspan="8" class="text-center text-muted py-4">
                                 Belum ada template cetak. 
-                                {% if can_create.pengaturan %}
+                                {% if can_create.pengaturan.template_cetak %}
                                 <a href="{% url 'pengaturan:template_cetak_create' %}">Tambah template</a>
                                 {% endif %}
                             </td>

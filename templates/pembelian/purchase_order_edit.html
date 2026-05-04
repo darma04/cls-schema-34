@@ -28,6 +28,7 @@
                 <div class="card-body">
                     <form method="post" id="po-form">
                         {% csrf_token %}
+                        <fieldset {% if is_readonly_mode %}disabled{% endif %}>
 
                         {% if form.errors or formset.errors %}
                         <div class="alert alert-danger alert-dismissible" role="alert">
@@ -222,6 +223,7 @@
                                 </a>
                             </div>
                         </div>
+                        </fieldset>
                     </form>
                 </div>
             </div>

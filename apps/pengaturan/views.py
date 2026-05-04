@@ -16,6 +16,7 @@ from web_project import TemplateLayout
 from .models import PengaturanPerusahaan, TemplateCetak, BackupHistory
 
 from .forms import PengaturanPerusahaanForm
+from apps.core.mixins import ReadPermissionMixin, permission_required_func
 
 class ProfilView(LoginRequiredMixin, TemplateView):
     template_name = 'pengaturan/profil.html'
@@ -129,7 +130,9 @@ class TemplateCetakUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class ManajemenDataView(LoginRequiredMixin, TemplateView):
+class ManajemenDataView(LoginRequiredMixin, ReadPermissionMixin, TemplateView):
+    permission_module = 'pengaturan'
+    permission_sub_module = 'manajemen_data'
     template_name = 'pengaturan/manajemen_data.html'
 
     def get_context_data(self, **kwargs):
@@ -175,6 +178,7 @@ class ManajemenDataView(LoginRequiredMixin, TemplateView):
 
 
 @login_required
+@permission_required_func('create', 'pengaturan', 'manajemen_data')
 def backup_data(request):
     if request.method == 'POST':
         import datetime
@@ -227,6 +231,7 @@ def backup_data(request):
 
 
 @login_required
+@permission_required_func('write', 'pengaturan', 'manajemen_data')
 def restore_data(request):
     if request.method == 'POST' and request.FILES.get('backup_file'):
         import datetime
@@ -313,6 +318,7 @@ def restore_data(request):
 
 
 @login_required
+@permission_required_func('delete', 'pengaturan', 'manajemen_data')
 def reset_data(request):
     if request.method == 'POST':
         konfirmasi = request.POST.get('konfirmasi', '')

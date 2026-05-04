@@ -65,31 +65,21 @@ class LicenseKeyForm(forms.ModelForm):
 
     class Meta:
         model = LicenseKey
-        fields = ['product', 'client', 'duration_days', 'max_devices', 'status', 'registered_domain']
+        fields = [
+            'product', 'client', 'duration_days', 'max_devices', 'status', 'registered_domain',
+            'is_maintenance', 'maintenance_message', 'min_app_version', 'force_update_url'
+        ]
         widgets = {
-            'product': forms.Select(attrs={
-                'class': 'form-select',
-            }),
-            'client': forms.Select(attrs={
-                'class': 'form-select',
-            }),
-            'duration_days': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': '365',
-                'min': '1',
-            }),
-            'max_devices': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': '1',
-                'min': '1',
-            }),
-            'status': forms.Select(attrs={
-                'class': 'form-select',
-            }),
-            'registered_domain': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'contoh: pt-abadi.erpserver.com (opsional)',
-            }),
+            'product': forms.Select(attrs={'class': 'form-select'}),
+            'client': forms.Select(attrs={'class': 'form-select'}),
+            'duration_days': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '365', 'min': '1'}),
+            'max_devices': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '1', 'min': '1'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'registered_domain': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'contoh: pt-abadi.erpserver.com (opsional)'}),
+            'is_maintenance': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'maintenance_message': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Opsional: pesan maintenance'}),
+            'min_app_version': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Misal: v2.0'}),
+            'force_update_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Misal: https://wa.me/...'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -106,20 +96,17 @@ class LicenseKeyUpdateForm(forms.ModelForm):
 
     class Meta:
         model = LicenseKey
-        fields = ['status', 'duration_days', 'max_devices', 'registered_domain']
+        fields = [
+            'status', 'duration_days', 'max_devices', 'registered_domain',
+            'is_maintenance', 'maintenance_message', 'min_app_version', 'force_update_url'
+        ]
         widgets = {
-            'status': forms.Select(attrs={
-                'class': 'form-select',
-            }),
-            'duration_days': forms.NumberInput(attrs={
-                'class': 'form-control',
-            }),
-            'max_devices': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '1',
-            }),
-            'registered_domain': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'contoh: pt-abadi.erpserver.com',
-            }),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'duration_days': forms.NumberInput(attrs={'class': 'form-control'}),
+            'max_devices': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+            'registered_domain': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'contoh: pt-abadi.erpserver.com'}),
+            'is_maintenance': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'maintenance_message': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Opsional: pesan maintenance'}),
+            'min_app_version': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Misal: v2.0'}),
+            'force_update_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Misal: https://wa.me/...'}),
         }

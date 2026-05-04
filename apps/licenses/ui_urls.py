@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views_ui
+from . import tenant_views
 
 app_name = 'licenses_ui'
 
@@ -26,5 +27,12 @@ urlpatterns = [
 
     # AJAX: Unlink Device
     path('device/<int:pk>/unlink/', views_ui.unlink_device, name='unlink_device'),
+
+    # Tenant Management (Remote API ke SIMS / SIMKOS / SERPTECH)
+    path('tenants/', tenant_views.tenant_list, name='tenant_list'),
+    path('tenants/create/', tenant_views.tenant_create, name='tenant_create'),
+    path('tenants/<str:software_code>/<str:schema_name>/detail/', tenant_views.tenant_detail, name='tenant_detail'),
+    path('tenants/<str:software_code>/<str:schema_name>/delete/', tenant_views.tenant_delete, name='tenant_delete'),
+    path('tenants/clear-session/', tenant_views.tenant_clear_session, name='tenant_clear_session'),
 ]
 

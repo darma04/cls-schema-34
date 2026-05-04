@@ -45,7 +45,7 @@
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 3px solid #52d123;
+            border-bottom: 3px solid #696cff;
         }
 
         .header-left {
@@ -68,7 +68,7 @@
         .company-name {
             font-size: 22px;
             font-weight: bold;
-            color: #52d123;
+            color: #696cff;
             margin-bottom: 3px;
         }
 
@@ -84,7 +84,7 @@
 
         .invoice-title h1 {
             font-size: 28px;
-            color: #52d123;
+            color: #696cff;
             margin-bottom: 5px;
         }
 
@@ -140,7 +140,7 @@
 
         .info-section h3 {
             font-size: 11px;
-            color: #52d123;
+            color: #696cff;
             margin-bottom: 8px;
             text-transform: uppercase;
             border-bottom: 1px solid #e0e0e0;
@@ -166,7 +166,7 @@
         }
 
         .items-table thead {
-            background: #52d123 !important;
+            background: #696cff !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
@@ -207,11 +207,11 @@
         }
 
         .total-row.grand-total {
-            border-top: 2px solid #52d123;
-            border-bottom: 2px solid #52d123;
+            border-top: 2px solid #696cff;
+            border-bottom: 2px solid #696cff;
             font-size: 15px;
             font-weight: bold;
-            color: #52d123;
+            color: #696cff;
             margin-top: 8px;
             padding: 10px 0;
         }
@@ -285,7 +285,7 @@
     </style>
 </head>
 
-<body onload="window.print()">
+<body>
     <div class="invoice-container">
         <!-- Header -->
         <div class="invoice-header">
@@ -433,6 +433,55 @@
             </p>
         </div>
     </div>
+    <!-- Tombol Kembali (ditampilkan setelah native Android print dialog) -->
+    <div id="backBtnWrap" class="no-print" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999;">
+        <a id="backBtn" href="javascript:void(0)" style="display:inline-block; padding:12px 32px; background:#696cff; color:#fff; text-decoration:none; border-radius:8px; font-size:14px; font-weight:bold; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+            &larr; Kembali
+        </a>
+    </div>
+
+    <script>
+        // Smart Print Handler — Universal: Browser + Capacitor Android (SerpApp.triggerPrint)
+        (function() {
+            var printed = false;
+
+            function goBack() {
+                if (document.referrer && document.referrer !== '') { window.location.href = document.referrer; }
+                else if (window.history.length > 1) { window.history.back(); }
+                else { window.close(); }
+            }
+
+            function showBackButton() {
+                var wrap = document.getElementById('backBtnWrap');
+                if (wrap) wrap.style.display = 'block';
+            }
+
+            var backBtn = document.getElementById('backBtn');
+            if (backBtn) { backBtn.addEventListener('click', function(e) { e.preventDefault(); goBack(); }); }
+
+            function doPrint() {
+                if (printed) return;
+                printed = true;
+                // Capacitor Android: gunakan native print via JavascriptInterface
+                if (typeof window.SerpApp !== 'undefined' && typeof window.SerpApp.triggerPrint === 'function') {
+                    window.SerpApp.triggerPrint();
+                    // afterprint tidak fire dari native dialog, tampilkan tombol kembali
+                    setTimeout(showBackButton, 500);
+                } else {
+                    // Browser/Mobile: langsung window.print(), kembali via afterprint
+                    if (typeof window.print === 'function') {
+                        try { window.print(); } catch(e) { goBack(); }
+                    }
+                }
+            }
+
+            if (document.readyState === 'complete') { setTimeout(doPrint, 400); }
+            else { window.addEventListener('load', function() { setTimeout(doPrint, 400); }); }
+
+            // afterprint fire di browser/WebView standar saat cetak selesai/batal
+            window.addEventListener('afterprint', function() { setTimeout(goBack, 200); });
+        })();
+    </script>
 </body>
 
 </html>

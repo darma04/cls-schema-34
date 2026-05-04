@@ -12,15 +12,19 @@ from django.db.models import Count
 
 from web_project import TemplateLayout
 from apps.core.models import RolePermission
-from apps.core.mixins import SuperuserRequiredMixin
 from auth.models import Profile
+
+from apps.core.mixins import (
+    ReadPermissionMixin, CreatePermissionMixin, UpdatePermissionMixin, DeletePermissionMixin
+)
 
 import json
 
 
 @method_decorator(login_required, name='dispatch')
-class RoleListView(SuperuserRequiredMixin, ListView):
+class RoleListView(ReadPermissionMixin, ListView):
     """Halaman utama Access Control — Daftar Role dengan Permission Matrix."""
+    permission_module = 'access_control'
     model = User
     template_name = 'permission_management/role_list.html'
     context_object_name = 'users'
@@ -70,8 +74,9 @@ class RoleListView(SuperuserRequiredMixin, ListView):
 
 
 @method_decorator(login_required, name='dispatch')
-class RoleDataAjaxView(SuperuserRequiredMixin, View):
+class RoleDataAjaxView(ReadPermissionMixin, View):
     """AJAX: Ambil data permission suatu role."""
+    permission_module = 'access_control'
     def get(self, request, role):
         try:
             permissions = RolePermission.objects.filter(role=role).values(
@@ -89,8 +94,9 @@ class RoleDataAjaxView(SuperuserRequiredMixin, View):
 
 
 @method_decorator(login_required, name='dispatch')
-class RoleCreateAjaxView(SuperuserRequiredMixin, View):
+class RoleCreateAjaxView(CreatePermissionMixin, View):
     """AJAX: Buat role baru dengan permissions."""
+    permission_module = 'access_control'
     def post(self, request):
         from django.db import transaction
         try:
@@ -137,11 +143,15 @@ class RoleCreateAjaxView(SuperuserRequiredMixin, View):
 
 
 @method_decorator(login_required, name='dispatch')
-class RoleUpdateAjaxView(SuperuserRequiredMixin, View):
+class RoleUpdateAjaxView(UpdatePermissionMixin, View):
     """AJAX: Update permission role."""
+    permission_module = 'access_control'
     def post(self, request, role):
         from django.db import transaction
         try:
+            if role == 'SUPERUSER':
+                return JsonResponse({'success': False, 'message': 'Role SUPERUSER tidak dapat diedit.'}, status=400)
+
             new_role_name = request.POST.get('role_name', '').strip()
             if new_role_name:
                 new_role_name = new_role_name.replace(' ', '_').upper()
@@ -200,8 +210,9 @@ class RoleUpdateAjaxView(SuperuserRequiredMixin, View):
 
 
 @method_decorator(login_required, name='dispatch')
-class RoleDeleteView(SuperuserRequiredMixin, View):
+class RoleDeleteView(DeletePermissionMixin, View):
     """AJAX: Hapus role beserta semua permission-nya."""
+    permission_module = 'access_control'
     def post(self, request, role_code):
         import json as json_lib
         try:

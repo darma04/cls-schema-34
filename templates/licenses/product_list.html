@@ -36,12 +36,14 @@
             <p class="text-muted mb-0">Kelola daftar produk/aplikasi terdaftar</p>
         </div>
         <div class="d-flex gap-2">
+            {% if can_create.licenses.produk %}
             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importModal">
                 <i class="ri-upload-2-line me-1"></i>Import Produk
             </button>
             <a href="{% url 'licenses_ui:product_create' %}" class="btn btn-primary">
                 <i class="ri-add-line me-1"></i>Tambah Produk
             </a>
+            {% endif %}
         </div>
     </div>
 
@@ -149,14 +151,26 @@
                         <td>{{ product.description|default:"-"|truncatewords:10 }}</td>
                         <td>{{ product.created_at|date:"d M Y" }}</td>
                         <td>
+                            {% if can_edit.licenses.produk or can_delete.licenses.produk %}
                             <div class="dropdown">
                                 <button type="button" class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
                                 <div class="dropdown-menu">
+                                    {% if can_edit.licenses.produk %}
                                     <a class="dropdown-item" href="{% url 'licenses_ui:product_update' product.pk %}"><i class="ri-edit-line me-2"></i>Edit</a>
+                                    {% endif %}
+                                    {% if can_edit.licenses.produk and can_delete.licenses.produk %}
                                     <div class="dropdown-divider"></div>
+                                    {% endif %}
+                                    {% if can_delete.licenses.produk %}
                                     <a class="dropdown-item text-danger" href="javascript:void(0);" onclick="confirmDeleteProduct('{% url 'licenses_ui:product_delete' product.pk %}', '{{ product.name|escapejs }}', '{{ product.code|escapejs }}')"><i class="ri-delete-bin-line me-2"></i>Hapus</a>
+                                    {% endif %}
                                 </div>
                             </div>
+                            {% else %}
+                            <span class="badge bg-label-secondary">
+                                <i class="ri-eye-line me-1"></i>View Only
+                            </span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

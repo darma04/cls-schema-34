@@ -23,4 +23,6 @@ class PengaturanPerusahaanForm(forms.ModelForm):
             'email_header', 'email_footer',
             'forgot_password_subject', 'forgot_password_message',
             'register_subject', 'register_message',
+            # Dynamic Branding
+            'auth_image', 'auth_background_image', 'misc_image', 'misc_background_image',
         ]

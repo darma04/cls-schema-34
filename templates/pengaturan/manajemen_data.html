@@ -301,7 +301,7 @@
     <!-- Action Cards -->
     <div class="row mb-4">
         <!-- Backup Card -->
-        {% if can_create.pengaturan %}
+        {% if can_create.pengaturan.manajemen_data %}
         <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
             <div class="card h-100 action-card-backup">
                 <div class="card-body">
@@ -333,7 +333,7 @@
         {% endif %}
 
         <!-- Restore Card -->
-        {% if can_create.pengaturan %}
+        {% if can_create.pengaturan.manajemen_data %}
         <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
             <div class="card h-100 action-card-restore">
                 <div class="card-body">
@@ -362,7 +362,7 @@
         {% endif %}
 
         <!-- Reset Card -->
-        {% if can_delete.pengaturan %}
+        {% if can_delete.pengaturan.manajemen_data %}
         <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
             <div class="card h-100 action-card-reset">
                 <div class="card-body">
@@ -429,7 +429,7 @@
     </div>
 
     <!-- Bersihkan Data Log -->
-    {% if can_delete.pengaturan %}
+    {% if can_delete.pengaturan.manajemen_data %}
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="ri-brush-line me-2"></i>Bersihkan Data Log</h5>
@@ -512,7 +512,7 @@
                             <th>Status</th>
                             <th>User</th>
                             <th>Catatan</th>
-                            {% if can_delete.pengaturan %}
+                            {% if can_delete.pengaturan.manajemen_data %}
                             <th>Aksi</th>
                             {% endif %}
                         </tr>
@@ -546,7 +546,7 @@
                                     {{ riwayat.catatan|default:"-"|truncatechars:50 }}
                                 </span>
                             </td>
-                            {% if can_delete.pengaturan %}
+                            {% if can_delete.pengaturan.manajemen_data %}
                             <td>
                                 <button type="button" class="btn btn-sm btn-icon btn-text-danger btn-hapus-riwayat" title="Hapus"
                                         data-id="{{ riwayat.pk }}" data-tanggal="{{ riwayat.dibuat_pada|date:'d/m/Y H:i' }}">
@@ -662,7 +662,7 @@
 </div>
 
 <!-- Modal Hapus Riwayat -->
-{% if can_delete.pengaturan %}
+{% if can_delete.pengaturan.manajemen_data %}
 <div class="modal fade" id="hapusRiwayatModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -699,7 +699,7 @@
 {% endif %}
 
 <!-- Modal Bersihkan Log Aktivitas -->
-{% if can_delete.pengaturan %}
+{% if can_delete.pengaturan.manajemen_data %}
 <div class="modal fade" id="bersihkanLogAktivitasModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -740,7 +740,7 @@
 {% endif %}
 
 <!-- Modal Bersihkan Log Notifikasi -->
-{% if can_delete.pengaturan %}
+{% if can_delete.pengaturan.manajemen_data %}
 <div class="modal fade" id="bersihkanLogNotifikasiModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">

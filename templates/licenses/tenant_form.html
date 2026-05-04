@@ -1,0 +1,190 @@
+{% extends 'layout/layout_vertical.html' %}
+{% comment %}
+==========================================================================
+   TENANT FORM - Buat Tenant Baru (Pilih Software: SIMS/SIMKOS/SERPTECH)
+==========================================================================
+{% endcomment %}
+{% load static %}
+
+{% block title %}Buat Tenant Baru - Central License Server{% endblock title %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block content %}
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1"><i class="ri-add-circle-line me-2"></i>Buat Tenant Baru</h4>
+            <p class="text-muted mb-0">Buat database baru (schema PostgreSQL) untuk klien pada software tertentu</p>
+        </div>
+        <a href="{% url 'licenses_ui:tenant_list' %}" class="btn btn-label-secondary">
+            <i class="ri-arrow-left-line me-1"></i>Kembali
+        </a>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="ri-server-line me-2 text-primary"></i>Informasi Tenant</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="tenantForm">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label for="software" class="form-label">Target Software <span class="text-danger">*</span></label>
+                            <select class="form-select" id="software" name="software" required>
+                                <option value="">— Pilih Software —</option>
+                                {% for code, config in software_servers.items %}
+                                <option value="{{ code }}" {% if form_data.software == code %}selected{% endif %} data-color="{{ config.color }}" data-icon="{{ config.icon }}">
+                                    {{ config.label }} — {{ config.full_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">Pilih software tempat tenant akan dibuat</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="nama" class="form-label">Nama Perusahaan / Klien <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nama" name="nama"
+                                   value="{{ form_data.nama|default:'' }}"
+                                   placeholder="Contoh: Toko Elektronik Jaya" required>
+                            <small class="text-muted">Nama lengkap perusahaan klien</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="schema_name" class="form-label">Schema Name (Database) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="ri-database-2-line"></i></span>
+                                <input type="text" class="form-control" id="schema_name" name="schema_name"
+                                       value="{{ form_data.schema_name|default:'' }}"
+                                       placeholder="toko_jaya" required
+                                       pattern="[a-z][a-z0-9_]*"
+                                       oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_]/g, '').replace(/^([^a-z])/, '')">
+                            </div>
+                            <small class="text-muted">Hanya huruf kecil, angka, dan underscore. Diawali huruf. Contoh: <code>toko_jaya</code>, <code>apotek_k24</code></small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="domain" class="form-label">Domain / Subdomain <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="ri-global-line"></i></span>
+                                <input type="text" class="form-control" id="domain" name="domain"
+                                       value="{{ form_data.domain|default:'' }}"
+                                       placeholder="toko-jaya.localhost" required>
+                            </div>
+                            <small class="text-muted">Subdomain yang akan digunakan klien. Contoh: <code>toko-jaya.localhost</code> (dev) atau <code>toko-jaya.saas.serpgroup.cloud</code> (production)</small>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="alert alert-info d-flex align-items-start">
+                            <i class="ri-information-line me-2 fs-5 mt-1"></i>
+                            <div>
+                                <strong>Apa yang terjadi saat tenant dibuat?</strong>
+                                <ol class="mb-0 mt-1 ps-3">
+                                    <li>PostgreSQL membuat schema database baru pada server software yang dipilih</li>
+                                    <li>Domain/subdomain didaftarkan untuk routing</li>
+                                    <li>Superuser (admin) dibuat otomatis dengan password acak</li>
+                                    <li>Klien bisa langsung mengakses subdomain-nya</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'licenses_ui:tenant_list' %}" class="btn btn-label-secondary">
+                                <i class="ri-close-line me-1"></i>Batal
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <i class="ri-add-line me-1"></i>Buat Tenant
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card bg-light border-0">
+                <div class="card-body">
+                    <h6 class="mb-3"><i class="ri-lightbulb-line me-1 text-warning"></i>Panduan</h6>
+                    <div class="mb-3">
+                        <strong class="d-block mb-1">Target Software</strong>
+                        <small class="text-muted">Pilih software yang akan digunakan klien. Tenant akan dibuat pada server software tersebut dengan modul-modul yang sesuai.</small>
+                    </div>
+                    <div class="mb-3">
+                        <strong class="d-block mb-1">Schema Name</strong>
+                        <small class="text-muted">Ini adalah nama schema PostgreSQL. Setiap klien memiliki schema terpisah sehingga data 100% terisolasi. Tidak bisa diubah setelah dibuat.</small>
+                    </div>
+                    <div class="mb-3">
+                        <strong class="d-block mb-1">Domain</strong>
+                        <small class="text-muted">Domain harus unik. Untuk development gunakan <code>*.localhost</code>. Untuk production, konfigurasi DNS wildcard.</small>
+                    </div>
+                    <div>
+                        <strong class="d-block mb-1">Superuser</strong>
+                        <small class="text-muted">Setiap tenant baru otomatis mendapat akun admin. Catat password-nya karena hanya ditampilkan sekali.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block page_js %}
+<script>
+    // Auto-generate schema_name dari nama
+    document.getElementById('nama').addEventListener('input', function() {
+        var schemaInput = document.getElementById('schema_name');
+        if (!schemaInput.dataset.manuallyEdited) {
+            var val = this.value.toLowerCase()
+                .replace(/[^a-z0-9\s]/g, '')
+                .trim()
+                .replace(/\s+/g, '_');
+            schemaInput.value = val;
+
+            var domainInput = document.getElementById('domain');
+            if (!domainInput.dataset.manuallyEdited) {
+                domainInput.value = val.replace(/_/g, '-') + '.localhost';
+            }
+        }
+    });
+
+    document.getElementById('schema_name').addEventListener('input', function() {
+        this.dataset.manuallyEdited = 'true';
+    });
+    document.getElementById('domain').addEventListener('input', function() {
+        this.dataset.manuallyEdited = 'true';
+    });
+
+    document.getElementById('tenantForm').addEventListener('submit', function(e) {
+        var btn = document.getElementById('submitBtn');
+        var sw = document.getElementById('software');
+        if (!sw.value) {
+            e.preventDefault();
+            Swal.fire({ icon: 'warning', title: 'Pilih Software', text: 'Anda harus memilih target software terlebih dahulu.', confirmButtonText: 'OK', customClass: { confirmButton: 'btn btn-primary' }, buttonsStyling: false });
+            return;
+        }
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Membuat tenant...';
+    });
+</script>
+{% endblock page_js %}

@@ -109,7 +109,11 @@ class VerifyLicenseAPIView(APIView):
                     "status": "valid",
                     "product": license_obj.product.code,
                     "expires_at": license_obj.expires_at,
-                    "registered_domain": license_obj.registered_domain
+                    "registered_domain": license_obj.registered_domain,
+                    "is_maintenance": license_obj.is_maintenance,
+                    "maintenance_message": license_obj.maintenance_message or "Sistem sedang dalam perbaikan rutin. Silakan kembali lagi nanti.",
+                    "min_app_version": license_obj.min_app_version,
+                    "force_update_url": license_obj.force_update_url
                 }, status=status.HTTP_200_OK)
                 
         except Exception as e:

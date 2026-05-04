@@ -25,9 +25,16 @@
     {% endfor %}
     {% endif %}
 
+    {% if not can_edit.pengaturan.perusahaan %}
+    <div class="alert alert-warning mb-4">
+        <i class="ri-alert-line me-1"></i> Anda tidak memiliki akses untuk mengubah pengaturan perusahaan. Form ini hanya dalam mode baca (Read-only).
+    </div>
+    {% endif %}
+
     <!-- Single Form for All Settings -->
     <form method="POST" enctype="multipart/form-data" id="formPerusahaan">
         {% csrf_token %}
+        <fieldset {% if is_readonly_mode %}disabled{% endif %}>
         
         <!-- Company Identity Card -->
         <div class="row">
@@ -169,6 +176,63 @@
                                 {% endif %}
                                 <small class="text-muted d-block mt-1">Icon tab browser. 32x32px atau .ico</small>
                             </div>
+
+                            <div class="mb-3 col-md-6">
+                                <label for="{{ form.auth_image.id_for_label }}" class="form-label">Upload Ilustrasi Autentikasi (Kiri)</label>
+                                {% if object.auth_image %}
+                                <div class="mb-2">
+                                    <img src="{{ object.auth_image.url }}" alt="Auth Image" class="rounded border" style="max-height: 50px;">
+                                </div>
+                                {% endif %}
+                                {{ form.auth_image }}
+                                {% if form.auth_image.errors %}
+                                <div class="invalid-feedback d-block">{{ form.auth_image.errors.0 }}</div>
+                                {% endif %}
+                                <small class="text-muted d-block mt-1">Gambar utama login/register (transparan). Format: PNG</small>
+                            </div>
+
+                            <div class="mb-3 col-md-6">
+                                <label for="{{ form.auth_background_image.id_for_label }}" class="form-label">Upload Background Mask Autentikasi</label>
+                                {% if object.auth_background_image %}
+                                <div class="mb-2">
+                                    <img src="{{ object.auth_background_image.url }}" alt="Auth BG Mask" class="rounded border" style="max-height: 50px;">
+                                </div>
+                                {% endif %}
+                                {{ form.auth_background_image }}
+                                {% if form.auth_background_image.errors %}
+                                <div class="invalid-feedback d-block">{{ form.auth_background_image.errors.0 }}</div>
+                                {% endif %}
+                                <small class="text-muted d-block mt-1">Background shape Auth. Format: SVG/PNG transparan</small>
+                            </div>
+
+                            <div class="mb-3 col-md-6">
+                                <label for="{{ form.misc_image.id_for_label }}" class="form-label">Upload Ilustrasi Error/Maintenance</label>
+                                {% if object.misc_image %}
+                                <div class="mb-2">
+                                    <img src="{{ object.misc_image.url }}" alt="Misc Image" class="rounded border" style="max-height: 50px;">
+                                </div>
+                                {% endif %}
+                                {{ form.misc_image }}
+                                {% if form.misc_image.errors %}
+                                <div class="invalid-feedback d-block">{{ form.misc_image.errors.0 }}</div>
+                                {% endif %}
+                                <small class="text-muted d-block mt-1">Gambar halaman rupa-rupa. Format: PNG</small>
+                            </div>
+
+                            <div class="mb-3 col-md-6">
+                                <label for="{{ form.misc_background_image.id_for_label }}" class="form-label">Upload Background Error/Maintenance</label>
+                                {% if object.misc_background_image %}
+                                <div class="mb-2">
+                                    <img src="{{ object.misc_background_image.url }}" alt="Misc BG Mask" class="rounded border" style="max-height: 50px;">
+                                </div>
+                                {% endif %}
+                                {{ form.misc_background_image }}
+                                {% if form.misc_background_image.errors %}
+                                <div class="invalid-feedback d-block">{{ form.misc_background_image.errors.0 }}</div>
+                                {% endif %}
+                                <small class="text-muted d-block mt-1">Background shape halaman rupa-rupa. Format: SVG/PNG</small>
+                            </div>
+
                             <div class="mb-3 col-md-12">
                                 <div class="form-check form-switch">
                                     {{ form.maintenance_mode }}
@@ -353,22 +417,17 @@
                                     verifikasi</small>
                             </div>
                         </div>
+                        <div class="mt-4">
+                            {% if can_edit.pengaturan.perusahaan %}
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="ri-save-line me-1"></i>Simpan Semua Pengaturan
+                            </button>
+                            {% endif %}
+                            <a href="{% url 'dashboard:index' %}" class="btn btn-outline-secondary">Batal</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Submit Button -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <button type="submit" class="btn btn-primary me-2">
-                            <i class="ri-save-line me-1"></i>Simpan Semua Pengaturan
-                        </button>
-                        <a href="{% url 'dashboard:index' %}" class="btn btn-outline-secondary">Batal</a>
-                    </div>
-                </div>
+                </fieldset>
             </div>
         </div>
     </form>
@@ -429,6 +488,10 @@
     tambahClass('id_system_keywords', 'form-control');
     tambahClass('id_system_logo', 'form-control');
     tambahClass('id_system_favicon', 'form-control');
+    tambahClass('id_auth_image', 'form-control');
+    tambahClass('id_auth_background_image', 'form-control');
+    tambahClass('id_misc_image', 'form-control');
+    tambahClass('id_misc_background_image', 'form-control');
     // Checkbox maintenance mode — gunakan class form-check-input untuk styling Bootstrap
     tambahClass('id_maintenance_mode', 'form-check-input');
     tambahClass('id_maintenance_message', 'form-control');
@@ -454,5 +517,15 @@
     tambahClass('id_register_subject', 'form-control');
     tambahClass('id_register_message', 'form-control');
     setAttr('id_register_message', 'rows', 6); // Textarea lebih tinggi
+
+    // -- Read-only Gating --
+    {% if not can_edit.pengaturan.perusahaan %}
+    document.querySelectorAll('#formPerusahaan input, #formPerusahaan textarea, #formPerusahaan select, #formPerusahaan button').forEach(function(el) {
+        if (!el.classList.contains('btn-outline-secondary')) {
+            el.disabled = true;
+            el.style.backgroundColor = '#f8f9fa';
+        }
+    });
+    {% endif %}
 </script>
 {% endblock content %}

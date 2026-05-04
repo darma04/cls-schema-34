@@ -35,7 +35,7 @@
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="aktifSwitch"
                             name="aktif_preview" {% if config.aktif %}checked{% endif %}
-                            style="width: 3em; height: 1.5em;">
+                            style="width: 3em; height: 1.5em;" {% if not can_edit.ai.ai_chat %}disabled{% endif %}>
                         <label class="form-check-label fw-bold ms-2" for="aktifSwitch" id="statusLabel">
                             {% if config.aktif %}Aktif{% else %}Nonaktif{% endif %}
                         </label>
@@ -52,7 +52,8 @@
                                 <i class="ri-user-star-line me-1"></i>Nama AI
                             </label>
                             <input type="text" class="form-control" id="ai_name" name="ai_name"
-                                value="{{ config.ai_name|default:'AI Assistant' }}" placeholder="AI Assistant">
+                                value="{{ config.ai_name|default:'AI Assistant' }}" placeholder="AI Assistant"
+                                {% if not can_edit.ai.ai_chat %}disabled{% endif %}>
                             <small class="text-muted">Nama yang ditampilkan di header chat AI</small>
                         </div>
 
@@ -62,7 +63,7 @@
                                 <label class="form-label" for="provider">
                                     <i class="ri-cloud-line me-1"></i>Provider AI
                                 </label>
-                                <select class="form-select" id="provider" name="provider">
+                                <select class="form-select" id="provider" name="provider" {% if not can_edit.ai.ai_chat %}disabled{% endif %}>
                                     {% for value, label in provider_choices %}
                                     <option value="{{ value }}" {% if config.provider == value %}selected{% endif %}>
                                         {{ label }}
@@ -75,7 +76,8 @@
                                     <i class="ri-cpu-line me-1"></i>Model AI
                                 </label>
                                 <input type="text" class="form-control" id="model_name" name="model_name"
-                                    value="{{ config.model_name }}" placeholder="gemini-2.0-flash">
+                                    value="{{ config.model_name }}" placeholder="gemini-2.0-flash"
+                                    {% if not can_edit.ai.ai_chat %}disabled{% endif %}>
                                 <small class="text-muted" id="modelHint">
                                     Groq: llama-3.3-70b-versatile | Gemini: gemini-2.0-flash | ChatGPT: gpt-4o-mini
                                 </small>
@@ -89,8 +91,9 @@
                             </label>
                             <div class="input-group">
                                 <input type="password" class="form-control" id="api_key" name="api_key"
-                                    value="{{ config.api_key }}" placeholder="Masukkan API Key...">
-                                <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
+                                    value="{{ config.api_key }}" placeholder="Masukkan API Key..."
+                                    {% if not can_edit.ai.ai_chat %}disabled{% endif %}>
+                                <button class="btn btn-outline-secondary" type="button" id="toggleApiKey" {% if not can_edit.ai.ai_chat %}disabled{% endif %}>
                                     <i class="ri-eye-line"></i>
                                 </button>
                             </div>
@@ -110,7 +113,8 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="max_tokens">Max Tokens</label>
                                 <input type="number" class="form-control" id="max_tokens" name="max_tokens"
-                                    value="{{ config.max_tokens }}" min="100" max="4096">
+                                    value="{{ config.max_tokens }}" min="100" max="4096"
+                                    {% if not can_edit.ai.ai_chat %}disabled{% endif %}>
                                 <small class="text-muted">Batas panjang respons AI (100–4096)</small>
                             </div>
                             <div class="col-md-6">
@@ -118,7 +122,8 @@
                                     Temperature: <span id="tempValue">{{ config.temperature }}</span>
                                 </label>
                                 <input type="range" class="form-range" id="temperature" name="temperature"
-                                    value="{{ config.temperature }}" min="0" max="1" step="0.1">
+                                    value="{{ config.temperature }}" min="0" max="1" step="0.1"
+                                    {% if not can_edit.ai.ai_chat %}disabled{% endif %}>
                                 <small class="text-muted">0 = Fokus & konsisten | 1 = Kreatif & variatif</small>
                             </div>
                         </div>
@@ -130,14 +135,17 @@
                                 <small class="text-muted">(opsional)</small>
                             </label>
                             <textarea class="form-control" id="system_prompt" name="system_prompt"
-                                rows="3" placeholder="Instruksi tambahan untuk AI...">{{ config.system_prompt }}</textarea>
+                                rows="3" placeholder="Instruksi tambahan untuk AI..."
+                                {% if not can_edit.ai.ai_chat %}disabled{% endif %}>{{ config.system_prompt }}</textarea>
                             <small class="text-muted">Instruksi khusus yang ditambahkan ke prompt bawaan sistem</small>
                         </div>
 
                         <div class="mt-4">
+                            {% if can_edit.ai.ai_chat %}
                             <button type="submit" class="btn btn-primary me-2">
                                 <i class="ri-save-line me-1"></i>Simpan Pengaturan
                             </button>
+                            {% endif %}
                             <a href="{% url 'dashboard:index' %}" class="btn btn-outline-secondary">Kembali</a>
                         </div>
                     </form>

@@ -32,6 +32,12 @@
       ]
     },
     {
+      "url": "licenses_ui:tenant_list",
+      "name": "Tenant Management",
+      "icon": "menu-icon tf-icons ri-server-line",
+      "slug": "tenants"
+    },
+    {
       "url": "pembelian:pembelian_list",
       "name": "Pembelian Lisensi",
       "icon": "menu-icon tf-icons ri-shopping-cart-2-line",
