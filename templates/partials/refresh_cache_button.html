@@ -1,0 +1,120 @@
+{% comment %}
+Floating button untuk refresh cache tenant aktif.
+{% endcomment %}
+
+<style>
+#refresh-cache-fab {
+  position: fixed;
+  bottom: 144px;
+  right: 24px;
+  z-index: 1091;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+#refresh-cache-fab.cache-refresh-hidden {
+  display: none !important;
+}
+#refresh-cache-fab:hover {
+  transform: scale(1.08);
+}
+#refresh-cache-fab.cache-refresh-loading {
+  pointer-events: none;
+  opacity: 0.75;
+}
+.cache-refresh-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 210px;
+  z-index: 1092;
+  padding: 10px 14px;
+  border-radius: 0.375rem;
+  background: #1f2937;
+  color: #fff;
+  font-size: 0.8125rem;
+  box-shadow: 0 0.5rem 1rem rgba(67, 89, 113, 0.15);
+}
+@media (max-width: 576px) {
+  #refresh-cache-fab {
+    right: 16px;
+    bottom: 136px;
+  }
+  .cache-refresh-toast {
+    right: 16px;
+    bottom: 200px;
+  }
+}
+</style>
+
+<button
+  id="refresh-cache-fab"
+  type="button"
+  class="btn btn-primary shadow{% if not can_show_refresh_cache_button %} cache-refresh-hidden{% endif %}"
+  title="Refresh Cache"
+  aria-label="Refresh Cache">
+  <i class="ri-rocket-line"></i>
+</button>
+
+<script>
+(function() {
+  var refreshBtn = document.getElementById('refresh-cache-fab');
+  if (!refreshBtn) return;
+
+  function getCsrfToken() {
+    var templateToken = '{{ csrf_token }}';
+    if (templateToken && templateToken !== 'NOTPROVIDED') return templateToken;
+
+    var name = 'csrftoken';
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+      var c = cookies[i].trim();
+      if (c.indexOf(name + '=') === 0) return c.substring(name.length + 1);
+    }
+
+    var el = document.querySelector('[name=csrfmiddlewaretoken]');
+    return el ? el.value : '';
+  }
+
+  function showRefreshToast(message) {
+    var oldToast = document.querySelector('.cache-refresh-toast');
+    if (oldToast) oldToast.remove();
+
+    var toast = document.createElement('div');
+    toast.className = 'cache-refresh-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.remove(); }, 2400);
+  }
+
+  refreshBtn.addEventListener('click', async function() {
+    refreshBtn.classList.add('cache-refresh-loading');
+    try {
+      var response = await fetch("{% url 'core_refresh_cache' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCsrfToken(),
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+      var result = await response.json();
+      if (!response.ok || !result.ok) {
+        showRefreshToast(result.message || 'Gagal refresh cache');
+        return;
+      }
+      showRefreshToast(result.message || 'Cache berhasil di bersihkan');
+    } catch (err) {
+      console.error('[Refresh Cache]', err);
+      showRefreshToast('Gagal refresh cache');
+    } finally {
+      refreshBtn.classList.remove('cache-refresh-loading');
+    }
+  });
+})();
+</script>

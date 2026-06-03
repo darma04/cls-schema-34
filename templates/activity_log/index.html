@@ -29,15 +29,15 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-3">
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-xl-3">
                     <label class="form-label">Tanggal Mulai</label>
                     <input type="text" class="form-control flatpickr-input" id="startDate" placeholder="Pilih tanggal">
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-xl-3">
                     <label class="form-label">Tanggal Akhir</label>
                     <input type="text" class="form-control flatpickr-input" id="endDate" placeholder="Pilih tanggal">
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-xl-3">
                     <label class="form-label">User</label>
                     <select class="form-select" id="userFilter">
                         <option value="">Semua User</option>
@@ -46,7 +46,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-xl-3">
                     <label class="form-label">Aksi</label>
                     <select class="form-select" id="actionFilter">
                         <option value="">Semua Aksi</option>
@@ -57,7 +57,7 @@
                 </div>
             </div>
             <div class="row g-3 mt-2 align-items-end">
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-xl-3">
                     <label class="form-label">Pilih Kolom</label>
                     <div class="dropdown">
                         <button class="btn btn-label-secondary dropdown-toggle waves-effect w-100" type="button"
@@ -95,8 +95,7 @@
                     </div>
                     <small class="text-muted d-block mt-1">Klik untuk memilih kolom</small>
                 </div>
-                <div class="col-md-6"></div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-xl-3 ms-xl-auto">
                     <div class="d-grid gap-2">
                         <button class="btn btn-primary" onclick="applyFilter()"><i class="ri-filter-3-line me-1"></i>Terapkan Filter</button>
                         <button class="btn btn-label-secondary" onclick="resetFilter()"><i class="ri-refresh-line me-1"></i>Reset</button>

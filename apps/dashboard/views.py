@@ -9,6 +9,7 @@ from django.views.generic import TemplateView
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from web_project import TemplateLayout
+from apps.core.mixins import TenantScopedResponseCacheMixin
 from django.db.models import Count
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
@@ -21,9 +22,10 @@ logger = logging.getLogger(__name__)
 
 
 @method_decorator(login_required, name='dispatch')
-class DashboardView(TemplateView):
+class DashboardView(TenantScopedResponseCacheMixin, TemplateView):
     """View utama DASHBOARD CENTRAL LICENSE SERVER."""
     template_name = 'dashboard/dashboard.html'
+    cache_timeout = 60
 
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))

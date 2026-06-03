@@ -17,6 +17,7 @@ from auth.models import Profile
 from apps.core.mixins import (
     ReadPermissionMixin, CreatePermissionMixin, UpdatePermissionMixin, DeletePermissionMixin
 )
+from apps.core.cache_utils import invalidate_role_permissions_cache
 
 import json
 
@@ -137,6 +138,7 @@ class RoleCreateAjaxView(CreatePermissionMixin, View):
                 if new_permissions:
                     RolePermission.objects.bulk_create(new_permissions)
 
+            invalidate_role_permissions_cache(role_name)
             return JsonResponse({'success': True, 'message': f'Role {role_name} berhasil ditambahkan dengan {len(new_permissions)} permissions!'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': f'Error: {str(e)}'}, status=500)
@@ -199,10 +201,8 @@ class RoleUpdateAjaxView(UpdatePermissionMixin, View):
                 if new_permissions:
                     RolePermission.objects.bulk_create(new_permissions)
 
-            # Invalidate cache
-            from django.core.cache import cache
-            cache.delete(f'role_perms_{old_role_name}')
-            cache.delete(f'role_perms_{target_role}')
+            invalidate_role_permissions_cache(old_role_name)
+            invalidate_role_permissions_cache(target_role)
 
             return JsonResponse({'success': True, 'message': f'Permissions untuk role berhasil diupdate! ({len(new_permissions)} permissions)'})
         except Exception as e:
@@ -239,8 +239,7 @@ class RoleDeleteView(DeletePermissionMixin, View):
                     Profile.objects.filter(role=role_code).update(role='')
 
                 deleted_count, _ = RolePermission.objects.filter(role=role_code).delete()
-            from django.core.cache import cache
-            cache.delete(f'role_perms_{role_code}')
+            invalidate_role_permissions_cache(role_code)
 
             return JsonResponse({'success': True, 'message': f'Role berhasil dihapus. ({deleted_count} permission records dihapus)'})
         except Exception as e:

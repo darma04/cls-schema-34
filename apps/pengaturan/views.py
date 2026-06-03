@@ -17,6 +17,7 @@ from .models import PengaturanPerusahaan, TemplateCetak, BackupHistory
 
 from .forms import PengaturanPerusahaanForm
 from apps.core.mixins import ReadPermissionMixin, permission_required_func
+from apps.core.cache_utils import invalidate_tenant_response_cache
 
 class ProfilView(LoginRequiredMixin, TemplateView):
     template_name = 'pengaturan/profil.html'
@@ -31,26 +32,27 @@ class ProfilView(LoginRequiredMixin, TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        user = request.user
-        user.first_name = request.POST.get('first_name', '')
-        user.last_name = request.POST.get('last_name', '')
-        user.email = request.POST.get('email', '')
-        new_password = request.POST.get('new_password', '')
-        if new_password:
-            user.set_password(new_password)
-        user.save()
-        
-        # Update Profile
-        try:
-            profile = user.profile
-            profile.phone = request.POST.get('phone', '')
-            if request.POST.get('remove_avatar') == '1':
-                profile.avatar = None
-            elif request.FILES.get('avatar'):
-                profile.avatar = request.FILES['avatar']
-            profile.save()
-        except Exception:
-            pass
+        with transaction.atomic():
+            user = request.user
+            user.first_name = request.POST.get('first_name', '')
+            user.last_name = request.POST.get('last_name', '')
+            user.email = request.POST.get('email', '')
+            new_password = request.POST.get('new_password', '')
+            if new_password:
+                user.set_password(new_password)
+            user.save()
+
+            # Update Profile
+            try:
+                profile = user.profile
+                profile.phone = request.POST.get('phone', '')
+                if request.POST.get('remove_avatar') == '1':
+                    profile.avatar = None
+                elif request.FILES.get('avatar'):
+                    profile.avatar = request.FILES['avatar']
+                profile.save()
+            except Exception:
+                pass
 
         messages.success(request, 'Profil berhasil diperbarui!')
         return redirect('pengaturan:profil')
@@ -70,11 +72,11 @@ class PerusahaanView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        from django.core.cache import cache
-        # Hapus cache context processor agar data terbaru langsung dimuat
-        cache.delete('ctx_pengaturan_perusahaan')
+        with transaction.atomic():
+            response = super().form_valid(form)
+        invalidate_tenant_response_cache(request=self.request)
         messages.success(self.request, 'Pengaturan perusahaan berhasil disimpan!')
-        return super().form_valid(form)
+        return response
 
     def form_invalid(self, form):
         # Tampilkan error validasi form ke user agar tidak gagal diam-diam
@@ -110,8 +112,10 @@ class TemplateCetakCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
+        with transaction.atomic():
+            response = super().form_valid(form)
         messages.success(self.request, 'Template cetak berhasil dibuat!')
-        return super().form_valid(form)
+        return response
 
 
 class TemplateCetakUpdateView(LoginRequiredMixin, UpdateView):
@@ -126,8 +130,10 @@ class TemplateCetakUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
+        with transaction.atomic():
+            response = super().form_valid(form)
         messages.success(self.request, 'Template cetak berhasil diperbarui!')
-        return super().form_valid(form)
+        return response
 
 
 class ManajemenDataView(LoginRequiredMixin, ReadPermissionMixin, TemplateView):

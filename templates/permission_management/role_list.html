@@ -136,11 +136,11 @@
         <div class="card-body">
             <form method="GET" id="filterForm">
             <div class="row g-3">
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-xl-4">
                     <label class="form-label">Cari User (Tabel)</label>
                     <input type="text" class="form-control" id="searchUser" placeholder="Nama atau Username...">
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-xl-4">
                     <label class="form-label">Filter Role</label>
                     <select class="form-select" id="roleFilter">
                         <option value="">Semua Role</option>
@@ -149,7 +149,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-xl-4">
                     <label class="form-label">Filter Status</label>
                     <select class="form-select" id="statusFilter">
                         <option value="">Semua Status</option>
@@ -157,13 +157,10 @@
                         <option value="Inactive">Inactive</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <!-- Spacer untuk alignment -->
-                </div>
             </div>
             <!-- Baris kedua: Pilih Kolom (kiri) dan Tombol Filter (kanan) -->
             <div class="row g-3 mt-2 align-items-end">
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-xl-4">
                     <label class="form-label">Pilih Kolom</label>
                     <div class="dropdown">
                         <button class="btn btn-label-secondary dropdown-toggle waves-effect w-100" type="button"
@@ -188,8 +185,7 @@
                     </div>
                     <small class="text-muted d-block mt-1">Klik untuk memilih kolom</small>
                 </div>
-                <div class="col-md-6"></div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-xl-4 ms-xl-auto">
                     <div class="d-grid gap-2">
                         <button type="button" class="btn btn-primary" onclick="applyFilters()">
                             <i class="ri-filter-3-line me-1"></i>Terapkan Filter

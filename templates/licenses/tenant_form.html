@@ -90,9 +90,9 @@
                                 <span class="input-group-text bg-light"><i class="ri-global-line"></i></span>
                                 <input type="text" class="form-control" id="domain" name="domain"
                                        value="{{ form_data.domain|default:'' }}"
-                                       placeholder="toko-jaya.localhost" required>
+                                       placeholder="toko-jaya{{ domain_suffix }}" required>
                             </div>
-                            <small class="text-muted">Subdomain yang akan digunakan klien. Contoh: <code>toko-jaya.localhost</code> (dev) atau <code>toko-jaya.saas.serpgroup.cloud</code> (production)</small>
+                            <small class="text-muted">Subdomain yang akan digunakan klien. Contoh: <code>toko-jaya{{ domain_suffix }}</code></small>
                         </div>
 
                         <hr class="my-4">
@@ -163,7 +163,7 @@
 
             var domainInput = document.getElementById('domain');
             if (!domainInput.dataset.manuallyEdited) {
-                domainInput.value = val.replace(/_/g, '-') + '.localhost';
+                domainInput.value = val.replace(/_/g, '-') + '{{ domain_suffix }}';
             }
         }
     });

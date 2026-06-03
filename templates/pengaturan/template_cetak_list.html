@@ -94,12 +94,12 @@
     <!-- Filter Card -->
     <div class="card mb-4">
         <div class="card-body">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-3">
+            <div class="row g-3">
+                <div class="col-12 col-md-6 col-xl-4">
                     <label class="form-label">Cari Template</label>
                     <input type="text" class="form-control" id="searchTemplate" placeholder="Nama template...">
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-xl-4">
                     <label class="form-label">Jenis Dokumen</label>
                     <select class="form-select" id="jenisFilter">
                         <option value="">Semua Jenis</option>
@@ -108,7 +108,7 @@
                         <option value="Laporan">Laporan</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-xl-4">
                     <label class="form-label">Status</label>
                     <select class="form-select" id="statusFilter">
                         <option value="">Semua Status</option>
@@ -116,18 +116,10 @@
                         <option value="Nonaktif">Nonaktif</option>
                     </select>
                 </div>
-                <div class="col-md-3 d-flex gap-2">
-                    <button type="button" class="btn btn-primary flex-grow-1" onclick="applyFilters()">
-                        <i class="ri-filter-3-line me-1"></i>Filter
-                    </button>
-                    <button type="button" class="btn btn-label-secondary flex-grow-1" onclick="resetFilters()">
-                        <i class="ri-refresh-line me-1"></i>Reset
-                    </button>
-                </div>
             </div>
             <!-- Baris kedua: Pilih Kolom -->
             <div class="row g-3 mt-2 align-items-end">
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-xl-4">
                     <label class="form-label">Pilih Kolom</label>
                     <div class="dropdown">
                         <button class="btn btn-label-secondary dropdown-toggle waves-effect w-100" type="button"
@@ -182,6 +174,16 @@
                         </div>
                     </div>
                     <small class="text-muted d-block mt-1">Klik untuk memilih kolom</small>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4 ms-xl-auto">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" onclick="applyFilters()">
+                            <i class="ri-filter-3-line me-1"></i>Terapkan Filter
+                        </button>
+                        <button type="button" class="btn btn-label-secondary" onclick="resetFilters()">
+                            <i class="ri-refresh-line me-1"></i>Reset
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

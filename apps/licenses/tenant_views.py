@@ -252,6 +252,7 @@ def tenant_create(request):
     context = _init_layout(request, {})
     context['title'] = 'Buat Tenant Baru'
     context['software_servers'] = SOFTWARE_SERVERS
+    context['domain_suffix'] = os.environ.get('TENANT_DOMAIN_SUFFIX', '.localhost')
 
     if request.method == 'POST':
         software_code = request.POST.get('software', '').strip().upper()

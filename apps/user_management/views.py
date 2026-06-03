@@ -40,6 +40,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import JsonResponse
+from django.db import transaction
 from auth.models import Profile
 from apps.core.models import RolePermission
 from apps.core.mixins import AdminOrSuperuserMixin, UpdatePermissionMixin, DeletePermissionMixin, CreatePermissionMixin, ReadPermissionMixin
@@ -140,22 +141,24 @@ class UserAddView(CreatePermissionMixin, CreateView):
     def form_valid(self, form):
         # Set password default untuk user baru
         """Dipanggil saat form valid — proses penyimpanan data."""
-        user = form.save(commit=False)
-        password = self.request.POST.get('password', 'defaultPassword123')
-        user.set_password(password)
-        user.save()
-        
-        # Set role dari form
-        role = self.request.POST.get('role', 'USER')
-        try:
-            user.profile.role = role
-            user.profile.save()
-        except:
-            # Buat profile jika belum ada
-            Profile.objects.create(user=user, email=user.email, role=role)
-        
+        with transaction.atomic():
+            user = form.save(commit=False)
+            password = self.request.POST.get('password', 'defaultPassword123')
+            user.set_password(password)
+            user.save()
+
+            # Set role dari form
+            role = self.request.POST.get('role', 'USER')
+            try:
+                user.profile.role = role
+                user.profile.save()
+            except:
+                # Buat profile jika belum ada
+                Profile.objects.create(user=user, email=user.email, role=role)
+
+            response = super().form_valid(form)
         messages.success(self.request, f'User {user.username} berhasil ditambahkan dengan role {role}!')
-        return super().form_valid(form)
+        return response
 
 
 
@@ -322,17 +325,19 @@ class UserEditView(UpdatePermissionMixin, UpdateView):
     def form_valid(self, form):
         # Update role jika berubah
         """Dipanggil saat form valid — proses penyimpanan data."""
-        role = self.request.POST.get('role')
-        if role:
-            try:
-                self.object.profile.role = role
-                self.object.profile.save()
-            except:
-                # Buat profile jika belum ada
-                Profile.objects.create(user=self.object, email=self.object.email, role=role)
-        
+        with transaction.atomic():
+            role = self.request.POST.get('role')
+            if role:
+                try:
+                    self.object.profile.role = role
+                    self.object.profile.save()
+                except:
+                    # Buat profile jika belum ada
+                    Profile.objects.create(user=self.object, email=self.object.email, role=role)
+
+            response = super().form_valid(form)
         messages.success(self.request, f'User {form.instance.username} berhasil diupdate')
-        return super().form_valid(form)
+        return response
 
 
 @method_decorator(login_required, name='dispatch')
@@ -380,7 +385,8 @@ class UserDeleteView(DeletePermissionMixin, DeleteView):
             }, status=400)
 
         try:
-            user.delete()
+            with transaction.atomic():
+                user.delete()
             return JsonResponse({
                 'success': True,
                 'message': f'User {username} berhasil dihapus'

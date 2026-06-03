@@ -15,6 +15,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.db import transaction
 from web_project import TemplateLayout
 from .models import Client, Product, LicenseKey, DeviceBinding, LicenseLog
 from .forms import ClientForm, ProductForm, LicenseKeyForm, LicenseKeyUpdateForm
@@ -73,8 +74,10 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
+        with transaction.atomic():
+            response = super().form_valid(form)
         messages.success(self.request, 'Klien berhasil ditambahkan.')
-        return super().form_valid(form)
+        return response
 
 
 class ClientUpdateView(LoginRequiredMixin, UpdateView):
@@ -90,8 +93,10 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
+        with transaction.atomic():
+            response = super().form_valid(form)
         messages.success(self.request, 'Data klien berhasil diperbarui.')
-        return super().form_valid(form)
+        return response
 
 
 class ClientDeleteView(LoginRequiredMixin, DeleteView):
@@ -108,7 +113,8 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
         self.object = self.get_object()
         obj_name = str(self.object)
         try:
-            self.object.delete()
+            with transaction.atomic():
+                self.object.delete()
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': True, 'message': f'Klien "{obj_name}" berhasil dihapus.'})
             messages.success(request, 'Klien berhasil dihapus.')
@@ -172,8 +178,10 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
+        with transaction.atomic():
+            response = super().form_valid(form)
         messages.success(self.request, 'Produk berhasil ditambahkan.')
-        return super().form_valid(form)
+        return response
 
 
 class ProductUpdateView(LoginRequiredMixin, UpdateView):
@@ -189,8 +197,10 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
+        with transaction.atomic():
+            response = super().form_valid(form)
         messages.success(self.request, 'Data produk berhasil diperbarui.')
-        return super().form_valid(form)
+        return response
 
 
 class ProductDeleteView(LoginRequiredMixin, DeleteView):
@@ -207,7 +217,8 @@ class ProductDeleteView(LoginRequiredMixin, DeleteView):
         self.object = self.get_object()
         obj_name = str(self.object)
         try:
-            self.object.delete()
+            with transaction.atomic():
+                self.object.delete()
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': True, 'message': f'Produk "{obj_name}" berhasil dihapus.'})
             messages.success(request, 'Produk berhasil dihapus.')
@@ -296,8 +307,10 @@ class LicenseKeyCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
+        with transaction.atomic():
+            response = super().form_valid(form)
         messages.success(self.request, 'Kunci lisensi berhasil dibuat.')
-        return super().form_valid(form)
+        return response
 
 
 class LicenseKeyUpdateView(LoginRequiredMixin, UpdateView):
@@ -313,8 +326,10 @@ class LicenseKeyUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
+        with transaction.atomic():
+            response = super().form_valid(form)
         messages.success(self.request, 'Status lisensi berhasil diperbarui.')
-        return super().form_valid(form)
+        return response
 
 
 class LicenseKeyDeleteView(LoginRequiredMixin, DeleteView):
@@ -331,7 +346,8 @@ class LicenseKeyDeleteView(LoginRequiredMixin, DeleteView):
         self.object = self.get_object()
         obj_name = str(self.object)
         try:
-            self.object.delete()
+            with transaction.atomic():
+                self.object.delete()
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': True, 'message': f'Lisensi "{obj_name}" berhasil dihapus.'})
             messages.success(request, 'Lisensi berhasil dihapus.')
@@ -351,18 +367,19 @@ class LicenseKeyDeleteView(LoginRequiredMixin, DeleteView):
 @require_http_methods(["POST"])
 def unlink_device(request, pk):
     """AJAX endpoint untuk Admin mengunlink device dari halaman detail lisensi."""
-    binding = get_object_or_404(DeviceBinding, pk=pk)
-    binding.is_active = False
-    binding.save(update_fields=['is_active', 'last_seen'])
+    with transaction.atomic():
+        binding = get_object_or_404(DeviceBinding.objects.select_for_update().select_related('license'), pk=pk)
+        binding.is_active = False
+        binding.save(update_fields=['is_active', 'last_seen'])
 
-    # Catat log
-    LicenseLog.objects.create(
-        license=binding.license,
-        action='unbind_device',
-        detail=f"Admin unlink device: {binding.hardware_id} ({binding.device_name or '-'})",
-        ip_address=request.META.get('REMOTE_ADDR'),
-        hardware_id=binding.hardware_id,
-    )
+        # Catat log
+        LicenseLog.objects.create(
+            license=binding.license,
+            action='unbind_device',
+            detail=f"Admin unlink device: {binding.hardware_id} ({binding.device_name or '-'})",
+            ip_address=request.META.get('REMOTE_ADDR'),
+            hardware_id=binding.hardware_id,
+        )
 
     return JsonResponse({
         "status": "success",

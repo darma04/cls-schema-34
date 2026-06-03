@@ -81,6 +81,8 @@
     <!--Page Javascript-->
     {% block page_js %} {% endblock page_js %}
 
+    {% include "partials/refresh_cache_button.html" %}
+
     {% load ai_tags %}
     {% get_ai_name as ai_display_name %}
     {% include "partials/ai_chat_widget.html" with ai_name=ai_display_name %}

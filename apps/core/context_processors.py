@@ -28,7 +28,12 @@
 ==========================================================================
 """
 
-from apps.core.permissions import has_permission, get_user_role, get_accessible_submodules
+from apps.core.permissions import (
+    has_exact_submodule_permission,
+    has_permission,
+    get_user_role,
+    get_accessible_submodules,
+)
 
 
 class PermissionChecker:
@@ -212,6 +217,9 @@ def user_permissions(request):
 
         # Status superuser (untuk kasus khusus di template)
         is_superuser = user_role == 'SUPERUSER'
+        can_show_refresh_cache_button = has_exact_submodule_permission(
+            request.user, 'read', 'dashboard', 'refresh_cache'
+        )
 
         return {
             'user_role': user_role,
@@ -227,6 +235,7 @@ def user_permissions(request):
 
             # Flag superuser
             'is_superuser': is_superuser,
+            'can_show_refresh_cache_button': can_show_refresh_cache_button,
         }
 
     # ==================== USER BELUM LOGIN ====================
@@ -254,4 +263,5 @@ def user_permissions(request):
         'can_manage_roles': False,
         'can_view_logs': False,
         'can_manage_settings': False,
+        'can_show_refresh_cache_button': False,
     }

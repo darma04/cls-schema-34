@@ -101,7 +101,8 @@ def export_templates(request):
     OPTIMASI: Cache selama 60 detik agar tidak query DB setiap request.
     """
     from django.core.cache import cache
-    cache_key = 'ctx_export_templates'
+    from apps.core.cache_utils import build_scoped_cache_key
+    cache_key = build_scoped_cache_key('context_processor', 'export_templates', request=request)
     cached = cache.get(cache_key)
     if cached:
         return cached
@@ -142,7 +143,8 @@ def pengaturan_perusahaan(request):
     """
     from django.core.cache import cache
 
-    cache_key = 'ctx_pengaturan_perusahaan'
+    from apps.core.cache_utils import build_scoped_cache_key
+    cache_key = build_scoped_cache_key('context_processor', 'pengaturan_perusahaan', request=request)
     cached = cache.get(cache_key)
     if cached:
         return cached

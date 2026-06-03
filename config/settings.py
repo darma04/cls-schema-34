@@ -110,6 +110,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apps.core.double_submit_middleware.PreventDoubleSubmitMiddleware",
     "apps.activity_log.middleware.ActivityLogMiddleware",  # Audit trail
+    "apps.core.cache_middleware.TenantCacheInvalidationMiddleware",
     "apps.core.maintenance_middleware.MaintenanceMiddleware",
 ]
 
@@ -150,13 +151,33 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# Set DATABASE_ENGINE=postgresql di .env untuk aktifkan PostgreSQL (production)
+# Default: sqlite (development lokal — tidak perlu setup apapun)
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+_DB_ENGINE = os.environ.get("DATABASE_ENGINE", "sqlite").lower()
+
+if _DB_ENGINE in {"postgres", "postgresql"}:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("DB_NAME", "cls_db"),
+            "USER": os.environ.get("DB_USER", "postgres"),
+            "PASSWORD": os.environ.get("DB_PASSWORD", ""),
+            "HOST": os.environ.get("DB_HOST", "localhost"),
+            "PORT": os.environ.get("DB_PORT", "5432"),
+            "CONN_MAX_AGE": int(os.environ.get("DB_CONN_MAX_AGE", "600")),
+            "OPTIONS": {
+                "connect_timeout": 10,
+            },
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 # Password validation
@@ -320,19 +341,27 @@ else:
 
 # Caching Configuration
 # ------------------------------------------------------------------------------
-# Using local memory cache for development (no setup required)
-# For production, consider Redis: django_redis.cache.RedisCache
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'erp-cache',
-        'OPTIONS': {
-            'MAX_ENTRIES': 1000,
-            'CULL_FREQUENCY': 3,  # Hapus 1/3 dari entri saat MAX_ENTRIES tercapai
+# Set CACHE_BACKEND=redis di .env production agar cache konsisten lintas worker.
+_CACHE_BACKEND = os.environ.get("CACHE_BACKEND", "locmem").lower()
+if _CACHE_BACKEND == "redis":
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/1'),
+            'TIMEOUT': 300,
         }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'cls-cache',
+            'OPTIONS': {
+                'MAX_ENTRIES': 1000,
+                'CULL_FREQUENCY': 3,
+            }
+        }
+    }
 
 # Template Caching - Speeds up template rendering significantly
 # Templates are compiled once and cached in memory

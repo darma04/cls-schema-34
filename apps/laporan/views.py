@@ -7,11 +7,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Sum, Q
 from django.utils import timezone
 from web_project import TemplateLayout
+from apps.core.mixins import TenantScopedResponseCacheMixin
 from apps.licenses.models import Product, Client, LicenseKey
 
 
-class LaporanLisensiView(LoginRequiredMixin, TemplateView):
+class LaporanLisensiView(TenantScopedResponseCacheMixin, LoginRequiredMixin, TemplateView):
     template_name = 'laporan/lisensi.html'
+    cache_timeout = 120
 
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
@@ -54,8 +56,9 @@ class LaporanLisensiView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class LaporanKlienView(LoginRequiredMixin, TemplateView):
+class LaporanKlienView(TenantScopedResponseCacheMixin, LoginRequiredMixin, TemplateView):
     template_name = 'laporan/klien.html'
+    cache_timeout = 120
 
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
@@ -96,8 +99,9 @@ class LaporanKlienView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class LaporanPendapatanView(LoginRequiredMixin, TemplateView):
+class LaporanPendapatanView(TenantScopedResponseCacheMixin, LoginRequiredMixin, TemplateView):
     template_name = 'laporan/pendapatan.html'
+    cache_timeout = 120
 
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
@@ -136,8 +140,9 @@ class LaporanPendapatanView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class LaporanKeuanganView(LoginRequiredMixin, TemplateView):
+class LaporanKeuanganView(TenantScopedResponseCacheMixin, LoginRequiredMixin, TemplateView):
     template_name = 'laporan/keuangan.html'
+    cache_timeout = 120
 
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))

@@ -40,8 +40,48 @@
 from django.shortcuts import redirect                   # Fungsi redirect
 from django.contrib import messages                      # Framework pesan flash
 from django.core.exceptions import PermissionDenied      # Exception 403 Forbidden
+from django.core.cache import cache
+from apps.core.cache_utils import build_scoped_cache_key
 from apps.core.permissions import has_permission         # Fungsi cek permission
 from functools import wraps                              # Untuk decorator FBV
+
+
+class TenantScopedResponseCacheMixin:
+    """Cache response GET per schema/host, user, role, query string, dan versi cache."""
+    cache_timeout = 0
+
+    def dispatch(self, request, *args, **kwargs):
+        timeout = getattr(self, 'cache_timeout', 0) or 0
+        user = getattr(request, 'user', None)
+        cacheable = (
+            timeout > 0
+            and request.method in ('GET', 'HEAD')
+            and user is not None
+            and getattr(user, 'is_authenticated', False)
+            and request.headers.get('x-requested-with') != 'XMLHttpRequest'
+        )
+        if not cacheable:
+            return super().dispatch(request, *args, **kwargs)
+
+        cache_key = build_scoped_cache_key(
+            'view_response',
+            self.__class__.__module__,
+            self.__class__.__name__,
+            request.GET.urlencode(),
+            request=request,
+        )
+        cached_response = cache.get(cache_key)
+        if cached_response is not None:
+            cached_response['X-SERPTECH-Cache'] = 'HIT'
+            return cached_response
+
+        response = super().dispatch(request, *args, **kwargs)
+        if hasattr(response, 'render') and not getattr(response, 'is_rendered', True):
+            response = response.render()
+        if getattr(response, 'status_code', None) == 200 and not getattr(response, 'streaming', False):
+            response['X-SERPTECH-Cache'] = 'MISS'
+            cache.set(cache_key, response, timeout)
+        return response
 
 
 # ==================== DECORATOR UNTUK FUNCTION-BASED VIEWS ====================

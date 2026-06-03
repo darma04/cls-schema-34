@@ -163,16 +163,54 @@ def has_permission(user, action, module=None, sub_module=None):
     return False
 
 
+def has_exact_submodule_permission(user, action, module, sub_module):
+    """
+    Cek permission sub-module tanpa fallback ke module-level.
+    Dipakai untuk fitur global seperti tombol Refresh Cache.
+    """
+    role = get_user_role(user)
+    if not role:
+        return False
+    if role == 'SUPERUSER':
+        return True
+    if not module or not sub_module:
+        return False
+
+    try:
+        module_normalized = module.replace('-', '_').lower()
+        sub_module_normalized = sub_module.replace('-', '_').lower()
+        action_map = {
+            'add': 'can_create',
+            'create': 'can_create',
+            'read': 'can_view',
+            'view': 'can_view',
+            'edit': 'can_edit',
+            'update': 'can_edit',
+            'write': 'can_edit',
+            'delete': 'can_delete',
+            'del': 'can_delete',
+            'remove': 'can_delete',
+        }
+        perm_field = action_map.get(action)
+        if not perm_field:
+            return False
+        perms_cache = _get_role_permissions_cache(role)
+        return perms_cache.get((module_normalized, sub_module_normalized), {}).get(perm_field, False)
+    except Exception:
+        return False
+
+
 def _get_role_permissions_cache(role):
     """
     Load SEMUA permissions untuk sebuah role dalam 1 query dan cache.
 
     Return: Dictionary {(module, sub_module): {can_view, can_create, can_edit, can_delete}}
-    Cache TTL: 30 detik — balance antara performa dan freshness.
+    Cache TTL: 300 detik dan aman karena key berbasis versi.
     """
     from django.core.cache import cache
+    from apps.core.cache_utils import get_role_permissions_cache_key
 
-    cache_key = f'role_perms_{role}'
+    cache_key = get_role_permissions_cache_key(role)
     cached = cache.get(cache_key)
     if cached is not None:
         return cached
@@ -196,7 +234,7 @@ def _get_role_permissions_cache(role):
             'can_delete': p['can_delete'],
         }
 
-    cache.set(cache_key, perms_dict, 30)  # Cache 30 detik
+    cache.set(cache_key, perms_dict, 300)
     return perms_dict
 
 

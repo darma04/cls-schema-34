@@ -72,6 +72,9 @@ class RolePermission(models.Model):
     # ==================== DAFTAR SUB-MODUL ====================
     # Sub-modul per modul — setiap sub-modul = 1 submenu di sidebar
     SUB_MODULE_CHOICES = {
+        'dashboard': [
+            ('refresh_cache', 'Tombol Refresh Cache'),
+        ],
         'licenses': [
             ('produk', 'Data Produk'),
             ('klien', 'Data Klien'),
@@ -105,6 +108,8 @@ class RolePermission(models.Model):
     # Contoh: menu slug "licenses-product" → extract_submodule → "product"
     #         Maka mapping harus: 'produk': 'product'
     SUB_MODULE_TO_SLUG = {
+        # === Dashboard ===
+        'refresh_cache': 'refresh-cache',
         # === Manajemen Lisensi ===
         # Menu: licenses-product, licenses-client, licenses-keys
         'produk': 'product',

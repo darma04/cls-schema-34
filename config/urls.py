@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from apps.core.cache_views import refresh_cache_view
 from web_project.views import custom_error_404, custom_error_403, custom_error_400, custom_error_500
 
 
@@ -66,6 +67,7 @@ urlpatterns = [
 
     # Global Search API
     path("api/search/", global_search_api, name='global_search'),
+    path("core/cache/refresh/", refresh_cache_view, name='core_refresh_cache'),
 
     # License Management REST API endpoints (FASE 1)
     path("api/v1/license/", include("apps.licenses.api.urls", namespace='api_licenses')),

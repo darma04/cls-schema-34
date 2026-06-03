@@ -192,12 +192,13 @@ class PembelianEditView(LoginRequiredMixin, TemplateView):
 @login_required
 def pembelian_update_status(request, pk):
     if request.method == 'POST':
-        pembelian = get_object_or_404(PembelianLisensi, pk=pk)
-        new_status = request.POST.get('status')
-        if new_status in dict(PembelianLisensi.STATUS_CHOICES):
-            pembelian.status = new_status
-            pembelian.save()
-            messages.success(request, f'Status pembelian {pembelian.nomor_transaksi} diubah menjadi {pembelian.get_status_display()}')
+        with transaction.atomic():
+            pembelian = get_object_or_404(PembelianLisensi.objects.select_for_update(), pk=pk)
+            new_status = request.POST.get('status')
+            if new_status in dict(PembelianLisensi.STATUS_CHOICES):
+                pembelian.status = new_status
+                pembelian.save()
+                messages.success(request, f'Status pembelian {pembelian.nomor_transaksi} diubah menjadi {pembelian.get_status_display()}')
         return redirect('pembelian:pembelian_detail', pk=pk)
     return redirect('pembelian:pembelian_list')
 
@@ -205,9 +206,10 @@ def pembelian_update_status(request, pk):
 @login_required
 def pembelian_delete(request, pk):
     if request.method == 'POST':
-        pembelian = get_object_or_404(PembelianLisensi, pk=pk)
-        nomor = pembelian.nomor_transaksi
-        pembelian.delete()
+        with transaction.atomic():
+            pembelian = get_object_or_404(PembelianLisensi.objects.select_for_update(), pk=pk)
+            nomor = pembelian.nomor_transaksi
+            pembelian.delete()
         messages.success(request, f'Pembelian {nomor} berhasil dihapus!')
     return redirect('pembelian:pembelian_list')
 
@@ -223,4 +225,3 @@ def pembelian_print(request, pk):
         'items': items,
         'template': template,
     })
-
