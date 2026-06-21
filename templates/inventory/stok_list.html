@@ -146,7 +146,7 @@
                 </button>
             </div>
         </div>
-        <div class="card-datatable table-responsive">
+        <div class="card-datatable">
             <table class="datatables-stok table table-hover" id="stokTable" style="width:100%">
                 <thead>
                     <tr>
@@ -286,6 +286,7 @@
         {% if stok_list %}
         if (!$.fn.dataTable.isDataTable('#stokTable')) {
         const table = $('#stokTable').DataTable({
+            scrollX: true,
             language: {
                 "sEmptyTable": "Tidak ada data yang tersedia pada tabel ini",
                 "sProcessing": "Sedang memproses...",

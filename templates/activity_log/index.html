@@ -201,6 +201,7 @@ $(document).ready(function(){
     flatpickr('#endDate',{dateFormat:'Y-m-d'});
     {% if activities %}
     $('#logTable').DataTable({
+            scrollX: true,
         language:{"sEmptyTable":"Tidak ada data","sLengthMenu":"Tampilkan _MENU_ data","sZeroRecords":"Tidak ditemukan","sInfo":"Menampilkan _START_ s/d _END_ dari _TOTAL_ data","sInfoEmpty":"0 dari 0","sInfoFiltered":"(dari _MAX_ data)","sSearch":"Cari:","oPaginate":{"sFirst":"Pertama","sPrevious":"Sebelumnya","sNext":"Selanjutnya","sLast":"Terakhir"}},
         order:[[0,'desc']],pageLength:25,lengthMenu:[[10,25,50,100,-1],['10','25','50','100','Semua']],
         responsive:false,columnDefs:[{orderable:false,targets:[5]}],

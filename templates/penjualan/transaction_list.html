@@ -166,7 +166,7 @@
                 </button>
             </div>
         </div>
-        <div class="card-datatable table-responsive">
+        <div class="card-datatable">
             <table class="datatables-transaction table table-hover" id="transactionTable" style="width:100%">
                 <thead>
                     <tr>
@@ -416,6 +416,7 @@
 
         {% if transaction_list %}
         const table = $('#transactionTable').DataTable({
+            scrollX: true,
             language: {
                 "sEmptyTable": "Tidak ada data yang tersedia pada tabel ini",
                 "sProcessing": "Sedang memproses...",
