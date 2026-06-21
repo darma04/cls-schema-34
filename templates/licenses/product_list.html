@@ -267,6 +267,7 @@
 </style>
 <script>
     $(document).ready(function () {
+        {% if messages %}
         $('#productTable').DataTable({
             language: { "sEmptyTable": "Tidak ada data", "sProcessing": "Sedang memproses...", "sLengthMenu": "Tampilkan _MENU_ data", "sZeroRecords": "Tidak ditemukan data yang sesuai", "sInfo": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data", "sInfoEmpty": "Menampilkan 0 sampai 0 dari 0 data", "sInfoFiltered": "(disaring dari _MAX_ total data)", "sSearch": "Cari:", "oPaginate": { "sFirst": "Pertama", "sPrevious": "Sebelumnya", "sNext": "Selanjutnya", "sLast": "Terakhir" } },
             order: [[0, 'asc']],
@@ -277,6 +278,7 @@
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>><"table-responsive"rt><"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
             initComplete: function () { $('.dataTables_filter input').attr('placeholder', 'Cari produk...'); }
         });
+        {% endif %}
         
         flatpickr('#startDate', { dateFormat: 'Y-m-d' });
         flatpickr('#endDate', { dateFormat: 'Y-m-d' });
