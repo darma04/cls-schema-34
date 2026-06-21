@@ -21,7 +21,7 @@
 
 {% block content %}
 <div class="container-xxl flex-grow-1 container-p-y">
-    
+    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1"><i class="ri-server-line me-2"></i>Detail Tenant</h4>
@@ -44,7 +44,7 @@
 
     {% if tenant %}
     <div class="row g-4">
-        
+        <!-- Informasi Tenant — Single Card -->
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -55,7 +55,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    
+                    <!-- Row 1: Informasi Dasar -->
                     <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 0.08em;">
                         <i class="ri-database-2-line me-1"></i>Informasi Database
                     </h6>
@@ -92,6 +92,7 @@
                         </div>
                     </div>
 
+                    <!-- Row 2: Statistik -->
                     <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 0.08em;">
                         <i class="ri-bar-chart-line me-1"></i>Statistik Database
                     </h6>
@@ -125,6 +126,7 @@
                         </div>
                     </div>
 
+                    <!-- Row 3: Superuser Details -->
                     {% if tenant.superusers %}
                     <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 0.08em;">
                         <i class="ri-shield-user-line me-1"></i>Akun Superuser
@@ -179,6 +181,7 @@
                     </div>
                     {% endif %}
 
+                    <!-- Action Buttons -->
                     <div class="mt-4 d-flex gap-2">
                         {% for domain in tenant.domains %}
                         <a href="http://{{ domain }}" target="_blank" class="btn btn-primary">
@@ -211,7 +214,7 @@
 {% block page_js %}
 {% if tenant %}
 <script>
-    
+    // ========== CSRF Token ==========
     function getCsrfToken() {
         const input = document.querySelector('[name=csrfmiddlewaretoken]');
         if (input) return input.value;
@@ -221,6 +224,7 @@
         return '';
     }
 
+    // ========== SweetAlert2 Delete ==========
     function confirmDeleteTenant(softwareCode, schemaName, tenantName) {
         if (typeof Swal === 'undefined') {
             if (confirm('Yakin ingin menghapus tenant "' + tenantName + '"? Semua data akan dihapus permanen!')) {

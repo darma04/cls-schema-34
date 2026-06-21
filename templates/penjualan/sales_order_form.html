@@ -26,7 +26,6 @@
             <div class="card mb-4">
                 <h5 class="card-header">{{ title }}</h5>
                 <div class="card-body">
-                    
                     <form method="post" id="so-form">
                         {% csrf_token %}
 
@@ -251,6 +250,7 @@
             const totalForms = $('[name$="TOTAL_FORMS"]');
             const formIdx = parseInt(totalForms.val());
 
+            // Bangun HTML form baru menggunakan template string (lebih reliable dari clone)
             const newFormHTML = `
             <div class="formset-row border rounded p-3 mb-3">
                 <div class="row g-2 g-lg-3 align-items-end">
@@ -262,7 +262,7 @@
                             {% for produk in produk_list %}
                             <option value="{{ produk.id }}" data-harga="{{ produk.harga_jual }}">{{ produk.nama }}</option>
                             {% empty %}
-                            
+                            <!-- No products available, copy from first select -->
                             {% endfor %}
                         </select>
                     </div>
@@ -296,10 +296,13 @@
             </div>
         `;
 
+            // Append new form at the end of container
             formsetContainer.append(newFormHTML);
 
+            // Inisialisasi Select2 dan isi dengan opsi produk yang ada
             const newSelect = $(`#id_items-${formIdx}-produk`);
 
+            // If produk_list is empty, copy options from first select
             {% if not produk_list %}
             const firstSelect = $('.select2-item:first');
             if (firstSelect.length && firstSelect.find('option').length > 1) {
@@ -309,11 +312,13 @@
             }
             {% endif %}
 
+            // Inisialisasi Select2
             newSelect.select2({
                 placeholder: 'Pilih Produk',
                 allowClear: true
             });
 
+            // Auto-fill harga jual when produk is selected
             newSelect.on('change', function() {
                 const selectedOption = $(this).find(':selected');
                 const harga = selectedOption.data('harga');
@@ -323,6 +328,7 @@
                 }
             });
 
+            // Update jumlah total forms
             totalForms.val(formIdx + 1);
             calculateTotals();
         });

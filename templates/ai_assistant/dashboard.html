@@ -30,8 +30,9 @@
     </div>
     {% endif %}
 
+    <!-- Row 1: Health Score + Key Metrics -->
     <div class="row mb-4">
-        
+        <!-- Health Score Widget -->
         <div class="col-lg-4 col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-body text-center">
@@ -72,9 +73,10 @@
             </div>
         </div>
 
+        <!-- Key Metrics Cards -->
         <div class="col-lg-8 col-md-6">
             <div class="row">
-                
+                <!-- Pendapatan Sewa Bulan Ini -->
                 <div class="col-6 col-sm-6 mb-4">
                     <div class="card h-100">
                         <div class="card-body">
@@ -97,6 +99,7 @@
                     </div>
                 </div>
 
+                <!-- Profit -->
                 <div class="col-6 col-sm-6 mb-4">
                     <div class="card h-100">
                         <div class="card-body">
@@ -118,6 +121,7 @@
                     </div>
                 </div>
 
+                <!-- Kamar Terisi -->
                 <div class="col-6 col-sm-6 mb-4">
                     <div class="card h-100">
                         <div class="card-body">
@@ -137,6 +141,7 @@
                     </div>
                 </div>
 
+                <!-- Biaya Operasional -->
                 <div class="col-6 col-sm-6 mb-4">
                     <div class="card h-100">
                         <div class="card-body">
@@ -159,43 +164,31 @@
         </div>
     </div>
 
+    <!-- Row 2: Revenue Trend Chart + Room Distribution -->
     <div class="row mb-4">
-        
+        <!-- Revenue Trend Chart -->
         <div class="col-lg-8 mb-4">
             <div class="card h-100">
-                <div class="card-header d-flex flex-nowrap align-items-center justify-content-between">
-                    <h5 class="card-title mb-0 me-2">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0">
                         <i class="ri-bar-chart-box-line me-2"></i>Tren Pendapatan 6 Bulan
                     </h5>
-                    <div class="dropdown flex-shrink-0">
-                        <button class="btn btn-text-secondary rounded-pill text-muted border-0 p-1" type="button" data-bs-toggle="dropdown"><i class="ri-more-2-line ri-20px"></i></button>
-                        <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item" href="javascript:window.location.reload();"><i class="ri-loop-left-line me-2"></i>Refresh Data</a>
-                            <a class="dropdown-item" href="javascript:void(0)" onclick="if(window.__revenueTrendChart){var c=window.__revenueTrendChart.canvas;c.toBlob(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='chart.png';a.click();});}"><i class="ri-download-2-line me-2"></i>Unduh Grafik</a>
-                        </div>
-                    </div>
                 </div>
                 <div class="card-body">
                     <div style="position:relative; height:280px;">
-                        <div id="revenueTrendChart" style="min-height: 320px;"></div>
+                        <canvas id="revenueTrendChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Room Distribution -->
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
-                <div class="card-header d-flex flex-nowrap align-items-center justify-content-between">
-                    <h5 class="card-title mb-0 me-2">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
                         <i class="ri-pie-chart-line me-2"></i>Distribusi Lisensi
                     </h5>
-                    <div class="dropdown flex-shrink-0">
-                        <button class="btn btn-text-secondary rounded-pill text-muted border-0 p-1" type="button" data-bs-toggle="dropdown"><i class="ri-more-2-line ri-20px"></i></button>
-                        <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item" href="javascript:window.location.reload();"><i class="ri-loop-left-line me-2"></i>Refresh Data</a>
-                            <a class="dropdown-item" href="javascript:void(0)" onclick="if(window.__aiRoomDonutChart) window.__aiRoomDonutChart.exportTo({type:'png'});"><i class="ri-download-2-line me-2"></i>Unduh Grafik</a>
-                        </div>
-                    </div>
                 </div>
                 <div class="card-body">
                     <div id="aiRoomDonutChart"></div>
@@ -204,8 +197,9 @@
         </div>
     </div>
 
+    <!-- Row 3: Anomaly Detection + AI Usage -->
     <div class="row">
-        
+        <!-- Anomali -->
         <div class="col-lg-8 mb-4">
             <div class="card h-100">
                 <div class="card-header">
@@ -237,6 +231,7 @@
             </div>
         </div>
 
+        <!-- AI Usage Stats -->
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
@@ -295,8 +290,8 @@
 {% endblock content %}
 
 {% block page_js %}
-
-<script src="{% static 'vendor/libs/chartjs/chartjs.js' %}"></script>
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var isDark = document.documentElement.classList.contains('dark-style') ||
@@ -307,6 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var tickColor = isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)';
     var borderCol = isDark ? 'rgba(255,255,255,0.15)' : '#fff';
 
+    // ═══ HEALTH SCORE GAUGE (ApexCharts Semi-Donut = Organic Sessions Style) ═══
     try {
         var healthEl = document.querySelector('#healthScoreDonutChart');
         if (healthEl) {
@@ -377,25 +373,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     options: { chart: { height: 240 } }
                 }]
             };
-            var healthChartInst = new ApexCharts(healthEl, healthOptions);
-            healthChartInst.render();
-            window.__healthScoreDonutChart = healthChartInst;
+            new ApexCharts(healthEl, healthOptions).render();
         }
     } catch(e) { console.warn('Health chart error:', e); }
 
+    // ═══ REVENUE TREND CHART ═══
     try {
         var trendEl = document.getElementById('revenueTrendChart');
         if (trendEl) {
             var labels = {{ monthly_labels|safe }};
             var values = {{ monthly_values|safe }};
-            if (!labels || !Array.isArray(labels) || labels.length === 0) {
-                labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'];
-            }
-            if (!values || !Array.isArray(values) || values.length === 0) {
-                values = Array(labels.length).fill(0);
-            }
 
-            var revenueChartInst = new Chart(trendEl.getContext('2d'), {
+            new Chart(trendEl.getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: labels,
@@ -447,10 +436,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             });
-            window.__revenueTrendChart = revenueChartInst;
         }
     } catch(e) { console.warn('Revenue chart error:', e); }
 
+    // ═══ ROOM DISTRIBUTION CHART (ApexCharts Semi-Donut = Status Tagihan Style) ═══
     try {
         var roomDonutEl = document.querySelector('#aiRoomDonutChart');
         if (roomDonutEl) {
@@ -533,9 +522,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     options: { chart: { height: 240 } }
                 }]
             };
-            var roomDonutInst = new ApexCharts(roomDonutEl, roomDonutOptions);
-            roomDonutInst.render();
-            window.__aiRoomDonutChart = roomDonutInst;
+            new ApexCharts(roomDonutEl, roomDonutOptions).render();
         }
     } catch(e) { console.warn('Room donut chart error:', e); }
 });

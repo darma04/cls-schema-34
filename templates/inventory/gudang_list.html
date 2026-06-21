@@ -35,9 +35,10 @@
         {% endif %}
     </div>
 
+    <!-- Filter Card -->
     <div class="card mb-4">
         <div class="card-body">
-            
+            <!-- Baris 1: Filter Inputs -->
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">Cari Gudang</label>
@@ -53,6 +54,7 @@
                 </div>
             </div>
 
+            <!-- Baris 2: Pilih Kolom (kiri) dan Tombol Filter (kanan) -->
             <div class="row g-3 mt-2 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label">Pilih Kolom</label>
@@ -193,13 +195,29 @@
                                 class="ri-building-2-line ri-3x text-muted mb-3 d-block"></i>
                             <p class="text-muted mb-0">Belum ada gudang</p>
                         </td>
-                    <td></td><td></td><td></td><td></td><td></td></tr>
+                    </tr>
                     {% endfor %}
                 </tbody>
+                <tfoot class="table-footer-summary">
+                    <tr>
+                        <td colspan="5" class="text-start ps-4 py-3" style="vertical-align: middle;">
+                            <div class="d-flex align-items-center justify-content-start">
+                                <i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i>
+                                <div class="text-start">
+                                    <strong class="d-block" style="font-size: 1rem;">RINGKASAN</strong>
+                                    <small class="text-muted" style="font-size: 0.75rem;">{{ total_gudang }} Gudang
+                                        Terdaftar</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3"></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteGudangModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -341,7 +359,7 @@
                 orderable: false,
                 targets: [5]
             }],
-            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>><"table-responsive"rt><"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
             initComplete: function () {
                 $('.dataTables_filter input').attr('placeholder', 'Cari gudang...');
             }
@@ -353,16 +371,17 @@
         const table = $('#gudangTable').DataTable();
         const headers = [];
         table.columns().every(function (index) {
-            if (table.column(index).visible() && index < 5) { 
+            if (table.column(index).visible() && index < 5) { // Exclude 'Aksi' column
                 headers.push($(table.column(index).header()).text());
             }
         });
 
+        // Buat tabel HTML untuk Excel (format .xls)
         let html = '<table border="1">';
         html += '<thead><tr style="background-color: #52d123; color: #FFFFFF; font-weight: bold;">';
 
         table.columns().every(function (index) {
-            if (table.column(index).visible() && index < 5) { 
+            if (table.column(index).visible() && index < 5) { // Exclude 'Aksi' column
                 html += `<th>${$(table.column(index).header()).text()}</th>`;
             }
         });
@@ -372,15 +391,15 @@
             const data = this.data();
             html += '<tr>';
             table.columns().every(function (index) {
-                if (table.column(index).visible() && index < 5) { 
+                if (table.column(index).visible() && index < 5) { // Exclude 'Aksi' column
                     let cellData = data[index];
-                    if (index === 4) { 
+                    if (index === 4) { // Status column
                         cellData = $(cellData).text().trim();
-                    } else if (index === 0) { 
+                    } else if (index === 0) { // Kode column
                         cellData = $(cellData).text().trim();
-                    } else if (index === 1) { 
+                    } else if (index === 1) { // Nama Gudang column
                         cellData = $(cellData).text().trim();
-                    } else if (index === 3) { 
+                    } else if (index === 3) { // Metode Pembayaran column
                         cellData = $(cellData).text().trim();
                     }
                     html += `<td>${String(cellData)}</td>`;
@@ -389,6 +408,7 @@
             html += '</tr>';
         });
 
+        // Tambah baris RINGKASAN — setiap nilai di kolom terpisah
         const totalGudang = '{{ total_gudang }}';
         html += '<tr style="background-color: #f8f9fa; font-weight: bold;">';
         html += `<td colspan="5">RINGKASAN (${totalGudang} Gudang Terdaftar)</td>`;
@@ -411,7 +431,7 @@
         const table = $('#gudangTable').DataTable();
         const headers = [];
         table.columns().every(function (index) {
-            if (table.column(index).visible() && index < 5) { 
+            if (table.column(index).visible() && index < 5) { // Exclude 'Aksi' column
                 headers.push({ text: $(table.column(index).header()).text(), style: 'tableHeader' });
             }
         });
@@ -422,15 +442,15 @@
             const data = this.data();
             const row = [];
             table.columns().every(function (index) {
-                if (table.column(index).visible() && index < 5) { 
+                if (table.column(index).visible() && index < 5) { // Exclude 'Aksi' column
                     let cellData = data[index];
-                    if (index === 4) { 
+                    if (index === 4) { // Status column
                         cellData = $(cellData).text().trim();
-                    } else if (index === 0) { 
+                    } else if (index === 0) { // Kode column
                         cellData = $(cellData).text().trim();
-                    } else if (index === 1) { 
+                    } else if (index === 1) { // Nama Gudang column
                         cellData = $(cellData).text().trim();
-                    } else if (index === 3) { 
+                    } else if (index === 3) { // Metode Pembayaran column
                         cellData = $(cellData).text().trim();
                     }
                     row.push(String(cellData));
@@ -439,8 +459,9 @@
             body.push(row);
         });
 
+        // Tambah baris RINGKASAN
         const totalGudang = '{{ total_gudang }}';
-        body.push(['', '', '', '', '']); 
+        body.push(['', '', '', '', '']); // Empty row for spacing
         body.push([
             { text: `RINGKASAN: ${totalGudang} Gudang Terdaftar`, colSpan: 5, bold: true, fillColor: '#f8f9fa' },
             {},
@@ -518,11 +539,13 @@
 
         const table = $('#gudangTable').DataTable();
 
+        // Apply search filter
         table.search(searchValue).draw();
 
+        // Apply status filter
         if (statusValue) {
             $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-                const status = data[4].toLowerCase(); 
+                const status = data[4].toLowerCase(); // Kolom status (index 4 sekarang)
                 return status.includes(statusValue.toLowerCase());
             });
             table.draw();
@@ -536,6 +559,7 @@
         $('#gudangTable').DataTable().search('').draw();
     }
 
+    // Tangani Hapus Gudang
     let deleteGudangId = null;
 
     function confirmDelete(gudangId, gudangName) {

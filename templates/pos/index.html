@@ -1,20 +1,6 @@
 {% extends 'layout/layout_vertical.html' %}
-{% load static %}
-{% load currency_filters %}
+{% load static %}`r`n{% load currency_filters %}
 {% load i18n %}
-
-{% comment %}
-   ==========================================================================
-   POS (POINT OF SALE) - Halaman Kasir Utama
-   Halaman utama modul kasir/POS. Fitur:
-   - Grid produk dengan search dan filter kategori
-   - Keranjang belanja dengan diskon dan pajak
-   - Modal pembayaran (tunai/non-tunai, kasbon/DP)
-   - Scan barcode via kamera (html5-qrcode)
-   - Cetak struk otomatis setelah transaksi
-   ==========================================================================
-{% endcomment %}
-
 
 {% block title %}Point of Sales (POS/Kasir) - ERP{% endblock title %}
 
@@ -33,7 +19,7 @@
 
 {% block page_css %}
 <style>
-    
+    /* Product Card */
     .pos-product-card {
         cursor: pointer;
         transition: all 0.3s ease;
@@ -69,6 +55,7 @@
         border-radius: 0.5rem;
     }
 
+    /* Mobile: 3 produk per baris */
     @media (max-width: 576px) {
         .pos-product-card .product-info { padding: 0.5rem; }
         .pos-product-card .product-name { font-size: 0.75rem; min-height: 2rem; }
@@ -79,12 +66,13 @@
         .pos-product-img-wrapper { padding: 0.5rem 0.5rem 0; }
     }
 
+    /* Pastikan 3 kolom di semua ukuran layar (termasuk mobile) */
     #productGrid > .product-item {
         flex: 0 0 33.333333% !important;
         max-width: 33.333333% !important;
         width: 33.333333% !important;
     }
-    
+    /* Desktop xl: tetap 4 kolom */
     @media (min-width: 1200px) {
         #productGrid > .product-item {
             flex: 0 0 25% !important;
@@ -93,6 +81,7 @@
         }
     }
 
+    /* Dark mode: border card produk lebih tegas */
     html.dark-style .pos-product-card {
         border: 1px solid rgba(255, 255, 255, 0.2) !important;
     }
@@ -100,6 +89,9 @@
         border-color: rgba(82, 209, 35, 0.5) !important;
     }
 
+    /* Spacing antara Daftar Produk dan Keranjang sudah diatur via gy-4 pada row */
+
+    /* Kasir badge tetap di kanan pada semua ukuran layar */
     .cart-header-flex {
         display: flex !important;
         justify-content: space-between !important;
@@ -145,6 +137,7 @@
         color: #697a8d;
     }
 
+    /* Cart Section */
     .cart-scroll {
         max-height: calc(100vh - 450px);
         overflow-y: auto;
@@ -165,6 +158,7 @@
         border-bottom: none;
     }
 
+    /* Category Pills */
     .category-pill {
         margin-right: 0.5rem;
         margin-bottom: 0.5rem;
@@ -175,6 +169,7 @@
         color: white !important;
     }
 
+    /* Warehouse Card - Support Dark Mode */
     .warehouse-card {
         margin-bottom: 1.5rem;
     }
@@ -229,6 +224,7 @@
         color: #697a8d;
     }
 
+    /* Samakan ukuran Select2 dengan form-control */
     .warehouse-card .select2-container .select2-selection--single {
         height: 48px !important;
         padding: 0 0.875rem !important;
@@ -255,6 +251,10 @@
         border-color: #52d123 !important;
     }
 
+    /* Styling untuk dropdown results Select2 - Materialize Style */
+    /* CRITICAL: Override theme-default.css dengan specificity maksimal */
+
+    /* Default state - White background */
     html body .select2-container--default .select2-results__option {
         padding: 0.625rem 0.875rem !important;
         background-color: #fff !important;
@@ -263,11 +263,13 @@
         border: none !important;
     }
 
+    /* Hover state - Light purple tint */
     html body .select2-container--default .select2-results__option--highlighted {
         background-color: rgba(82, 209, 35, 0.08) !important;
         color: #52d123 !important;
     }
 
+    /* CRITICAL: Override theme-default.css dengan specificity lebih tinggi */
     html body .select2-container--default .select2-results__option--highlighted[aria-selected] {
         background-color: rgba(82, 209, 35, 0.08) !important;
         color: #52d123 !important;
@@ -284,18 +286,21 @@
         font-weight: 500 !important;
     }
 
+    /* Selected state */
     html body .select2-container--default .select2-results__option[aria-selected="true"] {
         background-color: rgba(82, 209, 35, 0.12) !important;
         color: #52d123 !important;
         font-weight: 500 !important;
     }
 
+    /* Fallback overrides */
     html body .select2-container--default .select2-results__option--highlighted[data-selected],
     html body .select2-container--default .select2-results__option--selected {
         background-color: rgba(82, 209, 35, 0.12) !important;
         color: #52d123 !important;
     }
 
+    /* Dropdown container */
     html body .select2-dropdown {
         border: 1px solid #d9dee3 !important;
         border-radius: 0.375rem !important;
@@ -308,11 +313,13 @@
         border-radius: 0.375rem !important;
     }
 
+    /* Ensure no blue background */
     html body .select2-results {
         background-color: #fff !important;
         border-radius: 0.375rem !important;
     }
 
+    /* Empty State */
     .empty-state {
         padding: 3rem 1rem;
         text-align: center;
@@ -324,6 +331,7 @@
         margin-bottom: 1rem;
     }
 
+    /* Payment Modal */
     .payment-method-card {
         cursor: pointer;
         transition: all 0.2s ease;
@@ -372,6 +380,7 @@
         font-weight: 600;
     }
 
+    /* Payment Modal Header — padding simetris atas bawah kiri kanan */
     #paymentModal .modal-header {
         padding: 1rem 1.25rem;
     }
@@ -394,12 +403,14 @@
         margin: 0;
     }
 
+    /* Product grid separator */
     #productGrid {
         border-top: 1px solid rgba(0, 0, 0, 0.08);
         padding-top: 1rem !important;
         margin-top: 0.25rem;
     }
 
+    /* Tombol Quantity Compact */
     .quantity-controls {
         display: inline-flex;
         align-items: center;
@@ -428,7 +439,7 @@
 
 {% block content %}
 <div class="container-xxl flex-grow-1 container-p-y">
-    
+    <!-- Warehouse & Customer Card -->
     <div class="card warehouse-card">
         <div class="card-body">
             <div class="row g-3">
@@ -461,7 +472,7 @@
     </div>
 
     <div class="row gy-4">
-        
+        <!-- Product Section -->
         <div class="col-xl-8 col-lg-7">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -471,7 +482,7 @@
                     <span class="badge bg-primary" id="productCountBadge">{{ produk_list|length }} Produk</span>
                 </div>
                 <div class="card-body">
-                    
+                    <!-- Category Filter -->
                     <div class="mb-4">
                         <button class="btn btn-sm btn-primary rounded-pill category-pill active"
                             onclick="filterCategory('all')">
@@ -485,6 +496,7 @@
                         {% endfor %}
                     </div>
 
+                    <!-- Search Bar -->
                     <div class="input-group mb-4">
                         <span class="input-group-text"><i class="ri-search-line"></i></span>
                         <input type="text" class="form-control" placeholder="Cari produk..." id="searchInput"
@@ -494,6 +506,7 @@
                         </button>
                     </div>
 
+                    <!-- Product Grid -->
                     <div class="row g-3" id="productGrid" style="max-height: calc(100vh - 460px); overflow-y: auto;">
                         {% for produk in produk_list %}
                         <div class="col-xl-3 col-lg-4 col-md-4 col-4 product-item cat-{{ produk.kategori.id }}"
@@ -540,6 +553,7 @@
             </div>
         </div>
 
+        <!-- Cart Section -->
         <div class="col-xl-4 col-lg-5 cart-section-col">
             <div class="card">
                 <div class="card-header cart-header-flex">
@@ -565,6 +579,7 @@
                         <span class="fw-semibold" id="summarySubtotal">Rp 0</span>
                     </div>
                     
+                    <!-- Input Diskon (dalam persen, opsional) -->
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-muted">
                             Diskon <small class="text-danger" id="diskonNominalLabel"></small>
@@ -576,6 +591,7 @@
                         </div>
                     </div>
                     
+                    <!-- Info Pajak dari Cabang -->
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-muted">
                             Pajak <small class="text-muted" id="pajakPersenLabel">(0%)</small>
@@ -613,6 +629,7 @@
     </div>
 </div>
 
+<!-- Payment Modal -->
 <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -624,6 +641,7 @@
             </div>
             <div class="modal-body">
 
+                <!-- Metode Pembayaran -->
                 <div class="mb-3">
                     <label class="form-label fw-semibold mb-2">
                         <i class="ri-bank-card-line me-1"></i>Metode Pembayaran
@@ -648,6 +666,7 @@
 
                 <hr class="my-3">
 
+                <!-- Data Customer (Opsional) -->
                 <div class="mb-3">
                     <label class="form-label fw-semibold">
                         <i class="ri-user-line me-1"></i>Customer <span class="text-muted fw-normal">(Opsional)</span>
@@ -658,7 +677,7 @@
                                 <label class="form-label small mb-1">Nama Customer</label>
                                 <input type="text" class="form-control form-control-sm" id="custInputNama" placeholder="Ketik nama untuk mencari..." autocomplete="off">
                                 <input type="hidden" id="custSelectedId" value="">
-                                
+                                <!-- Suggestion list muncul saat mengetik -->
                                 <div id="custSuggestionList" class="list-group position-absolute w-100" style="z-index: 1050; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: var(--bs-body-bg, #fff); border: 1px solid var(--bs-border-color, #d9dee3); border-radius: 0.375rem;"></div>
                             </div>
                             <div class="col-md-6">
@@ -677,6 +696,7 @@
                     </div>
                 </div>
 
+                <!-- Catatan (Opsional) — dipindah ke atas Uang Diterima -->
                 <div class="mb-3">
                     <label class="form-label">
                         <i class="ri-file-text-line me-1"></i>Catatan (Opsional)
@@ -685,6 +705,8 @@
                         placeholder="Tambahkan catatan..."></textarea>
                 </div>
 
+
+                <!-- Uang Diterima -->
                 <div class="mb-3">
                     <label class="form-label fw-semibold">
                         <i class="ri-money-dollar-circle-line me-1"></i>Uang Diterima
@@ -705,11 +727,13 @@
                     </div>
                 </div>
 
+                <!-- Total Tagihan (di atas) -->
                 <div class="alert alert-primary text-center mb-2 py-2">
                     <small class="d-block mb-1">Total Tagihan</small>
                     <h4 class="mb-0 text-primary fw-bold" id="modalTotalAmount">Rp 0</h4>
                 </div>
 
+                <!-- Kembalian (di bawah Total Tagihan) -->
                 <div class="alert alert-success text-center mb-0 py-2" id="changeAlert">
                     <small class="d-block mb-1">Kembalian</small>
                     <h4 class="mb-0 fw-bold" id="changeAmount">Rp 0</h4>
@@ -731,7 +755,7 @@
     let cart = [];
     let currentGudangId = null;
     let selectedPaymentMethod = null;
-    let currentPajakPersen = 0; 
+    let currentPajakPersen = 0; // Pajak persen dari gudang/cabang
 
     $(document).ready(function () {
         $('#gudangSelect').select2({
@@ -740,12 +764,14 @@
             dropdownParent: $('.warehouse-card')
         });
 
+        // Inisialisasi Select2 pada kasirSelect agar sama dengan gudangSelect
         $('#kasirSelect').select2({
             placeholder: '-- Pilih Kasir --',
             allowClear: false,
             dropdownParent: $('.warehouse-card')
         });
 
+        // Update badge Kasir saat kasir diganti
         $('#kasirSelect').on('change', function () {
             const selectedText = $(this).find('option:selected').text().trim();
             $('#kasirBadgeName').text(selectedText || '{{ request.user.get_full_name|default:request.user.username|escapejs }}');
@@ -753,20 +779,21 @@
 
         $('#gudangSelect').on('change', function () {
             currentGudangId = $(this).val();
-            
+            // Ambil pajak persen dari opsi yang dipilih
             const selectedOption = $(this).find('option:selected');
             currentPajakPersen = parseFloat(selectedOption.data('pajak')) || 0;
             
+            // Update label pajak
             $('#pajakPersenLabel').text(`(${currentPajakPersen}%)`);
             
             if (!currentGudangId) {
                 cart = [];
                 currentPajakPersen = 0;
                 $('#pajakPersenLabel').text('(0%)');
-                
+                // Reset stok display ke nilai asli (semua habis jika tidak ada gudang)
                 resetStockDisplay();
             } else {
-                
+                // Ambil stok dari gudang yang dipilih
                 updateStockDisplayByGudang(currentGudangId);
             }
             renderCart();
@@ -784,6 +811,7 @@
             return;
         }
 
+        // Pastikan id adalah string untuk konsistensi
         const productId = String(id);
 
         const existingItem = cart.find(item => item.id === productId);
@@ -816,6 +844,7 @@
         renderCart();
     }
 
+    // Fungsi wrapper untuk menangani click dari button dengan data-attributes
     function addToCartFromButton(button) {
         const id = button.getAttribute('data-produk-id');
         const nama = button.getAttribute('data-produk-nama');
@@ -850,7 +879,7 @@
         const btnDraft = document.getElementById('btnDraft');
 
         if (cart.length === 0) {
-            
+            // Clear semua kecuali emptyMsg
             const children = Array.from(container.children);
             children.forEach(child => {
                 if (child.id !== 'emptyCartMessage') {
@@ -867,12 +896,13 @@
             return;
         }
 
+        // Sembunyikan pesan kosong
         if (emptyMsg) {
             emptyMsg.style.display = 'none';
         }
 
         let subtotal = 0;
-        let cartItemsHTML = ''; 
+        let cartItemsHTML = ''; // Gunakan variable untuk menampung semua HTML
 
         cart.forEach(item => {
             const itemTotal = (item.price * item.qty) - item.diskon;
@@ -914,9 +944,10 @@
                     </div>
                 </div>
             `;
-            cartItemsHTML += itemHTML; 
+            cartItemsHTML += itemHTML; // Tambahkan ke variable, bukan langsung ke DOM
         });
 
+        // Clear semua cart items lama (kecuali emptyMsg)
         const children = Array.from(container.children);
         children.forEach(child => {
             if (child.id !== 'emptyCartMessage') {
@@ -924,6 +955,7 @@
             }
         });
 
+        // Tambahkan cart items baru
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = cartItemsHTML;
         while (tempDiv.firstChild) {
@@ -933,24 +965,29 @@
         btnPay.disabled = false;
         btnDraft.disabled = false;
 
+        // Hitung dengan diskon dan pajak dari cabang
         updateDiskonPajak();
     }
 
+    // Fungsi untuk update diskon (persen) dan pajak
     function updateDiskonPajak() {
         let subtotal = 0;
         cart.forEach(item => {
             subtotal += (item.price * item.qty) - item.diskon;
         });
         
+        // Diskon dalam persen
         const diskonPersen = parseFloat($('#inputDiskon').val()) || 0;
         const diskonNominal = subtotal > 0 ? Math.round(subtotal * diskonPersen / 100) : 0;
         
+        // Update label diskon nominal
         if (diskonNominal > 0) {
             $('#diskonNominalLabel').text('(-Rp ' + diskonNominal.toLocaleString('id-ID') + ')');
         } else {
             $('#diskonNominalLabel').text('');
         }
         
+        // Pajak dihitung dari subtotal setelah diskon
         const subtotalAfterDiskon = subtotal - diskonNominal;
         const pajak = subtotalAfterDiskon > 0 ? Math.round(subtotalAfterDiskon * currentPajakPersen / 100) : 0;
         
@@ -1032,13 +1069,16 @@
         document.getElementById('changeAmount').innerText = 'Rp 0';
         document.getElementById('transactionNotes').value = '';
 
+        // Reset alert kembalian ke success
         const changeAlert = document.getElementById('changeAlert');
         changeAlert.classList.remove('alert-danger');
         changeAlert.classList.add('alert-success');
 
+        // Reset metode pembayaran
         document.querySelectorAll('.payment-method-card').forEach(card => card.classList.remove('selected'));
         selectedPaymentMethod = null;
 
+        // Reset customer form
         document.getElementById('custInputNama').value = '';
         document.getElementById('custInputTelepon').value = '';
         document.getElementById('custInputEmail').value = '';
@@ -1060,8 +1100,14 @@
         document.getElementById(`method${methodId}`).checked = true;
     }
 
-    const customerDataList = ;
+    // === Data customer dari Django (untuk autocomplete) ===
+    const customerDataList = [
+        {% for cust in customer_list %}
+        { id: {{ cust.id }}, nama: "{{ cust.nama|escapejs }}", telepon: "{{ cust.telepon|default:''|escapejs }}", email: "{{ cust.email|default:''|escapejs }}", alamat: "{{ cust.alamat|default:''|escapejs }}" },
+        {% endfor %}
+    ];
 
+    // === Autocomplete pada field Nama Customer ===
     const custNamaInput = document.getElementById('custInputNama');
     const custSuggestionList = document.getElementById('custSuggestionList');
 
@@ -1080,7 +1126,7 @@
         if (matches.length === 0) {
             custSuggestionList.innerHTML = '<div class="list-group-item text-muted small py-2"><i class="ri-information-line me-1"></i>Customer baru — data akan dibuat otomatis</div>';
             custSuggestionList.style.display = 'block';
-            
+            // Enable all fields for new customer
             document.getElementById('custInputTelepon').readOnly = false;
             document.getElementById('custInputEmail').readOnly = false;
             document.getElementById('custInputAlamat').readOnly = false;
@@ -1094,13 +1140,13 @@
             item.innerHTML = '<strong>' + cust.nama + '</strong>' + (cust.telepon ? ' <small class="text-muted">(' + cust.telepon + ')</small>' : '');
             item.addEventListener('mousedown', function(e) {
                 e.preventDefault();
-                
+                // Set semua field dari data customer terdaftar
                 custNamaInput.value = cust.nama;
                 document.getElementById('custInputTelepon').value = cust.telepon;
                 document.getElementById('custInputEmail').value = cust.email;
                 document.getElementById('custInputAlamat').value = cust.alamat;
                 document.getElementById('custSelectedId').value = cust.id;
-                
+                // Readonly karena dari database
                 document.getElementById('custInputTelepon').readOnly = true;
                 document.getElementById('custInputEmail').readOnly = true;
                 document.getElementById('custInputAlamat').readOnly = true;
@@ -1111,13 +1157,15 @@
         custSuggestionList.style.display = 'block';
     });
 
+    // Tutup suggestion list saat klik di luar
     custNamaInput.addEventListener('blur', function() {
         setTimeout(() => { custSuggestionList.style.display = 'none'; }, 200);
     });
 
+    // Saat user menghapus/mengubah nama setelah pilih customer → reset ke mode baru
     custNamaInput.addEventListener('keydown', function() {
         if (document.getElementById('custSelectedId').value) {
-            
+            // User mengubah nama setelah memilih customer terdaftar
             document.getElementById('custSelectedId').value = '';
             document.getElementById('custInputTelepon').value = '';
             document.getElementById('custInputEmail').value = '';
@@ -1128,6 +1176,7 @@
         }
     });
 
+    // === Handler Pilih Kasir — update badge di keranjang ===
     document.getElementById('kasirSelect').addEventListener('change', function() {
         const selectedOption = this.options[this.selectedIndex];
         document.getElementById('kasirBadgeName').textContent = selectedOption.text;
@@ -1181,6 +1230,7 @@
             return;
         }
 
+        // Ambil data customer dari form fields modal pembayaran
         const customerId = document.getElementById('custSelectedId').value || null;
         const customerName = document.getElementById('custInputNama').value.trim() || 'Umum';
 
@@ -1218,7 +1268,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    
+                    // Tutup modal pembayaran dulu sebelum tampilkan Swal
                     const payModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
                     if (payModal) payModal.hide();
 
@@ -1251,6 +1301,7 @@
             });
     }
 
+    // Fungsi untuk menyimpan Draft transaksi
     function saveDraft() {
         if (cart.length === 0) {
             Swal.fire({
@@ -1273,6 +1324,7 @@
             saved_at: new Date().toISOString()
         };
 
+        // Simpan ke localStorage
         let drafts = JSON.parse(localStorage.getItem('pos_drafts') || '[]');
         drafts.push(draftData);
         localStorage.setItem('pos_drafts', JSON.stringify(drafts));
@@ -1283,28 +1335,32 @@
             text: 'Keranjang berhasil disimpan sebagai draft!',
             confirmButtonColor: '#52d123'
         }).then(() => {
-            
+            // Reset keranjang setelah disimpan
             cart = [];
             renderCart();
         });
     }
 
+    // Fungsi untuk memuat draft (opsional - bisa diakses dari riwayat)
     function loadDrafts() {
         return JSON.parse(localStorage.getItem('pos_drafts') || '[]');
     }
 
+    // Fungsi untuk update tampilan stok berdasarkan gudang yang dipilih
     function updateStockDisplayByGudang(gudangId) {
         if (!gudangId) {
             resetStockDisplay();
             return;
         }
 
+        // Panggil API untuk mendapatkan semua stok berdasarkan gudang
         fetch(`/pos/api/get-stocks-by-gudang/?gudang_id=${gudangId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     const stocks = data.stocks;
                     
+                    // Update setiap kartu produk
                     document.querySelectorAll('.product-item').forEach(card => {
                         const produkId = card.dataset.produkId;
                         const stockDisplay = card.querySelector(`.stock-display[data-produk-id="${produkId}"]`);
@@ -1312,12 +1368,15 @@
                         const stockValueSpan = stockDisplay ? stockDisplay.querySelector('.stock-value') : null;
                         const satuan = stockDisplay ? stockDisplay.dataset.satuan : 'pcs';
                         
+                        // Ambil stok dari response, default 0 jika tidak ada
                         const stok = stocks[produkId] ? stocks[produkId].jumlah : 0;
                         
+                        // Update tampilan stok
                         if (stockValueSpan) {
                             stockValueSpan.textContent = stok;
                         }
                         
+                        // Update badge berdasarkan jumlah stok
                         if (stockBadge) {
                             stockBadge.style.display = '';
                             stockBadge.className = 'product-badge';
@@ -1348,6 +1407,7 @@
             });
     }
 
+    // Fungsi untuk reset tampilan stok (saat tidak ada gudang dipilih)
     function resetStockDisplay() {
         document.querySelectorAll('.product-item').forEach(card => {
             const produkId = card.dataset.produkId;
@@ -1355,10 +1415,12 @@
             const stockBadge = card.querySelector(`.product-badge[data-produk-id=\"${produkId}\"]`);
             const stockValueSpan = stockDisplay ? stockDisplay.querySelector('.stock-value') : null;
             
+            // Reset stok ke 0 (karena belum pilih gudang)
             if (stockValueSpan) {
                 stockValueSpan.textContent = '0';
             }
             
+            // Tampilkan badge "Pilih Gudang"
             if (stockBadge) {
                 stockBadge.className = 'product-badge badge bg-secondary';
                 stockBadge.textContent = 'Pilih Gudang';
@@ -1367,6 +1429,7 @@
         });
     }
 
+    // Reset stock display saat halaman dimuat (belum ada gudang dipilih)
     $(document).ready(function() {
         resetStockDisplay();
     });

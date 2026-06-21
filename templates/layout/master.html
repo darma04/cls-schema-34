@@ -16,13 +16,13 @@
     <title>{% block title %}{% endblock title %} | {{ system_title|default:"SIMKOS" }}</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
-    
+    <!-- Meta Deskripsi SEO (Dinamis dari Pengaturan Meta Sistem) -->
     <meta name="description" content="{% if system_description %}{{ system_description }}{% else %}{% get_theme_variables 'template_description' %}{% endif %}" />
-    
+    <!-- Meta Keywords SEO (Dinamis dari Pengaturan Meta Sistem) -->
     <meta name="keywords" content="{% if system_keywords %}{{ system_keywords }}{% else %}{% get_theme_variables 'template_keyword' %}{% endif %}" />
-    
+    <!-- Canonical SEO -->
     <link rel="canonical" href="{% get_theme_variables 'product_page' %}">
-    
+    <!-- Favicon (dinamis dari Pengaturan Sistem) -->
     {% if system_favicon_url %}
     <link rel="icon" type="image/png" href="{{ system_favicon_url }}" />
     <link rel="shortcut icon" href="{{ system_favicon_url }}" />
@@ -31,26 +31,34 @@
     <link rel="shortcut icon" href="{% static 'img/favicon/logo-default.png' %}" />
     {% endif %}
 
+    <!-- Include the styles partial -->
     {% include is_front|yesno:"./partials/styles_front.html,./partials/styles.html" %}
 
     {% block vendor_css %}{% endblock vendor_css %}
 
+    <!--Page CSS-->
     {% block page_css %}{% endblock page_css %}
 
+
+    <!-- Include the scripts partial (required ) -->
     {% include is_front|yesno:"./partials/scripts_includes_front.html,./partials/scripts_includes.html" %}
 
+    <!-- ═══════════════════════════════════════════════════════════════════
+         RBAC GLOBAL UI GATING: CSS Auto-Hider (Action Masking)
+         Menyembunyikan action button secara mutlak jika tidak ada permission
+         ═══════════════════════════════════════════════════════════════════ -->
     {% if rbac_current_module %}
     <style>
         {% if rbac_can_delete == False %}
-        
+        /* Hiden aksi delete secara global */
         .btn-delete, [data-action="delete"], [data-bs-target*="delete"], [data-bs-target*="Delete"], form[action*="delete"] button[type="submit"], a[href*="delete"], a[href*="hapus"] { display: none !important; }
         {% endif %}
         {% if rbac_can_create == False %}
-        
+        /* Hiden aksi create secara global */
         .btn-create, [data-action="create"], a[href*="tambah"], a[href*="create"] { display: none !important; }
         {% endif %}
         {% if rbac_can_edit == False %}
-        
+        /* Hiden aksi edit di list dan detail secara global */
         .btn-edit, [data-action="edit"], [data-bs-target*="edit"], [data-bs-target*="Edit"], a[href*="edit"], a[href*="ubah"], a[href*="update"], a[href*="perbarui"] { display: none !important; }
         {% endif %}
     </style>
@@ -59,28 +67,36 @@
 
   <body>
 
+    
+    <!-- beautify ignore:end -->
+
     {% block layout %}
     {% endblock layout %}
 
     {% include is_front|yesno:"./partials/scripts_front.html,./partials/scripts.html" %}
 
+    <!--Vendors Javascript-->
     {% block vendor_js %} {% endblock vendor_js %}
 
+    <!--Page Javascript-->
     {% block page_js %} {% endblock page_js %}
 
     {% include "partials/refresh_cache_button.html" %}
 
-    {% if user.is_authenticated %}
     {% load ai_tags %}
     {% get_ai_name as ai_display_name %}
     {% include "partials/ai_chat_widget.html" with ai_name=ai_display_name %}
-    {% endif %}
 
+    <!-- ═══════════════════════════════════════════════════════════════════
+         RBAC GLOBAL UI GATING: JS Auto-Disabler (Form Locking)
+         Mengubah seluruh input di form menjadi readonly jika tidak ada akses
+         ═══════════════════════════════════════════════════════════════════ -->
     {% if is_readonly_mode %}
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         console.warn('🔒 [RBAC] Read-Only Mode Activated: Form Dinonaktifkan!');
         
+        // 1. Matikan semua input standar (kecuali pencarian dataTables/pencarian dropdown)
         const inputs = document.querySelectorAll('.card-body form input:not([type="hidden"]), .card-body form select, .card-body form textarea');
         inputs.forEach(input => {
             if(!input.closest('.dataTables_filter')) {
@@ -90,14 +106,16 @@
             }
         });
 
+        // 2. Sembunyikan semua tombol Submit di dalam card form
         const submitBtns = document.querySelectorAll('.card-body form button[type="submit"], .card-body form input[type="submit"], .card-body form button:not(.btn-close), .card-body button[type="submit"]');
         submitBtns.forEach(btn => {
-            
+            // pengecualian khusus tombol yang memang perlu di detail page seperti kembali
             if(btn.id !== 'testBtn' && btn.innerText.toLowerCase().indexOf('kembali') === -1) {
                 btn.style.display = 'none';
             }
         });
 
+        // 3. Tambahkan Alert Peringatan di atas Form (dalam card pertama)
         const cardBody = document.querySelector('.card-body');
         if(cardBody) {
             const form = cardBody.querySelector('form');

@@ -7,8 +7,7 @@
    Fitur: filter, search, export, detail.
    ==========================================================================
 {% endcomment %}
-{% load static %}
-{% load currency_filters %}
+{% load static %}`r`n{% load currency_filters %}
 {% load i18n %}
 
 {% block title %}Daftar Invoice - POS{% endblock title %}
@@ -31,7 +30,7 @@
 
 {% block content %}
 <div class="container-xxl flex-grow-1 container-p-y">
-    
+    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1">
@@ -46,6 +45,7 @@
         {% endif %}
     </div>
 
+    <!-- Filter Card -->
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-3">
@@ -78,6 +78,7 @@
                 </div>
             </div>
 
+            <!-- Baris 2: Pilih Kolom (kiri) dan Tombol Filter (kanan) -->
             <div class="row g-3 mt-2 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label">Pilih Kolom</label>
@@ -153,6 +154,7 @@
         </div>
     </div>
 
+    <!-- Invoice List Card -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Riwayat Transaksi</h5>
@@ -265,13 +267,39 @@
                             <i class="ri-file-list-3-line ri-3x text-muted mb-3 d-block"></i>
                             <p class="text-muted">Belum ada transaksi</p>
                         </td>
-                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    </tr>
                     {% endfor %}
                 </tbody>
+                <tfoot class="table-footer-summary">
+                    <tr>
+                        <td colspan="4" class="text-start ps-4 py-3" style="vertical-align: middle;">
+                            <div class="d-flex align-items-center justify-content-start">
+                                <i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i>
+                                <div class="text-start">
+                                    <strong class="d-block" style="font-size: 1rem;">RINGKASAN</strong>
+                                    <small class="text-muted" style="font-size: 0.75rem;">{{ total_invoice }}
+                                        Invoice</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3" style="vertical-align: middle;">
+                            <div class="d-flex flex-column align-items-center">
+                                <span class="badge bg-label-success d-flex align-items-center gap-1 mb-2"
+                                    style="font-size: 0.9rem; padding: 0.5rem 0.75rem; min-width: 120px;">
+                                    <i class="ri-money-dollar-circle-line"></i>
+                                    <span>Rp {{ total_amount_invoice|floatformat:0 }}</span>
+                                </span>
+                                <small class="text-muted fw-medium" style="font-size: 0.75rem;">Total Pendapatan</small>
+                            </div>
+                        </td>
+                        <td colspan="3" class="py-3"></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteInvoiceModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -307,7 +335,7 @@
 
 {% block page_js %}
 <style>
-    
+    /* Custom Spacing untuk DataTables - Materialize Style */
     .dataTables_wrapper .dataTables_info {
         padding: 1rem 1.5rem;
         font-size: 0.875rem;
@@ -335,6 +363,7 @@
         padding: 0.4375rem 2rem 0.4375rem 0.875rem;
     }
 
+    /* Pagination Materialize Style */
     .dataTables_wrapper .dataTables_paginate .paginate_button {
         padding: 0.438rem 0.875rem;
         border-radius: 0.375rem;
@@ -361,6 +390,7 @@
         cursor: not-allowed;
     }
 
+    /* Table styling improvements */
     .card-datatable {
         padding-bottom: 0;
     }
@@ -372,6 +402,7 @@
         letter-spacing: 0;
     }
 
+    /* Mobile Horizontal Scroll */
     @media (max-width: 768px) {
         .card-datatable {
             overflow-x: hidden !important;
@@ -394,8 +425,9 @@
 
 <script>
     $(document).ready(function () {
-        
+        // Inisialisasi DataTable
         {% if transactions %}
+        {% if metode_pembayaran %}
         const table = $('#invoiceTable').DataTable({
             language: {
                 "sEmptyTable": "Tidak ada data yang tersedia pada tabel ini",
@@ -419,7 +451,7 @@
             pageLength: 25,
             lengthMenu: [[10, 25, 50, 75, 100, -1], ['10', '25', '50', '75', '100', 'Semua']],
             responsive: false,
-            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>><"table-responsive"rt><"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
             buttons: [
                 {
                     extend: 'excel',
@@ -433,12 +465,14 @@
                 }
             ],
             initComplete: function () {
-                
+                // Tambahkan placeholder pada search input
                 $('.dataTables_filter input').attr('placeholder', 'Cari invoice...');
             }
         });
         {% endif %}
+        {% endif %}
 
+        // Inisialisasi Flatpickr
         flatpickr('#startDate', {
             dateFormat: 'Y-m-d',
             locale: 'id'
@@ -451,18 +485,20 @@
     });
 
     function applyFilter() {
-        
+        // Implement filter logic
         const startDate = $('#startDate').val();
         const endDate = $('#endDate').val();
         const status = $('#statusFilter').val();
         const payment = $('#paymentFilter').val();
 
+        // Bangun query string
         const params = new URLSearchParams();
         if (startDate) params.append('start', startDate);
         if (endDate) params.append('end', endDate);
         if (status) params.append('status', status);
         if (payment) params.append('payment', payment);
 
+        // Reload page with filters
         window.location.href = '{% url "pos:invoice_list" %}?' + params.toString();
     }
 
@@ -470,6 +506,7 @@
         window.location.href = '{% url "pos:invoice_list" %}';
     }
 
+    // Company Information (from Template Cetak settings)
     const COMPANY_INFO = {
         name: "{{ export_pdf_template.header_nama_perusahaan }}",
         address: "{{ export_pdf_template.header_alamat }}",
@@ -487,9 +524,10 @@
         const table = document.getElementById('invoiceTable');
         if (!table) return;
 
+        // Table headers: 0=No.Trx, 1=Tgl, 2=Cust, 3=Kasir, 4=Total, 5=Bayar, 6=Status, 7=Aksi
         const headers = table.querySelectorAll('thead th');
         headers.forEach((th, index) => {
-            if (index === headers.length - 1) return; 
+            if (index === headers.length - 1) return; // Always show Aksi
             th.style.display = selectedCols.includes(index.toString()) ? '' : 'none';
         });
 
@@ -497,12 +535,13 @@
         rows.forEach(tr => {
             const cells = tr.querySelectorAll('td');
             cells.forEach((td, index) => {
-                if (index === cells.length - 1) return; 
+                if (index === cells.length - 1) return; // Always show Aksi
                 td.style.display = selectedCols.includes(index.toString()) ? '' : 'none';
             });
         });
     }
 
+    // Centang semua checkbox kolom
     function selectAllColumns() {
         document.querySelectorAll('.column-checkbox').forEach(cb => {
             cb.checked = true;
@@ -510,6 +549,7 @@
         toggleColumns();
     }
 
+    // Batalkan semua centang checkbox kolom
     function deselectAllColumns() {
         document.querySelectorAll('.column-checkbox').forEach(cb => {
             cb.checked = false;
@@ -519,8 +559,9 @@
 
     function exportToExcel() {
         const table = document.getElementById('invoiceTable');
-        if (!table) { showExportError(); return; }
+        if (!table) { alert('Tabel tidak ditemukan!'); return; }
 
+        // Buat tabel HTML untuk Excel (format .xls)
         let html = '<table border="1">';
         html += '<thead><tr style="background-color: #52d123; color: #FFFFFF; font-weight: bold;">';
 
@@ -551,13 +592,14 @@
             });
         }
 
+        // Tambah baris RINGKASAN — setiap nilai di kolom terpisah
         const totalInvoice = '{{ total_invoice }}';
         const totalPendapatan = '{{ total_amount_invoice|floatformat:0 }}';
         html += '<tr style="background-color: #f8f9fa; font-weight: bold;">';
         html += `<td colspan="4">RINGKASAN (${totalInvoice} Invoice)</td>`;
-        html += '<td></td>'; 
-        html += `<td>${totalPendapatan}</td>`; 
-        html += '<td></td>'; 
+        html += '<td></td>'; // Status column
+        html += `<td>${totalPendapatan}</td>`; // Total Pendapatan
+        html += '<td></td>'; // Payment column
         html += '</tr>';
         html += '</tbody></table>';
 
@@ -571,7 +613,7 @@
     function exportToPDF() {
         if (typeof pdfMake === 'undefined') { alert('pdfMake library tidak tersedia!'); return; }
         const table = document.getElementById('invoiceTable');
-        if (!table) { showExportError(); return; }
+        if (!table) { alert('Tabel tidak ditemukan!'); return; }
 
         const headers = [];
         const headerRow = table.querySelector('thead tr');
@@ -608,6 +650,7 @@
             });
         }
 
+        // Tambah baris RINGKASAN
         const totalInvoice = '{{ total_invoice }}';
         const totalPendapatan = '{{ total_amount_invoice|rupiah }}';
         const summaryRow = [
@@ -655,6 +698,7 @@
         pdfMake.createPdf(docDefinition).download('Daftar_Invoice_' + new Date().toISOString().slice(0, 10) + '.pdf');
     }
 
+    // Tangani Hapus Invoice
     let deleteInvoiceId = null;
 
     function confirmDelete(invoiceId, invoiceNumber) {
@@ -671,10 +715,13 @@
         const btn = $(this);
         const originalText = btn.html();
 
+        // Nonaktifkan tombol dan tampilkan loading
         btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>Menghapus...');
 
+        // Ambil CSRF token
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
+        // Send delete request
         $.ajax({
             url: `/pos/invoice/${deleteInvoiceId}/delete/`,
             type: 'DELETE',
@@ -683,9 +730,10 @@
             },
             success: function (response) {
                 if (response.success) {
-                    
+                    // Tutup modal
                     $('#deleteInvoiceModal').modal('hide');
 
+                    // Tampilkan pesan sukses
                     const alertHtml = `
                         <div class="alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" 
                              style="z-index: 9999; min-width: 300px;" role="alert">
@@ -695,6 +743,7 @@
                     `;
                     $('body').append(alertHtml);
 
+                    // Auto-hide and reload
                     setTimeout(function () {
                         $('.alert').fadeOut(function () { $(this).remove(); });
                     }, 3000);
@@ -737,42 +786,4 @@
         }, 5000);
     }
 </script>
-
-<div class="modal fade" id="exportErrorModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-warning align-items-center py-3">
-                <h5 class="modal-title text-dark mb-0">
-                    <i class="ri-error-warning-line me-2"></i>Export Gagal
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="text-center py-3">
-                    <i class="ri-file-warning-line text-warning" style="font-size: 4rem;"></i>
-                    <h4 class="mt-3 mb-2">Tabel Tidak Ditemukan</h4>
-                    <p class="text-muted mb-0">Tidak ada data tabel yang dapat di-export. Pastikan tabel sudah dimuat dengan benar sebelum melakukan export.</p>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
-                    <i class="ri-close-line me-1"></i>Tutup
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-
-function showExportError() {
-    var modal = document.getElementById('exportErrorModal');
-    if (modal) {
-        new bootstrap.Modal(modal).show();
-    } else {
-        alert('Tabel tidak ditemukan!');
-    }
-}
-</script>
-
 {% endblock page_js %}

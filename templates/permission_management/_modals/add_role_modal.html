@@ -28,7 +28,7 @@
           </div>
 
           <div id="permissionCheckboxContainer" class="col-12">
-            
+            <!-- Will be populated by JavaScript -->
           </div>
 
           <div class="col-12 text-center mt-4">
@@ -44,7 +44,7 @@
 </div>
 
 <style>
-  
+  /* ═══ Permission Card Styles ═══ */
   .perm-card {
     border: 1px solid rgba(0,0,0,.08);
     border-radius: .5rem;
@@ -90,6 +90,7 @@
     line-height: 1;
   }
 
+  /* Sub-module table */
   .perm-sub-table {
     width: 100%;
     border-collapse: collapse;
@@ -131,9 +132,10 @@
 </style>
 
 <script>
-
+// Module and Sub-Module structure from model
 const MODULE_STRUCTURE = {{ module_structure|safe }};
 
+// Icon mapping for CLS modules (matches sidebar icons)
 const MODULE_ICONS = {
   'dashboard': 'ri-home-smile-line',
   'licenses': 'ri-key-2-line',
@@ -239,6 +241,7 @@ function renderPermissionCheckboxes(containerId, mode = 'add') {
   _renderedContainers[guardKey] = true;
 }
 
+// Inisialisasi Add Role Modal
 document.addEventListener('DOMContentLoaded', function() {
   const addModal = document.getElementById('addRoleModal');
   const addForm = document.getElementById('addRoleForm');

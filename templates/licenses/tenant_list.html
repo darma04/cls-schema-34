@@ -28,7 +28,7 @@
 
 {% block content %}
 <div class="container-xxl flex-grow-1 container-p-y">
-    
+    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1"><i class="ri-server-line me-2"></i>Tenant Management</h4>
@@ -52,6 +52,7 @@
     {% endfor %}
     {% endif %}
 
+    <!-- Server Status Cards -->
     <div class="row mb-4">
         {% for code, status in server_statuses.items %}
         <div class="col-md-4 mb-3 mb-md-0">
@@ -91,6 +92,7 @@
         {% endfor %}
     </div>
 
+    <!-- New Tenant Info Card -->
     {% if request.session.new_tenant_info %}
     <div class="card mb-4 shadow-none" id="newTenantAlert">
         <div class="card-header d-flex justify-content-between align-items-center py-3" style="background: linear-gradient(135deg, rgba(115, 103, 240, 0.08), rgba(40, 199, 111, 0.06));">
@@ -155,6 +157,7 @@
     </div>
     {% endif %}
 
+    <!-- Filter Card -->
     <div class="card mb-4">
         <div class="card-body">
             <form method="GET" id="filterForm">
@@ -181,7 +184,7 @@
                     <input type="text" name="end_date" class="form-control flatpickr-input" id="endDate" value="{{ request.GET.end_date }}" placeholder="Pilih tanggal akhir">
                 </div>
             </div>
-            
+            <!-- Baris kedua: Pilih Kolom (kiri) dan Tombol Filter (kanan) -->
             <div class="row g-3 mt-2 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label">Pilih Kolom</label>
@@ -220,6 +223,7 @@
         </div>
     </div>
 
+    <!-- Data Table Card -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Daftar Tenant</h5>
@@ -285,9 +289,21 @@
                             <div class="mb-2"><i class="ri-server-line ri-48px text-muted"></i></div>
                             <p class="text-muted mb-0">Belum ada tenant. Klik "Buat Tenant Baru" untuk memulai.</p>
                         </td>
-                    <td></td><td></td><td></td><td></td><td></td></tr>
+                    </tr>
                     {% endfor %}
                 </tbody>
+                <tfoot class="table-footer-summary">
+                    <tr>
+                        <td class="text-start ps-4 py-3" style="vertical-align: middle;">
+                            <div class="d-flex align-items-center"><i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i><div class="text-start"><strong class="d-block" style="font-size: 1rem;">RINGKASAN</strong><small class="text-muted" style="font-size: 0.75rem;">{{ total_tenants|default:"0" }} Tenant Terdaftar</small></div></div>
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
@@ -309,22 +325,20 @@
     .datatables-tenant thead th { font-weight: 600; font-size: 0.8125rem; text-transform: none; letter-spacing: 0; }
     @media (max-width: 768px) {
         .card-datatable { overflow-x: hidden !important; -webkit-overflow-scrolling: touch; max-width: 100%; }
-        {% if messages %}.datatables-tenant { min-width: 900px !important; width: 900px !important; table-layout: auto !important; }{% endif %}
+        .datatables-tenant { min-width: 900px !important; width: 900px !important; table-layout: auto !important; }
         .dataTables_wrapper { overflow-x: hidden !important; max-width: 100% !important; }
     }
 </style>
 <script>
     $(document).ready(function () {
-        {% if messages %}
-var table = 
-$('#tenantTable').DataTable({
+        var table = $('#tenantTable').DataTable({
             language: { "sEmptyTable": "Tidak ada data", "sProcessing": "Sedang memproses...", "sLengthMenu": "Tampilkan _MENU_ data", "sZeroRecords": "Tidak ditemukan tenant yang sesuai", "sInfo": "Menampilkan _START_ sampai _END_ dari _TOTAL_ tenant", "sInfoEmpty": "Menampilkan 0 sampai 0 dari 0 tenant", "sInfoFiltered": "(disaring dari _MAX_ total data)", "sSearch": "Cari:", "oPaginate": { "sFirst": "Pertama", "sPrevious": "Sebelumnya", "sNext": "Selanjutnya", "sLast": "Terakhir" } },
             order: [[4, 'desc']],
             pageLength: 25,
             lengthMenu: [[10, 25, 50, 75, 100, -1], ['10', '25', '50', '75', '100', 'Semua']],
             responsive: false,
             columnDefs: [{ orderable: false, targets: [5] }],
-            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>><"table-responsive"rt><"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
             initComplete: function () { $('.dataTables_filter input').attr('placeholder', 'Cari tenant...'); }
         });
 
@@ -342,7 +356,6 @@ $('#tenantTable').DataTable({
         });
         {% endif %}
     });
-{% endif %}
 
     function getCsrfToken() {
         const input = document.querySelector('[name=csrfmiddlewaretoken]');
@@ -354,7 +367,6 @@ $('#tenantTable').DataTable({
     }
 
     function toggleColumns() {
-        if (typeof $ === "undefined" || typeof $.fn.dataTable === "undefined") return;
         var table = new $.fn.dataTable.Api('#tenantTable');
         var columnMap = { '0': 0, '1': 1, '2': 2, '3': 3, '4': 4 };
         document.querySelectorAll('.column-checkbox').forEach(function(cb) {

@@ -21,7 +21,6 @@
             <div class="card mb-4">
                 <h5 class="card-header">Edit Template Pesan</h5>
                 <div class="card-body">
-                    
                     <form method="post">
                         {% csrf_token %}
                         <fieldset {% if is_readonly_mode %}disabled{% endif %}>
@@ -65,6 +64,7 @@
             </div>
         </div>
 
+        <!-- Variabel yang Tersedia -->
         <div class="col-lg-4 mb-4">
             <div class="card mb-4">
                 <h5 class="card-header">Variabel Tersedia</h5>
@@ -115,10 +115,11 @@ function insertVar(varName) {
     textarea.focus();
 }
 
+// -- Read-only Gating --
 {% if is_readonly_mode %}
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.btn-label-primary').forEach(function(btn) {
-        btn.disabled = true; 
+        btn.disabled = true; // Nonaktifkan tombol sisipkan variabel
     });
 });
 {% endif %}
