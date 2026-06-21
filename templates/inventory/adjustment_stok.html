@@ -95,8 +95,8 @@
                 </button>
             </div>
         </div>
-        <div class="card-datatable">
-            <table class="datatables-adjustment table table-hover" id="adjustmentTable" style="width:100%">
+        <div class="card-datatable table-responsive">
+            <table class="datatables-adjustment table table-hover" id="adjustmentTable">
                 <thead>
                     <tr>
                         <th>No. Adjustment</th>
@@ -321,7 +321,6 @@
 
         {% if adjustment_list %}
         const table = $('#adjustmentTable').DataTable({
-            scrollX: true,
             language: {
                 "sEmptyTable": "Tidak ada data yang tersedia pada tabel ini",
                 "sProcessing": "Sedang memproses...",

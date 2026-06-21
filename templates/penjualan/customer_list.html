@@ -135,8 +135,8 @@
                         class="ri-file-pdf-line me-1"></i>Export PDF</button>
             </div>
         </div>
-        <div class="card-datatable">
-            <table class="datatables-customer table table-hover" id="customerTable" style="width:100%">
+        <div class="card-datatable table-responsive">
+            <table class="datatables-customer table table-hover" id="customerTable">
                 <thead>
                     <tr>
                         <th>Kode</th>
@@ -335,7 +335,6 @@
     $(document).ready(function () {
         {% if customer_list %}
         $('#customerTable').DataTable({
-            scrollX: true,
             language: {
                 "sEmptyTable": "Tidak ada data yang tersedia pada tabel ini",
                 "sProcessing": "Sedang memproses...",

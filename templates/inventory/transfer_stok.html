@@ -159,8 +159,8 @@
                 </button>
             </div>
         </div>
-        <div class="card-datatable">
-            <table class="datatables-transfer table table-hover" id="transferTable" style="width:100%">
+        <div class="card-datatable table-responsive">
+            <table class="datatables-transfer table table-hover" id="transferTable">
                 <thead>
                     <tr>
                         <th>No. Transfer</th>
@@ -395,7 +395,6 @@
 
         {% if transfer_list %}
         transferDataTable = $('#transferTable').DataTable({
-            scrollX: true,
             language: {
                 "sEmptyTable": "Tidak ada data yang tersedia pada tabel ini",
                 "sProcessing": "Sedang memproses...",
