@@ -29,7 +29,7 @@
 
 {% block content %}
 <div class="container-xxl flex-grow-1 container-p-y">
-    <!-- Header -->
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1"><i class="ri-key-2-line me-2"></i>Kunci Lisensi</h4>
@@ -56,7 +56,6 @@
     {% endfor %}
     {% endif %}
 
-    <!-- Filter Card -->
     <div class="card mb-4">
         <div class="card-body">
             <form method="GET" id="filterForm">
@@ -74,7 +73,7 @@
                         <option value="suspended" {% if request.GET.status == 'suspended' %}selected{% endif %}>Ditangguhkan</option>
                     </select>
                 </div>
-                <!-- Tanggal Dibuat Filter -->
+                
                 <div class="col-md-3">
                     <label class="form-label">Dari Tanggal Dibuat</label>
                     <input type="text" name="start_date" class="form-control flatpickr-input" id="startDate" value="{{ start_date }}" placeholder="Pilih tanggal mulai">
@@ -84,7 +83,7 @@
                     <input type="text" name="end_date" class="form-control flatpickr-input" id="endDate" value="{{ end_date }}" placeholder="Pilih tanggal akhir">
                 </div>
             </div>
-            <!-- Baris kedua: Pilih Kolom (kiri) dan Tombol Filter (kanan) -->
+            
             <div class="row g-3 mt-2 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label">Pilih Kolom</label>
@@ -127,7 +126,6 @@
         </div>
     </div>
 
-    <!-- Data Table Card -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Daftar Kunci Lisensi</h5>
@@ -200,7 +198,7 @@
                                     <small class="text-muted" style="font-size: 0.75rem;">{{ total_licenses }} Lisensi Terdaftar</small>
                                 </div>
                             </div>
-                        </td>
+                        </td><td class="py-3"></td><td class="py-3"></td>
                         <td class="py-3" style="vertical-align: middle;">
                             <div class="d-flex flex-column align-items-center">
                                 <span class="badge bg-label-success d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.65rem;">
@@ -232,7 +230,7 @@
                 </tfoot>
             </table>
         </div>
-        <!-- Django Pagination -->
+        
         {% if is_paginated %}
         <div class="card-footer d-flex justify-content-center">
             <nav aria-label="Page navigation">
@@ -255,7 +253,6 @@
     </div>
 </div>
 
-<!-- Import Modal -->
 <div class="modal fade" id="importModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -302,13 +299,14 @@
     .datatables-license thead th { font-weight: 600; font-size: 0.8125rem; text-transform: none; letter-spacing: 0; }
     @media (max-width: 768px) {
         .card-datatable { overflow-x: hidden !important; -webkit-overflow-scrolling: touch; max-width: 100%; }
-        .datatables-license { min-width: 950px !important; width: 950px !important; table-layout: auto !important; }
+        {% if messages %}.datatables-license { min-width: 950px !important; width: 950px !important; table-layout: auto !important; }{% endif %}
         .dataTables_wrapper { overflow-x: hidden !important; max-width: 100% !important; }
     }
 </style>
 <script>
     $(document).ready(function () {
-        $('#licenseTable').DataTable({
+        {% if messages %}
+$('#licenseTable').DataTable({
             language: { "sEmptyTable": "Tidak ada data", "sProcessing": "Sedang memproses...", "sLengthMenu": "Tampilkan _MENU_ data", "sZeroRecords": "Tidak ditemukan data yang sesuai", "sInfo": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data", "sInfoEmpty": "Menampilkan 0 sampai 0 dari 0 data", "sInfoFiltered": "(disaring dari _MAX_ total data)", "sSearch": "Cari:", "oPaginate": { "sFirst": "Pertama", "sPrevious": "Sebelumnya", "sNext": "Selanjutnya", "sLast": "Terakhir" } },
             order: [[0, 'asc']],
             pageLength: 25,
@@ -322,12 +320,14 @@
         flatpickr('#startDate', { dateFormat: 'Y-m-d' });
         flatpickr('#endDate', { dateFormat: 'Y-m-d' });
     });
+{% endif %}
 
     function applyLocalSearch() {
-        // Obsolete function since server side search is used.
+        
     }
 
     function toggleColumns() {
+        if (typeof $ === "undefined" || typeof $.fn.dataTable === "undefined") return;
         var table = new $.fn.dataTable.Api('#licenseTable');
         var columnMap = { '0': 0, '1': 1, '2': 2, '3': 3, '4': 4 };
         document.querySelectorAll('.column-checkbox').forEach(function(cb) {
@@ -338,7 +338,6 @@
     function selectAllColumns() { document.querySelectorAll('.column-checkbox').forEach(function(cb){cb.checked=true;}); toggleColumns(); }
     function deselectAllColumns() { document.querySelectorAll('.column-checkbox').forEach(function(cb){cb.checked=false;}); toggleColumns(); }
 
-    // Variables for SimkosExport
     var EXCEL_INFO = {
         name: "{{ export_excel_template.header_nama_perusahaan|escapejs|default:'Central License Server' }}",
         address: "{{ export_excel_template.header_alamat|escapejs|default:'' }}",
@@ -368,7 +367,6 @@
         SimkosExport.buildPDF('#licenseTable', PDF_INFO, FOOTER_DATA, FOOTER_LABEL, DOCUMENT_TITLE, 'Data_Lisensi', MONEY_COLS);
     }
 
-    // Import functionality
     $('#downloadTemplate').on('click', function(){
         var csv = 'Kunci Lisensi,Kode Produk,Nama Klien,Status,Durasi Hari\nERP-2026-A1B2-C3D4,ERP,PT Contoh,active,365';
         var blob = new Blob([csv], {type:'text/csv'});
@@ -385,7 +383,6 @@
         reader.readAsText(f.files[0]);
     });
 
-    // ========== SweetAlert2 Delete Confirmation ==========
     function getCsrfToken() {
         const input = document.querySelector('[name=csrfmiddlewaretoken]');
         if (input) return input.value;

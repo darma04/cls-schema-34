@@ -1,5 +1,28 @@
 {% extends 'layout/layout_vertical.html' %}
 {% load static humanize %}
+
+{% comment %}
+  ==========================================================================
+  DASHBOARD - Dashboard
+  ==========================================================================
+  Halaman Dashboard untuk modul Dashboard.
+  Template ini merender data dari view ke HTML yang ditampilkan di browser.
+
+  FLOW DATA:
+  - URL: /dashboard/ -> View di apps/dashboard/views.py- View: Mengambil data, menyiapkan context, render template ini- Template: File ini (HTML + Django template tags)- Response: HTML yang ditampilkan di browser user
+
+  RELASI KE MODUL LAIN:
+  - apps/dashboard/views.py -> View (handler untuk halaman ini)- apps/dashboard/models.py -> Model (sumber data)- apps/dashboard/urls.py -> URL routing- layout/ -> Template induk (sidebar, header, footer)
+
+  BAGIAN YANG BOLEH/TIDAK BOLEH DIUBAH:
+  - BOLEH diubah: Tampilan HTML, CSS inline, JavaScript- JANGAN diubah: {% extends %} dan {% block %} structure- JANGAN dihapus: {% csrf_token %} di form
+
+  TIPS & DEBUGGING:
+  - Error 'TemplateDoesNotExist'? Cek template_name di views.py- Variabel {{ }} kosong? Cek get_context_data() di views.py- Layout rusak? Pastikan TemplateLayout.init() dipanggil di view
+
+  ==========================================================================
+{% endcomment %}
+
 {% block title %}Dashboard - Central License Server{% endblock title %}
 
 {% block vendor_css %}
@@ -9,7 +32,7 @@
 
 {% block content %}
 <div class="container-xxl flex-grow-1 container-p-y">
-    <!-- Header -->
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1"><i class="ri-shield-keyhole-line me-2 text-primary"></i>Central License Manager</h4>
@@ -23,9 +46,8 @@
         </div>
     </div>
 
-    <!-- Kartu Statistik Utama -->
     <div class="row g-3 mb-4">
-        <!-- Total Lisensi -->
+        
         <div class="col-6 col-xl-3 col-lg-3 col-md-6 col-sm-6">
             <div class="card h-100">
                 <div class="card-body">
@@ -45,7 +67,6 @@
             </div>
         </div>
 
-        <!-- Lisensi Aktif -->
         <div class="col-6 col-xl-3 col-lg-3 col-md-6 col-sm-6">
             <div class="card h-100">
                 <div class="card-body">
@@ -65,7 +86,6 @@
             </div>
         </div>
 
-        <!-- Lisensi Kadaluarsa -->
         <div class="col-6 col-xl-3 col-lg-3 col-md-6 col-sm-6">
             <div class="card h-100">
                 <div class="card-body">
@@ -85,7 +105,6 @@
             </div>
         </div>
 
-        <!-- Lisensi Ditangguhkan -->
         <div class="col-6 col-xl-3 col-lg-3 col-md-6 col-sm-6">
             <div class="card h-100">
                 <div class="card-body">
@@ -106,12 +125,18 @@
         </div>
     </div>
 
-    <!-- Grafik Gelombang Besar: Lisensi Per Bulan -->
     <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <div>
+        <div class="card-header d-flex flex-nowrap justify-content-between align-items-center">
+            <div class="me-2">
                 <h5 class="mb-0"><i class="ri-line-chart-line me-2 text-primary"></i>Tren Lisensi 12 Bulan Terakhir</h5>
                 <small class="text-muted">Perkembangan lisensi aktif, kadaluarsa, dan ditangguhkan</small>
+            </div>
+            <div class="dropdown flex-shrink-0">
+                <button class="btn btn-text-secondary rounded-pill text-muted border-0 p-1" type="button" data-bs-toggle="dropdown"><i class="ri-more-2-line ri-20px"></i></button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item" href="javascript:window.location.reload();"><i class="ri-loop-left-line me-2"></i>Refresh Data</a>
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="if(window.__licenseWaveChart) window.__licenseWaveChart.exportTo({type:'png'});"><i class="ri-download-2-line me-2"></i>Unduh Grafik</a>
+                </div>
             </div>
         </div>
         <div class="card-body">
@@ -120,7 +145,7 @@
     </div>
 
     <div class="row g-3">
-        <!-- Data Klien Terbaru -->
+        
         <div class="col-xl-6 col-lg-6">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -168,7 +193,6 @@
             </div>
         </div>
 
-        <!-- Data Lisensi Terbaru -->
         <div class="col-xl-6 col-lg-6">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -231,8 +255,7 @@
 
 {% block page_js %}
 <script>
-// ============ Wave Chart: Tren Lisensi 12 Bulan Terakhir ============
-// Gaya sesuai SERPTECH-Software (dropShadow, smooth gradient, animasi modern)
+
 document.addEventListener('DOMContentLoaded', function(){
     var chartEl = document.querySelector('#licenseWaveChart');
     if (!chartEl) return;
@@ -243,10 +266,8 @@ document.addEventListener('DOMContentLoaded', function(){
     var chartSuspended = {{ chart_suspended|safe }};
     var chartTotal = {{ chart_total|safe }};
 
-    // Deteksi dark mode
     var isDark = document.documentElement.getAttribute('data-theme') === 'dark' || document.body.classList.contains('dark-style');
 
-    // Palet warna modern — sesuai Materialize & dark mode
     var chartColors = ['#7367f0', '#28c76f', '#ea5455', '#ff9f43'];
 
     var series = [
@@ -256,6 +277,21 @@ document.addEventListener('DOMContentLoaded', function(){
         { name: 'Ditangguhkan', data: chartSuspended }
     ];
 
+    // Empty data fallback (Approach B — wave)
+    if (!chartLabels || !Array.isArray(chartLabels) || chartLabels.length === 0) {
+        chartLabels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    }
+    if (!series || series.length === 0) {
+        series = [{ name: 'Default', data: Array(chartLabels.length).fill(0) }];
+    } else {
+        series = series.map(function(s) {
+            if (!s.data || s.data.length === 0) {
+                s.data = Array(chartLabels.length).fill(0);
+            }
+            return s;
+        });
+    }
+
     var options = {
         chart: {
             type: 'area',
@@ -263,16 +299,7 @@ document.addEventListener('DOMContentLoaded', function(){
             fontFamily: 'Inter, -apple-system, sans-serif',
             background: 'transparent',
             toolbar: {
-                show: true,
-                tools: {
-                    download: '<i class="ri-download-2-line" style="font-size:16px"></i>',
-                    selection: false,
-                    zoom: false,
-                    zoomin: false,
-                    zoomout: false,
-                    pan: false,
-                    reset: false
-                }
+                show: false
             },
             animations: {
                 enabled: true,
@@ -393,6 +420,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     var chart = new ApexCharts(chartEl, options);
     chart.render();
+    window.__licenseWaveChart = chart;
 });
 </script>
 {% endblock page_js %}

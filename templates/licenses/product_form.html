@@ -24,6 +24,7 @@
         <div class="col-xl-8 col-lg-10 mx-auto">
             <div class="card">
                 <div class="card-body">
+                    
                     <form method="post" novalidate>
                         {% csrf_token %}
                         <fieldset {% if is_readonly_mode %}disabled{% endif %}>

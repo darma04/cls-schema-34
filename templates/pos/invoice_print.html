@@ -259,7 +259,7 @@
 
 <body>
     <div class="invoice-container">
-        <!-- Header -->
+        
         <div class="invoice-header">
             <div class="company-info">
                 {% if template.tampilkan_logo and perusahaan.logo %}
@@ -284,7 +284,6 @@
             </div>
         </div>
 
-        <!-- Invoice Info -->
         <div class="invoice-info">
             <div class="info-section">
                 <h3>Informasi Transaksi</h3>
@@ -314,7 +313,6 @@
             </div>
         </div>
 
-        <!-- Items Table -->
         <table class="items-table">
             <thead>
                 <tr>
@@ -343,7 +341,6 @@
             </tbody>
         </table>
 
-        <!-- Totals -->
         <div class="totals-section">
             {% if transaction.diskon > 0 %}
             <div class="total-row">
@@ -363,7 +360,6 @@
             </div>
         </div>
 
-        <!-- Notes -->
         {% if transaction.catatan %}
         <div class="notes">
             <h4>Catatan:</h4>
@@ -371,7 +367,6 @@
         </div>
         {% endif %}
 
-        <!-- Signature -->
         <div class="signature-section">
             <div class="signature-box">
                 <div class="signature-line">
@@ -385,7 +380,6 @@
             </div>
         </div>
 
-        <!-- Footer -->
         <div class="invoice-footer">
             <p>{{ template.footer_ucapan }}</p>
             <p>{{ template.footer_keterangan }}</p>
@@ -396,13 +390,12 @@
     </div>
 
     <script>
-        // Auto print when page loads
+        
         window.onload = function () {
-            // Uncomment to auto-print
-            // window.print();
+            
         }
     </script>
-    <!-- Tombol Kembali (ditampilkan setelah native Android print dialog) -->
+    
     <div id="backBtnWrap" class="no-print" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999;">
         <a id="backBtn" href="javascript:void(0)" style="display:inline-block; padding:12px 32px; background:#696cff; color:#fff; text-decoration:none; border-radius:8px; font-size:14px; font-weight:bold; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
             &larr; Kembali
@@ -410,7 +403,7 @@
     </div>
 
     <script>
-        // Smart Print Handler — Universal: Browser + Capacitor Android (SerpApp.triggerPrint)
+        
         (function() {
             var printed = false;
 
@@ -431,13 +424,13 @@
             function doPrint() {
                 if (printed) return;
                 printed = true;
-                // Capacitor Android: gunakan native print via JavascriptInterface
+                
                 if (typeof window.SerpApp !== 'undefined' && typeof window.SerpApp.triggerPrint === 'function') {
                     window.SerpApp.triggerPrint();
-                    // afterprint tidak fire dari native dialog, tampilkan tombol kembali
+                    
                     setTimeout(showBackButton, 500);
                 } else {
-                    // Browser/Mobile: langsung window.print(), kembali via afterprint
+                    
                     if (typeof window.print === 'function') {
                         try { window.print(); } catch(e) { goBack(); }
                     }
@@ -447,7 +440,6 @@
             if (document.readyState === 'complete') { setTimeout(doPrint, 400); }
             else { window.addEventListener('load', function() { setTimeout(doPrint, 400); }); }
 
-            // afterprint fire di browser/WebView standar saat cetak selesai/batal
             window.addEventListener('afterprint', function() { setTimeout(goBack, 200); });
         })();
     </script>

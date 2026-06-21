@@ -1,5 +1,28 @@
 {% extends 'layout/layout_vertical.html' %}
 {% load humanize %}
+
+{% comment %}
+  ==========================================================================
+  PEMBELIAN - Detail Pembelian
+  ==========================================================================
+  Menampilkan informasi lengkap satu pembelian termasuk data relasi.
+  Detail page biasanya menampilkan data read-only (tidak bisa diedit langsung).
+
+  FLOW DATA:
+  - URL: /pembelian/pembelian/<pk>/- View: DetailView mengambil 1 object berdasarkan primary key- Context: object + data relasi (items, history, dll)- Template: Render semua informasi ke HTML
+
+  RELASI KE MODUL LAIN:
+  - apps/pembelian/views.py -> PembelianDetailView- apps/pembelian/models.py -> Model Pembelian- get_context_data(): Menambahkan data relasi ke context
+
+  BAGIAN YANG BOLEH/TIDAK BOLEH DIUBAH:
+  - BOLEH diubah: Layout detail, urutan informasi- BOLEH ditambah: Informasi baru dari relasi- JANGAN diubah: {% extends %} dan {% block %} structure
+
+  TIPS & DEBUGGING:
+  - Error 'DoesNotExist'? Primary key tidak ditemukan di database- Data relasi kosong? Cek get_context_data() di views.py
+
+  ==========================================================================
+{% endcomment %}
+
 {% block title %}Detail Pembelian{% endblock %}
 {% block content %}
 <div class="container-xxl flex-grow-1 container-p-y">
@@ -8,9 +31,9 @@
     </h4>
 
     <div class="row">
-        <!-- Detail Utama -->
+        
         <div class="col-md-8">
-            <!-- Card Info Transaksi -->
+            
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="ri-file-list-3-line me-2"></i>Detail Transaksi</h5>
@@ -46,7 +69,6 @@
                 </div>
             </div>
 
-            <!-- Card Info Klien -->
             <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="ri-building-line me-2"></i>Informasi Klien</h5>
@@ -73,7 +95,6 @@
                 </div>
             </div>
 
-            <!-- Card Tabel Item -->
             <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="ri-shopping-cart-line me-2"></i>Item Pembelian</h5>
@@ -124,9 +145,8 @@
             </div>
         </div>
 
-        <!-- Sidebar Aksi -->
         <div class="col-md-4">
-            <!-- Cetak Invoice — semua role yang bisa view bisa cetak -->
+            
             {% if can_view.pembelian %}
             <div class="card mb-4">
                 <div class="card-header">
@@ -141,7 +161,6 @@
             </div>
             {% endif %}
 
-            <!-- Edit Pembelian — hanya jika punya permission edit -->
             {% if can_edit.pembelian %}
             <div class="card mb-4">
                 <div class="card-header">
@@ -155,13 +174,13 @@
             </div>
             {% endif %}
 
-            <!-- Ubah Status — hanya jika punya permission edit -->
             {% if can_edit.pembelian %}
             <div class="card mb-4">
                 <div class="card-header">
                     <h6 class="mb-0"><i class="ri-refresh-line me-2"></i>Ubah Status</h6>
                 </div>
                 <div class="card-body">
+                    
                     <form method="post" action="{% url 'pembelian:pembelian_update_status' pembelian.pk %}">
                         {% csrf_token %}
                         <select name="status" class="form-select mb-2">
@@ -177,7 +196,6 @@
             </div>
             {% endif %}
 
-            <!-- Info Waktu -->
             <div class="card mb-4">
                 <div class="card-header">
                     <h6 class="mb-0"><i class="ri-time-line me-2"></i>Informasi Waktu</h6>
@@ -194,10 +212,10 @@
                 </div>
             </div>
 
-            <!-- Hapus — hanya jika punya permission delete -->
             {% if can_delete.pembelian %}
             <div class="card">
                 <div class="card-body">
+                    
                     <form method="post" action="{% url 'pembelian:pembelian_delete' pembelian.pk %}" onsubmit="return confirm('Yakin ingin menghapus transaksi ini? Tindakan ini tidak dapat dibatalkan.')">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger w-100">

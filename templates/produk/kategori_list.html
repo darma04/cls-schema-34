@@ -25,7 +25,7 @@
 
 {% block content %}
 <div class="container-xxl flex-grow-1 container-p-y">
-    <!-- Header -->
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1">
@@ -40,10 +40,9 @@
         {% endif %}
     </div>
 
-    <!-- Filter Card -->
     <div class="card mb-4">
         <div class="card-body">
-            <!-- Baris 1: Filter Inputs -->
+            
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">Cari Kategori</label>
@@ -51,7 +50,6 @@
                 </div>
             </div>
 
-            <!-- Baris 2: Pilih Kolom (kiri) dan Tombol Filter (kanan) -->
             <div class="row g-3 mt-2 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label">Pilih Kolom</label>
@@ -107,7 +105,6 @@
         </div>
     </div>
 
-    <!-- Main Card -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Daftar Kategori</h5>
@@ -130,7 +127,7 @@
                         <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody>{% if kategori_list %}
                     {% for kategori in kategori_list %}
                     <tr>
                         <td><strong>{{ kategori.nama }}</strong></td>
@@ -142,18 +139,22 @@
                             {% include 'shared/action_column.html' with module='produk' item=kategori edit_url=edit_url_val delete_url=delete_url_val item_id=kategori.pk %}
                         </td>
                     </tr>
-                    {% empty %}
+                    {% endfor %}
+                    {% else %}
                     <tr>
                         <td colspan="4" class="text-center py-5">
-                            <i class="ri-folder-line ri-3x text-muted mb-3 d-block"></i>
-                            <p class="text-muted mb-0">Belum ada kategori</p>
+                            <i class="ri-shopping-bag-line ri-3x text-muted mb-3 d-block"></i>
+                            <p class="text-muted mb-2">Belum ada kategori</p>
+                            {% if can_create.produk %}
+                            <a href="{% url 'produk:tambah' %}" class="btn btn-primary btn-sm mt-2">
+                                <i class="ri-add-line me-1"></i> Tambah</a>
+                            {% endif %}
                         </td>
                     </tr>
-                    {% endfor %}
-                </tbody>
+                    {% endif %}</tbody>
                 <tfoot class="table-footer-summary">
                     <tr>
-                        <td colspan="3" class="text-start ps-4 py-3" style="vertical-align: middle;">
+                        <td colspan="4" class="text-start ps-4 py-3" style="vertical-align: middle;">
                             <div class="d-flex align-items-center justify-content-start">
                                 <i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i>
                                 <div class="text-start">
@@ -162,15 +163,14 @@
                                         Terdaftar</small>
                                 </div>
                             </div>
-                        </td>
-                        <td class="py-3"></td>
+
+                        </td><td class="py-3"></td><td class="py-3"></td><td class="py-3"></td>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteKategoriModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -262,7 +262,6 @@
         padding-bottom: 0;
     }
 
-    /* Dark mode support for summary footer */
     .table-footer-summary {
         border-top: 3px solid var(--bs-primary) !important;
         background: var(--bs-body-bg) !important;
@@ -279,7 +278,6 @@
         letter-spacing: 0;
     }
 
-    /* Mobile Responsiveness - Horizontal Scroll */
     @media (max-width: 768px) {
         .card-datatable {
             overflow-x: auto !important;
@@ -316,7 +314,6 @@
         {% endif %}
     });
 
-    // Company Information (from Template Cetak settings)
     const COMPANY_INFO = {
         name: "{{ export_pdf_template.header_nama_perusahaan }}",
         address: "{{ export_pdf_template.header_alamat }}",
@@ -326,7 +323,6 @@
         copyright: "{{ export_pdf_template.footer_copyright }}"
     };
 
-    // Toggle visibilitas kolom menggunakan DataTables API
     function toggleColumns() {
         {% if kategori_list %}
         const checkboxes = document.querySelectorAll('.column-checkbox');
@@ -339,13 +335,11 @@
         {% endif %}
     }
 
-    // Centang semua checkbox kolom
     function selectAllColumns() {
         document.querySelectorAll('.column-checkbox').forEach(cb => cb.checked = true);
         toggleColumns();
     }
 
-    // Batalkan semua centang checkbox kolom
     function deselectAllColumns() {
         document.querySelectorAll('.column-checkbox').forEach(cb => cb.checked = false);
         toggleColumns();
@@ -368,9 +362,8 @@
 
     function exportToExcel() {
         const table = document.getElementById('kategoriTable');
-        if (!table) { alert('Tabel tidak ditemukan!'); return; }
+        if (!table) { showExportError(); return; }
 
-        // Buat tabel HTML untuk Excel (format .xls)
         let html = '<table border="1">';
         html += '<thead><tr style="background-color: #52d123; color: #FFFFFF; font-weight: bold;">';
 
@@ -403,7 +396,7 @@
 
         const totalKategori = '{{ total_kategori }}';
         html += '<tr style="background-color: #f8f9fa; font-weight: bold;">';
-        html += `<td colspan="2">RINGKASAN (${totalKategori} Kategori Terdaftar)</td>`;
+        html += `<td colspan="4">RINGKASAN (${totalKategori} Kategori Terdaftar)</td>`;
         html += '</tr>';
         html += '</tbody></table>';
 
@@ -417,7 +410,7 @@
     function exportToPDF() {
         if (typeof pdfMake === 'undefined') { alert('pdfMake library tidak tersedia!'); return; }
         const table = document.getElementById('kategoriTable');
-        if (!table) { alert('Tabel tidak ditemukan!'); return; }
+        if (!table) { showExportError(); return; }
 
         const headerRow = table.querySelector('thead tr');
         const headers = [];
@@ -454,7 +447,6 @@
             });
         }
 
-        // Tambah baris RINGKASAN
         const totalKategori = '{{ total_kategori }}';
         const summaryRow = [
             { text: `RINGKASAN: ${totalKategori} Kategori Terdaftar`, colSpan: 2, bold: true, fillColor: '#f8f9fa' },
@@ -517,7 +509,6 @@
         pdfMake.createPdf(docDefinition).download('Kategori_Produk_' + new Date().toISOString().slice(0, 10) + '.pdf');
     }
 
-    // Tangani Hapus Kategori via event delegation (.delete-item dari action_column.html)
     let deleteKategoriId = null;
     let deleteKategoriUrl = null;
 
@@ -526,7 +517,6 @@
         deleteKategoriId = $(this).data('id');
         deleteKategoriUrl = $(this).data('url');
 
-        // Ambil nama kategori dari kolom pertama row yang sama
         const row = $(this).closest('tr');
         const kategoriName = row.find('td:first strong').text() || 'Kategori ini';
         $('#deleteKategoriName').text(kategoriName);
@@ -599,4 +589,42 @@
         setTimeout(() => $('.alert').fadeOut(() => $(this).remove()), 5000);
     }
 </script>
+
+<div class="modal fade" id="exportErrorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning align-items-center py-3">
+                <h5 class="modal-title text-dark mb-0">
+                    <i class="ri-error-warning-line me-2"></i>Export Gagal
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center py-3">
+                    <i class="ri-file-warning-line text-warning" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3 mb-2">Tabel Tidak Ditemukan</h4>
+                    <p class="text-muted mb-0">Tidak ada data tabel yang dapat di-export. Pastikan tabel sudah dimuat dengan benar sebelum melakukan export.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                    <i class="ri-close-line me-1"></i>Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+function showExportError() {
+    var modal = document.getElementById('exportErrorModal');
+    if (modal) {
+        new bootstrap.Modal(modal).show();
+    } else {
+        alert('Tabel tidak ditemukan!');
+    }
+}
+</script>
+
 {% endblock page_js %}

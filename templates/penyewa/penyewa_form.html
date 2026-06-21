@@ -19,6 +19,7 @@
             <div class="card mb-4">
                 <h5 class="card-header">Formulir Data Penyewa</h5>
                 <div class="card-body">
+                    
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
 
@@ -39,7 +40,6 @@
                         </div>
                         {% endif %}
 
-                        <!-- Data Diri -->
                         <h6 class="mb-3 text-primary"><i class="ri-user-line me-1"></i>Data Diri</h6>
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -99,7 +99,6 @@
                             </div>
                         </div>
 
-                        <!-- Dokumen -->
                         <h6 class="mb-3 mt-4 text-primary"><i class="ri-file-line me-1"></i>Dokumen</h6>
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -118,7 +117,6 @@
                             </div>
                         </div>
 
-                        <!-- Kontak Darurat -->
                         <h6 class="mb-3 mt-4 text-primary"><i class="ri-phone-line me-1"></i>Kontak Darurat</h6>
                         <div class="row">
                             <div class="col-md-4 mb-3">

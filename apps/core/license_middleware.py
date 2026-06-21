@@ -44,7 +44,9 @@ class SaaSLicenseMiddleware:
             return self.get_response(request)
             
         # 3. Hubungi Central License Server
-        license_key = getattr(settings, 'SAAS_LICENSE_KEY', 'SaaS-CORE-2026-2HZ7-BQW6') 
+        license_key = getattr(settings, 'SAAS_LICENSE_KEY', None)
+        if not license_key:
+            return self._forbidden_page("SAAS_LICENSE_KEY belum dikonfigurasi. Hubungi administrator.") 
         cls_url = getattr(settings, 'CLS_API_URL', 'http://127.0.0.1:8000/api/v1/license/verify/')
         
         domain = request.get_host()

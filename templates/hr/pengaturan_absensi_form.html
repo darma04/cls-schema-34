@@ -24,6 +24,7 @@
         </a>
     </div>
 
+    
     <form method="post">
         {% csrf_token %}
         {% if not is_new and pengaturan %}
@@ -31,7 +32,7 @@
         {% endif %}
 
         <div class="row">
-            <!-- Informasi Umum -->
+            
             <div class="col-lg-6 mb-4">
                 <div class="card h-100">
                     <div class="card-header">
@@ -51,7 +52,6 @@
                 </div>
             </div>
 
-            <!-- Jam Kerja -->
             <div class="col-lg-6 mb-4">
                 <div class="card h-100">
                     <div class="card-header">
@@ -82,7 +82,6 @@
                 </div>
             </div>
 
-            <!-- Hari Kerja & Zona Waktu -->
             <div class="col-lg-6 mb-4">
                 <div class="card h-100">
                     <div class="card-header">
@@ -110,7 +109,6 @@
                 </div>
             </div>
 
-            <!-- Lokasi Kantor -->
             <div class="col-lg-6 mb-4">
                 <div class="card h-100">
                     <div class="card-header">
@@ -144,7 +142,6 @@
                 </div>
             </div>
 
-            <!-- Pengaturan Fitur -->
             <div class="col-lg-6 mb-4">
                 <div class="card h-100">
                     <div class="card-header">
@@ -169,7 +166,6 @@
                 </div>
             </div>
 
-            <!-- Catatan -->
             <div class="col-lg-6 mb-4">
                 <div class="card h-100">
                     <div class="card-header">
@@ -185,7 +181,6 @@
             </div>
         </div>
 
-        <!-- Tombol Aksi -->
         <div class="row">
             <div class="col-12">
                 <div class="d-flex justify-content-between">
@@ -211,7 +206,7 @@
 </div>
 
 {% if not is_new and pengaturan %}
-<!-- Delete Modal -->
+
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -224,6 +219,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                
                 <form method="post" action="{% url 'hr:pengaturan-absensi-delete' pengaturan.pk %}" style="display: inline;">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger">Ya, Hapus</button>

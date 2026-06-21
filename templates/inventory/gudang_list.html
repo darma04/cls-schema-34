@@ -35,10 +35,9 @@
         {% endif %}
     </div>
 
-    <!-- Filter Card -->
     <div class="card mb-4">
         <div class="card-body">
-            <!-- Baris 1: Filter Inputs -->
+            
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">Cari Gudang</label>
@@ -54,7 +53,6 @@
                 </div>
             </div>
 
-            <!-- Baris 2: Pilih Kolom (kiri) dan Tombol Filter (kanan) -->
             <div class="row g-3 mt-2 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label">Pilih Kolom</label>
@@ -209,7 +207,7 @@
                                         Terdaftar</small>
                                 </div>
                             </div>
-                        </td>
+                        </td><td class="py-3"></td><td class="py-3"></td><td class="py-3"></td><td class="py-3"></td>
                         <td class="py-3"></td>
                     </tr>
                 </tfoot>
@@ -217,7 +215,6 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteGudangModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -371,17 +368,16 @@
         const table = $('#gudangTable').DataTable();
         const headers = [];
         table.columns().every(function (index) {
-            if (table.column(index).visible() && index < 5) { // Exclude 'Aksi' column
+            if (table.column(index).visible() && index < 5) { 
                 headers.push($(table.column(index).header()).text());
             }
         });
 
-        // Buat tabel HTML untuk Excel (format .xls)
         let html = '<table border="1">';
         html += '<thead><tr style="background-color: #52d123; color: #FFFFFF; font-weight: bold;">';
 
         table.columns().every(function (index) {
-            if (table.column(index).visible() && index < 5) { // Exclude 'Aksi' column
+            if (table.column(index).visible() && index < 5) { 
                 html += `<th>${$(table.column(index).header()).text()}</th>`;
             }
         });
@@ -391,15 +387,15 @@
             const data = this.data();
             html += '<tr>';
             table.columns().every(function (index) {
-                if (table.column(index).visible() && index < 5) { // Exclude 'Aksi' column
+                if (table.column(index).visible() && index < 5) { 
                     let cellData = data[index];
-                    if (index === 4) { // Status column
+                    if (index === 4) { 
                         cellData = $(cellData).text().trim();
-                    } else if (index === 0) { // Kode column
+                    } else if (index === 0) { 
                         cellData = $(cellData).text().trim();
-                    } else if (index === 1) { // Nama Gudang column
+                    } else if (index === 1) { 
                         cellData = $(cellData).text().trim();
-                    } else if (index === 3) { // Metode Pembayaran column
+                    } else if (index === 3) { 
                         cellData = $(cellData).text().trim();
                     }
                     html += `<td>${String(cellData)}</td>`;
@@ -408,7 +404,6 @@
             html += '</tr>';
         });
 
-        // Tambah baris RINGKASAN — setiap nilai di kolom terpisah
         const totalGudang = '{{ total_gudang }}';
         html += '<tr style="background-color: #f8f9fa; font-weight: bold;">';
         html += `<td colspan="5">RINGKASAN (${totalGudang} Gudang Terdaftar)</td>`;
@@ -431,7 +426,7 @@
         const table = $('#gudangTable').DataTable();
         const headers = [];
         table.columns().every(function (index) {
-            if (table.column(index).visible() && index < 5) { // Exclude 'Aksi' column
+            if (table.column(index).visible() && index < 5) { 
                 headers.push({ text: $(table.column(index).header()).text(), style: 'tableHeader' });
             }
         });
@@ -442,15 +437,15 @@
             const data = this.data();
             const row = [];
             table.columns().every(function (index) {
-                if (table.column(index).visible() && index < 5) { // Exclude 'Aksi' column
+                if (table.column(index).visible() && index < 5) { 
                     let cellData = data[index];
-                    if (index === 4) { // Status column
+                    if (index === 4) { 
                         cellData = $(cellData).text().trim();
-                    } else if (index === 0) { // Kode column
+                    } else if (index === 0) { 
                         cellData = $(cellData).text().trim();
-                    } else if (index === 1) { // Nama Gudang column
+                    } else if (index === 1) { 
                         cellData = $(cellData).text().trim();
-                    } else if (index === 3) { // Metode Pembayaran column
+                    } else if (index === 3) { 
                         cellData = $(cellData).text().trim();
                     }
                     row.push(String(cellData));
@@ -459,9 +454,8 @@
             body.push(row);
         });
 
-        // Tambah baris RINGKASAN
         const totalGudang = '{{ total_gudang }}';
-        body.push(['', '', '', '', '']); // Empty row for spacing
+        body.push(['', '', '', '', '']); 
         body.push([
             { text: `RINGKASAN: ${totalGudang} Gudang Terdaftar`, colSpan: 5, bold: true, fillColor: '#f8f9fa' },
             {},
@@ -539,13 +533,11 @@
 
         const table = $('#gudangTable').DataTable();
 
-        // Apply search filter
         table.search(searchValue).draw();
 
-        // Apply status filter
         if (statusValue) {
             $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-                const status = data[4].toLowerCase(); // Kolom status (index 4 sekarang)
+                const status = data[4].toLowerCase(); 
                 return status.includes(statusValue.toLowerCase());
             });
             table.draw();
@@ -559,7 +551,6 @@
         $('#gudangTable').DataTable().search('').draw();
     }
 
-    // Tangani Hapus Gudang
     let deleteGudangId = null;
 
     function confirmDelete(gudangId, gudangName) {

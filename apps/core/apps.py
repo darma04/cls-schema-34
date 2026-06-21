@@ -19,6 +19,11 @@
 
 from django.apps import AppConfig  # Base class untuk konfigurasi app
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 
 class CoreConfig(AppConfig):
     """
@@ -37,8 +42,8 @@ class CoreConfig(AppConfig):
         try:
             from apps.core.cache_invalidation import register_data_cache_invalidation_signals
             register_data_cache_invalidation_signals()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Error pada signal handler: %s", e)
 
         try:
             from django.db.models.signals import post_delete, post_save
@@ -60,5 +65,5 @@ class CoreConfig(AppConfig):
                 dispatch_uid='core_role_permission_cache_delete',
                 weak=False,
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Gagal operasi cache: %s", e)

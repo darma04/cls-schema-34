@@ -1,5 +1,29 @@
 {% extends 'layout/layout_vertical.html' %}
 {% load static humanize %}
+
+{% comment %}
+  ==========================================================================
+  PEMBELIAN - Daftar Pembelian (List View)
+  ==========================================================================
+  Menampilkan daftar semua pembelian menggunakan DataTables (tabel interaktif).
+  DataTables menyediakan: search, sorting, pagination, dan export PDF/Excel
+  secara otomatis tanpa perlu coding JavaScript tambahan.
+
+  FLOW DATA:
+  - URL: /pembelian/ -> pembelian.views.PembelianListView- View: Mengambil data dari database via model Pembelian- Template: File ini merender data ke HTML- Response: Browser menampilkan tabel + tombol aksi (edit/hapus/detail)
+
+  RELASI KE MODUL LAIN:
+  - apps/pembelian/models.py -> Model Pembelian (sumber data)- apps/pembelian/views.py -> PembelianListView (handler)- apps/pembelian/urls.py -> URL routing ke view ini- apps/core/mixins.py -> ReadPermissionMixin (cek hak akses)- layout/layout_vertical.html -> Template induk (sidebar, header)
+
+  BAGIAN YANG BOLEH/TIDAK BOLEH DIUBAH:
+  - BOLEH diubah: Tampilan kolom tabel, tombol aksi, filter- BOLEH diubah: Tambah kolom baru (sesuaikan juga di views.py queryset)- JANGAN diubah: {% extends %} dan {% block %} structure- JANGAN diubah: class DataTables (break JavaScript)
+
+  TIPS & DEBUGGING:
+  - Error 'TemplateDoesNotExist'? Cek path di views.py template_name- Data tidak muncul? Cek get_queryset() di views.py- Tambah kolom? Edit <th> di <thead> dan <td> di <tbody>- Export gagal? Cek fungsi export_di_pembelian_list() di <script>
+
+  ==========================================================================
+{% endcomment %}
+
 {% block title %}Daftar Pembelian{% endblock %}
 {% block vendor_css %}
 {{ block.super }}
@@ -19,7 +43,7 @@
 {% block content %}
 <div class="container-xxl flex-grow-1 container-p-y">
     <h4 class="py-3 mb-4"><span class="text-muted fw-light">Pembelian /</span> Daftar Transaksi</h4>
-    <!-- Summary Cards -->
+    
     <div class="row mb-4 g-3">
         <div class="col-6 col-lg-3">
             <div class="card h-100">
@@ -63,7 +87,6 @@
         </div>
     </div>
 
-    <!-- Filter Card -->
     <div class="card mb-4">
         <div class="card-body">
             <form method="GET" id="filterForm">
@@ -81,7 +104,7 @@
                     <input type="text" name="end_date" class="form-control flatpickr-input" id="endDate" value="{{ end_date }}" placeholder="Pilih tanggal akhir">
                 </div>
             </div>
-            <!-- Baris kedua: Pilih Kolom (kiri) dan Tombol Filter (kanan) -->
+            
             <div class="row g-3 mt-2 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label">Pilih Kolom</label>
@@ -166,6 +189,7 @@
                                     {% endif %}
                                     {% if can_delete.pembelian %}
                                     <div class="dropdown-divider"></div>
+                                    
                                     <form method="post" action="{% url 'pembelian:pembelian_delete' p.pk %}" onsubmit="return confirm('Yakin ingin menghapus transaksi {{ p.nomor_transaksi }}?')">
                                         {% csrf_token %}
                                         <button type="submit" class="dropdown-item text-danger">
@@ -193,7 +217,7 @@
                 </tfoot>
             </table>
         </div>
-        <!-- Django Pagination -->
+        
         {% if is_paginated %}
         <div class="card-footer d-flex justify-content-center">
             <nav aria-label="Page navigation">
@@ -231,7 +255,7 @@
     #pembelianTable thead th { font-weight: 600; font-size: 0.8125rem; text-transform: none; letter-spacing: 0; }
 </style>
 <script>
-    // Variables for SimkosExport
+    
     var EXCEL_INFO = {
         name: "{{ export_excel_template.header_nama_perusahaan|default:'Central License Server' }}",
         address: "{{ export_excel_template.header_alamat|default:'' }}",
@@ -246,12 +270,14 @@
         email: "{{ export_pdf_template.header_email|default:'' }}",
         copyright: "{{ export_pdf_template.footer_keterangan|default:'Data bersifat rahasia.' }}"
     };
-    var MONEY_COLS = [3]; // Kolom index 3 (Total)
+    var MONEY_COLS = [3]; 
     var FOOTER_DATA = { 3: {{ total_pendapatan|floatformat:0|default:"0" }} };
     var FOOTER_LABEL = "RINGKASAN ({{ total_completed }} Transaksi Selesai)";
     var DOCUMENT_TITLE = "Daftar Transaksi Pembelian";
 
     $(document).ready(function () {
+        {% if pembelian_list %}
+        if (!$.fn.dataTable.isDataTable('#pembelianTable')) {
         $('#pembelianTable').DataTable({
             language: { "sEmptyTable": "Tidak ada data", "sProcessing": "Sedang memproses...", "sLengthMenu": "Tampilkan _MENU_ data", "sZeroRecords": "Tidak ditemukan data yang sesuai", "sInfo": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data", "sInfoEmpty": "Menampilkan 0 sampai 0 dari 0 data", "sInfoFiltered": "(disaring dari _MAX_ total data)", "sSearch": "Cari:", "oPaginate": { "sFirst": "Pertama", "sPrevious": "Sebelumnya", "sNext": "Selanjutnya", "sLast": "Terakhir" } },
             order: [[2, 'desc']],
@@ -262,16 +288,19 @@
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>><"table-responsive"rt><"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
             initComplete: function () { $('.dataTables_filter input').attr('placeholder', 'Cari transaksi...'); }
         });
+        }
+        {% endif %}
         
         flatpickr('#startDate', { dateFormat: 'Y-m-d' });
         flatpickr('#endDate', { dateFormat: 'Y-m-d' });
     });
 
     function applyLocalSearch() {
-        // Obsolete function since server side search is used.
+        
     }
 
     function toggleColumns() {
+        if (typeof $ === "undefined" || typeof $.fn.dataTable === "undefined") return;
         var table = new $.fn.dataTable.Api('#pembelianTable');
         var columnMap = { '0': 0, '1': 1, '2': 2, '3': 3, '4': 4 };
         document.querySelectorAll('.column-checkbox').forEach(function(cb) {

@@ -22,10 +22,10 @@
             <div class="card mb-4">
                 <h5 class="card-header">Formulir Produk</h5>
                 <div class="card-body">
+                    
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <fieldset {% if is_readonly_mode %}disabled{% endif %}>
-                        
                         
                         {% if form.errors %}
                         <div class="alert alert-danger alert-dismissible" role="alert">
@@ -168,7 +168,7 @@
 
 {% block page_js %}
 <script>
-    // Initialize Select2 untuk dropdown kategori dan satuan
+    
     $(document).ready(function() {
         $('.select2').select2({
             placeholder: 'Pilih...',

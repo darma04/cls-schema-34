@@ -1,6 +1,15 @@
 {% extends 'layout/layout_vertical.html' %}
 {% load static %}
 
+{% comment %}
+   ==========================================================================
+   .. - Halaman Daftar/Index
+   Halaman utama modul ... Menampilkan daftar data
+   dengan fitur search, filter, dan pagination.
+   ==========================================================================
+{% endcomment %}
+
+
 {% block title %}Log Aktivitas - Central License Server{% endblock title %}
 
 {% block vendor_css %}
@@ -25,7 +34,6 @@
         <span class="text-muted fw-light">Sistem /</span> Log Aktivitas
     </h4>
 
-    <!-- Filter Card -->
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-3">
@@ -176,7 +184,7 @@
                                 <i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i>
                                 <div><strong class="d-block">RINGKASAN</strong><small class="text-muted">{{ total_activities }} Log Aktivitas</small></div>
                             </div>
-                        </td>
+                        </td><td class="py-3"></td><td class="py-3"></td><td class="py-3"></td><td class="py-3"></td><td class="py-3"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -213,7 +221,7 @@ $(document).ready(function(){
 });
 function applyFilter(){var p=new URLSearchParams();if($('#startDate').val())p.append('date_from',$('#startDate').val());if($('#endDate').val())p.append('date_to',$('#endDate').val());if($('#userFilter').val())p.append('user',$('#userFilter').val());if($('#actionFilter').val())p.append('action',$('#actionFilter').val());window.location.href='{% url "activity_log:index" %}?'+p.toString();}
 function resetFilter(){window.location.href='{% url "activity_log:index" %}';}
-    // Variables for SimkosExport
+    
     var EXCEL_INFO = {
         name: "{{ export_excel_template.header_nama_perusahaan|escapejs|default:'Central License Server' }}",
         address: "{{ export_excel_template.header_alamat|escapejs|default:'' }}",

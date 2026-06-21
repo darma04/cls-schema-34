@@ -20,8 +20,6 @@ def kirim_pesan_telegram(bot_token, chat_id, pesan, parse_mode='Markdown'):
     chat_id = str(chat_id).strip()
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     ssl_context = ssl.create_default_context()
-    ssl_context.check_hostname = False
-    ssl_context.verify_mode = ssl.CERT_NONE
 
     for attempt_parse_mode in [parse_mode, None]:
         data = {'chat_id': chat_id, 'text': pesan}
@@ -120,5 +118,5 @@ def _kirim_notifikasi_sync(jenis_transaksi, nomor_referensi, data_transaksi):
                 status='gagal',
                 error_message=str(e),
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Gagal mencatat activity log: %s", e)

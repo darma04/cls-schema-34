@@ -19,6 +19,14 @@ class PengaturanTelegram(models.Model):
     notif_pembelian = models.BooleanField(default=True, verbose_name="Notifikasi Pembelian Lisensi")
     notif_suspend = models.BooleanField(default=True, verbose_name="Notifikasi Suspend Lisensi")
 
+    # System Prompt Bot Telegram - instruksi kustom untuk AI chatbot
+    system_prompt_bot = models.TextField(
+        blank=True,
+        default='',
+        verbose_name="System Prompt Bot AI",
+        help_text="Instruksi tambahan untuk mengatur perilaku AI chatbot Telegram. Kosongkan untuk menggunakan default."
+    )
+
     dibuat_pada = models.DateTimeField(auto_now_add=True)
     diupdate_pada = models.DateTimeField(auto_now=True)
 

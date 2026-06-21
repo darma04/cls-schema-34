@@ -36,7 +36,6 @@
         </div>
     </div>
 
-    <!-- Summary Cards -->
     <div class="row mb-4 g-3">
         <div class="col-6 col-lg-3">
             <div class="card h-100">
@@ -80,7 +79,6 @@
         </div>
     </div>
 
-    <!-- Filter Card -->
     <div class="card mb-4">
         <div class="card-body">
             <form method="GET" id="filterForm">
@@ -161,6 +159,7 @@
                     </div>
                 </div>
             </div>
+            </form>
         </div>
     </div>
 
@@ -231,7 +230,7 @@
                     <tr>
                         <td colspan="3" class="text-start ps-4 py-3" style="vertical-align: middle;">
                             <div class="d-flex align-items-center"><i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i><div class="text-start"><strong class="d-block" style="font-size: 1rem;">RINGKASAN</strong><small class="text-muted" style="font-size: 0.75rem;">{{ total_lisensi }} Lisensi</small></div></div>
-                        </td>
+                        </td><td class="py-3"></td><td class="py-3"></td>
                         <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-success d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ lisensi_aktif }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Aktif</small></div></td>
                         <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-danger d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ lisensi_kadaluarsa }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Kadaluarsa</small></div></td>
                         <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-warning d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ lisensi_suspended }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Suspended</small></div></td>
@@ -275,15 +274,12 @@ $(document).ready(function () {
     flatpickr('#endDate', { dateFormat: 'Y-m-d' });
 });
 
-// === SimkosExport Integration ===
 function toggleColumns() { SimkosExport.toggleColumns('#stokTable'); }
 function selectAllColumns() { document.querySelectorAll('.column-checkbox').forEach(cb => { cb.checked = true; }); toggleColumns(); }
 function deselectAllColumns() { document.querySelectorAll('.column-checkbox').forEach(cb => { cb.checked = false; }); toggleColumns(); }
 function applyFilter() { if ($.fn.DataTable.isDataTable('#stokTable')) { new $.fn.dataTable.Api('#stokTable').search($('#searchProduk').val()).draw(); } }
 function resetFilter() { document.getElementById('searchProduk').value = ''; if ($.fn.DataTable.isDataTable('#stokTable')) { new $.fn.dataTable.Api('#stokTable').search('').draw(); } }
 
-// Konfigurasi Export — menggunakan Template Cetak dari context processor
-// Kolom: 0=Produk, 1=Kode Lisensi, 2=Klien, 3=Dibuat Pada, 4=Kadaluarsa, 5=Status, 6=Aksi(skip)
 var EXCEL_INFO = {
     name: "{{ export_excel_template.header_nama_perusahaan|escapejs|default:'Central License Server' }}",
     address: "{{ export_excel_template.header_alamat|escapejs|default:'-' }}",
@@ -298,7 +294,7 @@ var PDF_INFO = {
     email: "{{ export_pdf_template.header_email|escapejs|default:'-' }}",
     copyright: "{{ export_pdf_template.footer_copyright|escapejs|default:'© 2026 Central License Server' }}"
 };
-// Footer data — total lisensi di kolom indeks 3
+
 var FOOTER_DATA  = {};
 var FOOTER_LABEL = 'RINGKASAN ({{ total_lisensi }} Lisensi | Aktif: {{ lisensi_aktif }} | Kadaluarsa: {{ lisensi_kadaluarsa }} | Suspended: {{ lisensi_suspended }})';
 var MONEY_COLS   = [];

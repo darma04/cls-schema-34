@@ -64,7 +64,12 @@ class PermissionChecker:
         'ai_assistant': 'ai',              # AI Manajemen: slug 'ai-assistant' → module 'ai'
         'tenants': 'tenant_management',    # Tenant Management: slug 'tenants' → module 'tenant_management'
         'access_control': 'access_control', # Access Control: slug 'access-control' → module 'access_control'
+        'access-control': 'access_control',
         'activity_log': 'activity_log',    # Log Aktivitas: slug 'activity-log' → module 'activity_log'
+        'activity-log': 'activity_log',
+        'fraud_detection': 'fraud_detection',
+        'laporan_keuangan': 'laporan',
+        'laporan-keuangan': 'laporan',
     }
 
     def __init__(self, user, action, module=None):
@@ -140,7 +145,12 @@ class AccessibleSubsChecker:
         'ai_assistant': 'ai',
         'tenants': 'tenant_management',
         'access_control': 'access_control',
+        'access-control': 'access_control',
         'activity_log': 'activity_log',
+        'activity-log': 'activity_log',
+        'fraud_detection': 'fraud_detection',
+        'laporan_keuangan': 'laporan',
+        'laporan-keuangan': 'laporan',
     }
 
     def __init__(self, user):
@@ -220,6 +230,9 @@ def user_permissions(request):
         can_show_refresh_cache_button = has_exact_submodule_permission(
             request.user, 'read', 'dashboard', 'refresh_cache'
         )
+        can_show_ai_assistant_widget = has_exact_submodule_permission(
+            request.user, 'read', 'ai_assistant', 'chat_widget'
+        )
 
         return {
             'user_role': user_role,
@@ -236,6 +249,7 @@ def user_permissions(request):
             # Flag superuser
             'is_superuser': is_superuser,
             'can_show_refresh_cache_button': can_show_refresh_cache_button,
+            'can_show_ai_assistant_widget': can_show_ai_assistant_widget,
         }
 
     # ==================== USER BELUM LOGIN ====================
@@ -264,4 +278,5 @@ def user_permissions(request):
         'can_view_logs': False,
         'can_manage_settings': False,
         'can_show_refresh_cache_button': False,
+        'can_show_ai_assistant_widget': False,
     }

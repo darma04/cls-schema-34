@@ -6,6 +6,11 @@ from django.utils.deprecation import MiddlewareMixin
 from .models import UserActivity
 from threading import local
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 _thread_locals = local()
 
 
@@ -56,5 +61,5 @@ class ActivityLogMiddleware(MiddlewareMixin):
                 activity.set_changes(changes)
                 activity.save()
             request._activity_logged = True
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Gagal mencatat activity log: %s", e)

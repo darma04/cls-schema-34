@@ -27,7 +27,7 @@
 
 {% block content %}
 <div class="container-xxl flex-grow-1 container-p-y">
-    <!-- Header -->
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1">
@@ -47,7 +47,6 @@
         {% endif %}
     </div>
 
-    <!-- Filter Card -->
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-3">
@@ -140,7 +139,6 @@
         </div>
     </div>
 
-    <!-- Main Card -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Data Absensi</h5>
@@ -268,7 +266,7 @@
                                     <br><small class="text-muted">Total {{ absensi_list|length }} Data Absensi</small>
                                 </div>
                             </div>
-                        </td>
+                        </td><td class="py-3"></td><td class="py-3"></td><td class="py-3"></td><td class="py-3"></td>
                         <td class="py-3">
                             <div class="d-flex flex-wrap gap-1 justify-content-center">
                                 <span class="badge bg-label-success">Hadir: {{ total_hadir|default:0 }}</span>
@@ -282,7 +280,6 @@
         </div>
     </div>
 
-    <!-- Delete Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -325,11 +322,10 @@
 let dataTable;
 
 $(document).ready(function() {
-    // Initialize Flatpickr
+    
     flatpickr('#tanggalMulai', { dateFormat: 'Y-m-d', locale: 'id' });
     flatpickr('#tanggalAkhir', { dateFormat: 'Y-m-d', locale: 'id' });
 
-    // Initialize DataTable
     {% if absensi_list %}
     dataTable = $('#absensiTable').DataTable({
         language: {

@@ -39,7 +39,6 @@
             border: 1px solid #ddd;
         }
 
-        /* === HEADER PROFESIONAL === */
         .cert-header {
             display: flex;
             align-items: center;
@@ -91,7 +90,6 @@
             margin-top: 4px;
         }
 
-        /* === TITLE === */
         .cert-title {
             text-align: center;
             margin: 15px 0;
@@ -136,7 +134,6 @@
             color: #856404 !important;
         }
 
-        /* === LICENSE KEY BOX === */
         .license-key-box {
             text-align: center;
             margin: 15px 0;
@@ -165,7 +162,6 @@
             letter-spacing: 2px;
         }
 
-        /* === INFO SECTIONS === */
         .cert-info {
             display: flex;
             justify-content: space-between;
@@ -208,7 +204,6 @@
             color: #333;
         }
 
-        /* === NOTE === */
         .cert-footer-info {
             margin-top: 15px;
             padding: 12px;
@@ -220,7 +215,6 @@
             print-color-adjust: exact !important;
         }
 
-        /* === SIGNATURES === */
         .signature-section {
             display: flex;
             justify-content: space-between;
@@ -240,7 +234,6 @@
             font-size: 11px;
         }
 
-        /* === FOOTER === */
         .cert-footer {
             margin-top: 15px;
             padding-top: 10px;
@@ -279,7 +272,7 @@
 
 <body>
     <div class="cert-container">
-        <!-- Header Profesional -->
+        
         <div class="cert-header">
             {% if template.tampilkan_logo %}
             <div class="header-logo">
@@ -304,7 +297,6 @@
             </div>
         </div>
 
-        <!-- Title -->
         <div class="cert-title">
             <h1>Sertifikat Lisensi</h1>
             <p>Dokumen resmi penerbitan kunci lisensi produk software</p>
@@ -317,13 +309,11 @@
             {% endif %}
         </div>
 
-        <!-- License Key Box -->
         <div class="license-key-box">
             <label>Kunci Lisensi</label>
             <div class="key-value">{{ license.key }}</div>
         </div>
 
-        <!-- Info Sections -->
         <div class="cert-info">
             <div class="info-section">
                 <h3>Informasi Produk</h3>
@@ -365,7 +355,6 @@
             </div>
         </div>
 
-        <!-- License Details -->
         <div class="cert-info">
             <div class="info-section">
                 <h3>Detail Lisensi</h3>
@@ -395,14 +384,12 @@
             </div>
         </div>
 
-        <!-- Note -->
         <div class="cert-footer-info">
             <strong>Informasi Penting:</strong> Sertifikat ini merupakan bukti resmi penerbitan kunci lisensi.
             Simpan kunci lisensi Anda dengan aman. Untuk aktivasi atau dukungan teknis,
             hubungi {{ template.header_email }} atau {{ template.header_telepon }}.
         </div>
 
-        <!-- Signature -->
         <div class="signature-section">
             <div class="signature-box">
                 <div class="signature-line">
@@ -416,7 +403,6 @@
             </div>
         </div>
 
-        <!-- Footer -->
         <div class="cert-footer">
             <p>{{ template.footer_ucapan }}</p>
             <p>{{ template.footer_keterangan }}</p>
@@ -426,7 +412,7 @@
             </p>
         </div>
     </div>
-    <!-- Tombol Kembali (ditampilkan setelah native Android print dialog) -->
+    
     <div id="backBtnWrap" class="no-print" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999;">
         <a id="backBtn" href="javascript:void(0)" style="display:inline-block; padding:12px 32px; background:#696cff; color:#fff; text-decoration:none; border-radius:8px; font-size:14px; font-weight:bold; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
             &larr; Kembali
@@ -434,7 +420,7 @@
     </div>
 
     <script>
-        // Smart Print Handler — Universal: Browser + Capacitor Android (SerpApp.triggerPrint)
+        
         (function() {
             var printed = false;
 
@@ -455,13 +441,13 @@
             function doPrint() {
                 if (printed) return;
                 printed = true;
-                // Capacitor Android: gunakan native print via JavascriptInterface
+                
                 if (typeof window.SerpApp !== 'undefined' && typeof window.SerpApp.triggerPrint === 'function') {
                     window.SerpApp.triggerPrint();
-                    // afterprint tidak fire dari native dialog, tampilkan tombol kembali
+                    
                     setTimeout(showBackButton, 500);
                 } else {
-                    // Browser/Mobile: langsung window.print(), kembali via afterprint
+                    
                     if (typeof window.print === 'function') {
                         try { window.print(); } catch(e) { goBack(); }
                     }
@@ -471,7 +457,6 @@
             if (document.readyState === 'complete') { setTimeout(doPrint, 400); }
             else { window.addEventListener('load', function() { setTimeout(doPrint, 400); }); }
 
-            // afterprint fire di browser/WebView standar saat cetak selesai/batal
             window.addEventListener('afterprint', function() { setTimeout(goBack, 200); });
         })();
     </script>

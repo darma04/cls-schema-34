@@ -37,7 +37,6 @@
             border: 1px solid #ddd;
         }
 
-        /* Header */
         .invoice-header {
             display: flex;
             justify-content: space-between;
@@ -108,7 +107,6 @@
             color: #721c24;
         }
 
-        /* Info Section */
         .invoice-info {
             display: flex;
             justify-content: space-between;
@@ -136,7 +134,6 @@
             width: 130px;
         }
 
-        /* Items Table */
         .items-table {
             width: 100%;
             border-collapse: collapse;
@@ -169,7 +166,6 @@
             text-align: center;
         }
 
-        /* Totals */
         .totals-section {
             margin-left: auto;
             width: 320px;
@@ -192,7 +188,6 @@
             padding: 12px 0;
         }
 
-        /* Notes */
         .notes {
             background: #fff3cd;
             padding: 15px;
@@ -205,7 +200,6 @@
             margin-bottom: 5px;
         }
 
-        /* Signature */
         .signature-section {
             display: flex;
             justify-content: space-between;
@@ -224,7 +218,6 @@
             padding-top: 5px;
         }
 
-        /* Footer */
         .invoice-footer {
             margin-top: 40px;
             padding-top: 20px;
@@ -234,7 +227,6 @@
             color: #666;
         }
 
-        /* Print Button */
         .print-btn {
             position: fixed;
             top: 20px;
@@ -280,7 +272,7 @@
     <button class="print-btn" onclick="window.print()">🖨️ Cetak Tagihan</button>
 
     <div class="invoice-container">
-        <!-- Header -->
+        
         <div class="invoice-header">
             <div class="company-info">
                 <div class="company-name">{{ properti.nama }}</div>
@@ -305,7 +297,6 @@
             </div>
         </div>
 
-        <!-- Info Penyewa & Tagihan -->
         <div class="invoice-info">
             <div class="info-section">
                 <h3>Informasi Penyewa</h3>
@@ -347,7 +338,6 @@
             </div>
         </div>
 
-        <!-- Items Table -->
         <table class="items-table">
             <thead>
                 <tr>
@@ -370,7 +360,6 @@
             </tbody>
         </table>
 
-        <!-- Totals -->
         <div class="totals-section">
             <div class="total-row">
                 <span>Total Tagihan:</span>
@@ -390,7 +379,6 @@
             </div>
         </div>
 
-        <!-- Catatan -->
         {% if tagihan.catatan %}
         <div class="notes">
             <h4>Catatan:</h4>
@@ -398,7 +386,6 @@
         </div>
         {% endif %}
 
-        <!-- Signature -->
         <div class="signature-section">
             <div class="signature-box">
                 <div class="signature-line">
@@ -412,7 +399,6 @@
             </div>
         </div>
 
-        <!-- Footer -->
         <div class="invoice-footer">
             <p>Terima kasih atas kepercayaan Anda. Pembayaran dapat dilakukan via transfer bank atau tunai.</p>
             <p>Harap simpan bukti pembayaran untuk referensi.</p>
@@ -421,7 +407,7 @@
             </p>
         </div>
     </div>
-    <!-- Tombol Kembali (ditampilkan setelah native Android print dialog) -->
+    
     <div id="backBtnWrap" class="no-print" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999;">
         <a id="backBtn" href="javascript:void(0)" style="display:inline-block; padding:12px 32px; background:#696cff; color:#fff; text-decoration:none; border-radius:8px; font-size:14px; font-weight:bold; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
             &larr; Kembali
@@ -429,7 +415,7 @@
     </div>
 
     <script>
-        // Smart Print Handler — Universal: Browser + Capacitor Android (SerpApp.triggerPrint)
+        
         (function() {
             var printed = false;
 
@@ -450,13 +436,13 @@
             function doPrint() {
                 if (printed) return;
                 printed = true;
-                // Capacitor Android: gunakan native print via JavascriptInterface
+                
                 if (typeof window.SerpApp !== 'undefined' && typeof window.SerpApp.triggerPrint === 'function') {
                     window.SerpApp.triggerPrint();
-                    // afterprint tidak fire dari native dialog, tampilkan tombol kembali
+                    
                     setTimeout(showBackButton, 500);
                 } else {
-                    // Browser/Mobile: langsung window.print(), kembali via afterprint
+                    
                     if (typeof window.print === 'function') {
                         try { window.print(); } catch(e) { goBack(); }
                     }
@@ -466,7 +452,6 @@
             if (document.readyState === 'complete') { setTimeout(doPrint, 400); }
             else { window.addEventListener('load', function() { setTimeout(doPrint, 400); }); }
 
-            // afterprint fire di browser/WebView standar saat cetak selesai/batal
             window.addEventListener('afterprint', function() { setTimeout(goBack, 200); });
         })();
     </script>

@@ -1,10 +1,5 @@
-/**
- * ==========================================================================
- *  MODAL EDIT ROLE — Handler untuk Edit Role dan Permission (CLS)
- * ==========================================================================
- *  Konsisten dengan SIMKOS: perm-card collapsible, loading state, Swal alerts
- * ==========================================================================
- */
+
+
 (function() {
     'use strict';
 
@@ -88,27 +83,26 @@
     function populatePermissionCheckboxes(permissions) {
         if (!Array.isArray(permissions)) return;
 
-        // Uncheck semua checkbox terlebih dahulu
+        
         document.querySelectorAll('#editRoleForm input[type="checkbox"]').forEach(cb => {
             cb.checked = false;
         });
 
-        // Loop setiap permission dan centang checkbox yang sesuai
+        
         permissions.forEach(perm => {
             const module = perm.module;
             const subModule = perm.sub_module;
 
             if (subModule) {
-                // ─── SUB-MODULE PERMISSION ───
-                // Sub-modul hanya punya 1 checkbox: "Tampilkan" (view)
-                // ID format: edit_{module}_{sub_module}_view
+                
+                
                 const cb = document.getElementById(`edit_${module}_${subModule}_view`);
                 if (cb && perm.can_view) {
                     cb.checked = true;
                 }
             } else {
-                // ─── MODULE-LEVEL PERMISSION ───
-                // Modul utama punya 4 checkbox CRUD: view, create, edit, delete
+                
+                
                 const idPrefix = `edit_${module}_`;
                 const actions = ['view', 'create', 'edit', 'delete'];
 

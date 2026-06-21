@@ -78,7 +78,7 @@ def _get_server_config(software_code):
     return url, key
 
 
-def _software_request(software_code, method, path, data=None, timeout=30):
+def _software_request(software_code, method, path, data=None, timeout=120):
     """
     Kirim HTTP request ke server software tertentu (SIMS/SIMKOS/SERPTECH).
     Returns: (success: bool, response_data: dict, error_message: str)
@@ -203,7 +203,15 @@ def tenant_list(request):
     context['software_servers'] = SOFTWARE_SERVERS
     context['filter_software'] = filter_software
 
-    return render(request, 'licenses/tenant_list.html', context)
+    response = render(request, 'licenses/tenant_list.html', context)
+
+    # Hapus password dari session setelah ditampilkan sekali di halaman
+    if 'new_tenant_info' in request.session:
+        if 'password' in request.session['new_tenant_info']:
+            del request.session['new_tenant_info']['password']
+            request.session.modified = True
+
+    return response
 
 
 # ==========================================================================
@@ -252,7 +260,7 @@ def tenant_create(request):
     context = _init_layout(request, {})
     context['title'] = 'Buat Tenant Baru'
     context['software_servers'] = SOFTWARE_SERVERS
-    context['domain_suffix'] = os.environ.get('TENANT_DOMAIN_SUFFIX', '.localhost')
+    context['domain_suffix'] = os.environ.get('TENANT_DOMAIN_SUFFIX', '.serpgroup.cloud')
 
     if request.method == 'POST':
         software_code = request.POST.get('software', '').strip().upper()

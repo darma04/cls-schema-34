@@ -1,6 +1,53 @@
 """
 Views untuk Automation (Telegram) - Pengaturan, Template Pesan, Log Notifikasi.
 """
+
+import logging
+logger = logging.getLogger(__name__)
+
+# ==========================================================================
+# PANDUAN DJANGO UNTUK DEVELOPER PEMULA (baca ini sebelum mempelajari views)
+# ==========================================================================
+#
+# APA ITU CLASS-BASED VIEW (CBV)?
+# - CBV = class Python yang menangani HTTP request dan return response
+# - Django menyediakan CBV bawaan: ListView, CreateView, UpdateView, DeleteView
+# - Setiap CBV punya "lifecycle" (siklus hidup) yang bisa di-customize
+#
+# SIKLUS HIDUP CBV (urutan method yang dipanggil):
+# 1. as_view()     → Entry point, dipanggil oleh URL router
+# 2. dispatch()    → Tentukan method (GET/POST) → panggil get() atau post()
+# 3. get()/post()  → Handle request, kumpulkan data
+# 4. get_queryset()→ Ambil data dari database (bisa di-filter/optimasi)
+# 5. get_context_data() → Siapkan data untuk template (variabel {{ }})
+# 6. render()      → Gabungkan template + context → HTML response
+#
+# METHOD PENTING YANG SERING DI-OVERRIDE:
+# - get_queryset()     → Optimasi query (prefetch_related, select_related)
+# - get_context_data() → Tambah variabel ke template (self.context)
+# - form_valid()       → Proses setelah form divalidasi (sebelum save)
+# - get_success_url()  → URL redirect setelah operasi berhasil
+#
+# DECORATOR YANG SERING DIGUNAKAN:
+# @login_required       → User HARUS login, jika tidak → redirect ke /login/
+# @permission_required  → User harus punya permission tertentu (RBAC)
+# @require_http_methods → Batasi method yang diterima (GET, POST, dll)
+# @never_cache          → Response tidak boleh di-cache oleh browser
+#
+# POLA UMUM VIEW DI PROYEK INI:
+# class MyListView(SubModulePermissionMixin, ListView):
+#     module_name = 'nama_modul'          # Untuk pengecekan RBAC
+#     sub_module_name = 'nama_sub_modul'  # Sub-modul yang diakses
+#     model = MyModel                      # Model database yang dipakai
+#     template_name = 'modul/page.html'    # File HTML template
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context = TemplateLayout.init(self, context)  # WAJIB: setup layout
+#         context['data_tambahan'] = ...    # Tambah data custom
+#         return context
+# ==========================================================================
+
 import json
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -34,6 +81,7 @@ class PengaturanTelegramView(LoginRequiredMixin, TemplateView):
         pengaturan.notif_kadaluarsa = request.POST.get('notif_kadaluarsa') == 'on'
         pengaturan.notif_pembelian = request.POST.get('notif_pembelian') == 'on'
         pengaturan.notif_suspend = request.POST.get('notif_suspend') == 'on'
+        pengaturan.system_prompt_bot = request.POST.get('system_prompt_bot', '').strip()
         pengaturan.save()
         messages.success(request, 'Pengaturan Telegram berhasil disimpan!')
         return redirect('automation:pengaturan_telegram')
@@ -183,3 +231,79 @@ def reset_template(request, pk):
     template.save()
     messages.success(request, f'Template "{template.nama}" berhasil direset!')
     return redirect('automation:template_pesan_list')
+
+
+# ═══════════════════════════════════════════════════════════════
+# WEBHOOK VIEWS - Untuk mode webhook (alternatif polling)
+# ═══════════════════════════════════════════════════════════════
+
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from concurrent.futures import ThreadPoolExecutor
+
+_webhook_executor = ThreadPoolExecutor(max_workers=5, thread_name_prefix="tg_webhook")
+
+
+@csrf_exempt
+@require_POST
+def telegram_webhook(request):
+    """
+    Endpoint webhook Telegram. Menerima POST dari Telegram API.
+    Alternatif dari polling untuk deployment production.
+    """
+    try:
+        from .telegram_bot import handle_update
+        update = json.loads(request.body)
+        _webhook_executor.submit(handle_update, update)
+        return JsonResponse({'ok': True})
+    except json.JSONDecodeError:
+        return JsonResponse({'ok': False, 'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        logger.error(f"[Webhook] Error: {e}")
+        return JsonResponse({'ok': False, 'error': str(e)}, status=500)
+
+
+@login_required
+def set_webhook(request):
+    """
+    Set webhook URL ke Telegram API.
+    Gunakan ini untuk beralih dari polling ke webhook mode.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Method not allowed'}, status=405)
+
+    import urllib.request
+    import urllib.error
+    import urllib.parse
+    import ssl
+
+    pengaturan = PengaturanTelegram.load()
+    if not pengaturan.bot_token:
+        return JsonResponse({'success': False, 'message': 'Bot Token harus diisi!'})
+
+    bot_token = pengaturan.bot_token.strip()
+    webhook_url = request.POST.get('webhook_url', '')
+
+    if not webhook_url:
+        # Default URL berdasarkan request host
+        scheme = 'https' if request.is_secure() else 'http'
+        host = request.get_host()
+        webhook_url = f"{scheme}://{host}/automation/telegram/webhook/"
+
+    url = f"https://api.telegram.org/bot{bot_token}/setWebhook"
+    data = urllib.parse.urlencode({'url': webhook_url}).encode('utf-8')
+
+    ssl_context = ssl.create_default_context()
+    try:
+        req = urllib.request.Request(url, data=data, method='POST')
+        with urllib.request.urlopen(req, timeout=15, context=ssl_context) as response:
+            result = json.loads(response.read().decode('utf-8'))
+        if result.get('ok'):
+            return JsonResponse({
+                'success': True,
+                'message': f'Webhook berhasil diset: {webhook_url}',
+                'result': result
+            })
+        return JsonResponse({'success': False, 'message': result.get('description', 'Gagal set webhook')})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'Error: {str(e)}'})

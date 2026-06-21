@@ -124,11 +124,13 @@ class LicenseKey(models.Model):
         if self.status != 'active':
             return False, f"Lisensi ini berstatus: {self.get_status_display()}"
 
-        if self.is_activated:
-            if self.expires_at and timezone.now() > self.expires_at:
-                return False, "Lisensi telah kadaluarsa. Silahkan perpanjang biaya maintenance."
-            if domain and self.registered_domain and self.registered_domain != domain:
-                return False, f"Lisensi ini terdaftar untuk domain lain ({self.registered_domain})."
+        if not self.is_activated:
+            return False, "Lisensi belum diaktifkan."
+
+        if self.expires_at and timezone.now() > self.expires_at:
+            return False, "Lisensi telah kadaluarsa. Silahkan perpanjang biaya maintenance."
+        if domain and self.registered_domain and self.registered_domain != domain:
+            return False, f"Lisensi ini terdaftar untuk domain lain ({self.registered_domain})."
 
         return True, "Lisensi valid."
 

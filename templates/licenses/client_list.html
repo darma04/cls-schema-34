@@ -29,7 +29,7 @@
 
 {% block content %}
 <div class="container-xxl flex-grow-1 container-p-y">
-    <!-- Header -->
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1"><i class="ri-building-4-line me-2"></i>Data Klien</h4>
@@ -56,7 +56,6 @@
     {% endfor %}
     {% endif %}
 
-    <!-- Filter Card -->
     <div class="card mb-4">
         <div class="card-body">
             <form method="GET" id="filterForm">
@@ -74,7 +73,7 @@
                     <input type="text" name="end_date" class="form-control flatpickr-input" id="endDate" value="{{ end_date }}" placeholder="Pilih tanggal akhir">
                 </div>
             </div>
-            <!-- Baris kedua: Pilih Kolom (kiri) dan Tombol Filter (kanan) -->
+            
             <div class="row g-3 mt-2 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label">Pilih Kolom</label>
@@ -116,7 +115,6 @@
         </div>
     </div>
 
-    <!-- Data Table Card -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Daftar Klien</h5>
@@ -177,7 +175,7 @@
                 </tbody>
                 <tfoot class="table-footer-summary">
                     <tr>
-                        <td colspan="3" class="text-start ps-4 py-3" style="vertical-align: middle;">
+                        <td colspan="5" class="text-start ps-4 py-3" style="vertical-align: middle;">
                             <div class="d-flex align-items-center justify-content-start">
                                 <i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i>
                                 <div class="text-start">
@@ -185,13 +183,13 @@
                                     <small class="text-muted" style="font-size: 0.75rem;">{{ total_clients }} Klien Terdaftar</small>
                                 </div>
                             </div>
-                        </td>
-                        <td colspan="2" class="py-3"></td>
+
+                        </td><td class="py-3"></td><td class="py-3"></td><td class="py-3"></td><td class="py-3"></td>
                     </tr>
                 </tfoot>
             </table>
         </div>
-        <!-- Django Pagination -->
+        
         {% if is_paginated %}
         <div class="card-footer d-flex justify-content-center">
             <nav aria-label="Page navigation">
@@ -214,7 +212,6 @@
     </div>
 </div>
 
-<!-- Import Modal -->
 <div class="modal fade" id="importModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -261,13 +258,14 @@
     .datatables-client thead th { font-weight: 600; font-size: 0.8125rem; text-transform: none; letter-spacing: 0; }
     @media (max-width: 768px) {
         .card-datatable { overflow-x: hidden !important; -webkit-overflow-scrolling: touch; max-width: 100%; }
-        .datatables-client { min-width: 800px !important; width: 800px !important; table-layout: auto !important; }
+        {% if messages %}.datatables-client { min-width: 800px !important; width: 800px !important; table-layout: auto !important; }{% endif %}
         .dataTables_wrapper { overflow-x: hidden !important; max-width: 100% !important; }
     }
 </style>
 <script>
     $(document).ready(function () {
-        $('#clientTable').DataTable({
+        {% if messages %}
+$('#clientTable').DataTable({
             language: { "sEmptyTable": "Tidak ada data", "sProcessing": "Sedang memproses...", "sLengthMenu": "Tampilkan _MENU_ data", "sZeroRecords": "Tidak ditemukan data yang sesuai", "sInfo": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data", "sInfoEmpty": "Menampilkan 0 sampai 0 dari 0 data", "sInfoFiltered": "(disaring dari _MAX_ total data)", "sSearch": "Cari:", "oPaginate": { "sFirst": "Pertama", "sPrevious": "Sebelumnya", "sNext": "Selanjutnya", "sLast": "Terakhir" } },
             order: [[0, 'asc']],
             pageLength: 25,
@@ -281,12 +279,14 @@
         flatpickr('#startDate', { dateFormat: 'Y-m-d' });
         flatpickr('#endDate', { dateFormat: 'Y-m-d' });
     });
+{% endif %}
 
     function applyLocalSearch() {
-        // Obsolete function since server side search is used.
+        
     }
 
     function toggleColumns() {
+        if (typeof $ === "undefined" || typeof $.fn.dataTable === "undefined") return;
         var table = new $.fn.dataTable.Api('#clientTable');
         var columnMap = { '0': 0, '1': 1, '2': 2, '3': 3 };
         document.querySelectorAll('.column-checkbox').forEach(function(cb) {
@@ -297,7 +297,6 @@
     function selectAllColumns() { document.querySelectorAll('.column-checkbox').forEach(function(cb){cb.checked=true;}); toggleColumns(); }
     function deselectAllColumns() { document.querySelectorAll('.column-checkbox').forEach(function(cb){cb.checked=false;}); toggleColumns(); }
 
-    // Variables for SimkosExport
     var EXCEL_INFO = {
         name: "{{ export_excel_template.header_nama_perusahaan|escapejs|default:'Central License Server' }}",
         address: "{{ export_excel_template.header_alamat|escapejs|default:'' }}",
@@ -327,7 +326,6 @@
         SimkosExport.buildPDF('#clientTable', PDF_INFO, FOOTER_DATA, FOOTER_LABEL, DOCUMENT_TITLE, 'Data_Klien', MONEY_COLS);
     }
 
-    // Import functionality
     $('#downloadTemplate').on('click', function(){
         var csv = 'Nama Klien,Email,Telepon,Alamat\nPT Contoh,contoh@email.com,08123456789,Jl. Contoh No 1';
         var blob = new Blob([csv], {type:'text/csv'});
@@ -344,7 +342,6 @@
         reader.readAsText(f.files[0]);
     });
 
-    // ========== SweetAlert2 Delete Confirmation ==========
     function getCsrfToken() {
         const input = document.querySelector('[name=csrfmiddlewaretoken]');
         if (input) return input.value;

@@ -16,9 +16,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Slip Gaji - {{ slip.karyawan.nama }} - {{ slip.periode }}</title>
     <style>
-        /* ============================================
-           RESET & BASE
-           ============================================ */
+        
         * {
             margin: 0;
             padding: 0;
@@ -34,9 +32,6 @@
             background: #f5f5f5;
         }
 
-        /* ============================================
-           CONTAINER UTAMA
-           ============================================ */
         .slip-container {
             max-width: 800px;
             margin: 0 auto;
@@ -46,9 +41,6 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        /* ============================================
-           HEADER PERUSAHAAN
-           ============================================ */
         .slip-header {
             display: flex;
             justify-content: space-between;
@@ -105,9 +97,6 @@
         .status-diproses { background: #fff3cd; color: #856404; }
         .status-dibayar { background: #d4edda; color: #155724; }
 
-        /* ============================================
-           INFO KARYAWAN
-           ============================================ */
         .employee-info {
             display: flex;
             justify-content: space-between;
@@ -146,9 +135,6 @@
             color: #333;
         }
 
-        /* ============================================
-           TABEL GAJI (2 kolom side-by-side)
-           ============================================ */
         .salary-tables {
             display: flex;
             gap: 20px;
@@ -232,9 +218,6 @@
             border-top: 2px solid #c62828 !important;
         }
 
-        /* ============================================
-           BOX GAJI BERSIH
-           ============================================ */
         .net-salary-box {
             background: linear-gradient(135deg, #696cff 0%, #8b8eff 100%);
             border-radius: 8px;
@@ -258,9 +241,6 @@
             color: #fff;
         }
 
-        /* ============================================
-           CATATAN
-           ============================================ */
         .notes-section {
             background: #fff3cd;
             padding: 12px 15px;
@@ -281,9 +261,6 @@
             margin: 0;
         }
 
-        /* ============================================
-           TANDA TANGAN
-           ============================================ */
         .signature-section {
             display: flex;
             justify-content: space-between;
@@ -316,9 +293,6 @@
             margin-top: 2px;
         }
 
-        /* ============================================
-           FOOTER
-           ============================================ */
         .slip-footer {
             margin-top: 30px;
             padding-top: 15px;
@@ -338,9 +312,6 @@
             color: #aaa;
         }
 
-        /* ============================================
-           PRINT STYLES
-           ============================================ */
         @media print {
             body {
                 padding: 0;
@@ -379,9 +350,6 @@
 <body>
     <div class="slip-container">
 
-        <!-- ============================================ -->
-        <!--  HEADER PERUSAHAAN                            -->
-        <!-- ============================================ -->
         <div class="slip-header">
             <div class="company-info">
                 <div class="company-name">{{ template.header_nama_perusahaan }}</div>
@@ -405,9 +373,6 @@
             </div>
         </div>
 
-        <!-- ============================================ -->
-        <!--  INFO KARYAWAN                                -->
-        <!-- ============================================ -->
         <div class="employee-info">
             <div class="info-group">
                 <h3>Data Karyawan</h3>
@@ -433,11 +398,8 @@
             </div>
         </div>
 
-        <!-- ============================================ -->
-        <!--  TABEL PENDAPATAN & POTONGAN                  -->
-        <!-- ============================================ -->
         <div class="salary-tables">
-            <!-- Kolom Pendapatan -->
+            
             <div class="salary-column">
                 <div class="column-header column-header-income">✚ Pendapatan</div>
                 <table class="salary-table">
@@ -486,7 +448,6 @@
                 </table>
             </div>
 
-            <!-- Kolom Potongan -->
             <div class="salary-column">
                 <div class="column-header column-header-deduction">− Potongan</div>
                 <table class="salary-table">
@@ -524,15 +485,11 @@
             </div>
         </div>
 
-        <!-- ============================================ -->
-        <!--  GAJI BERSIH                                  -->
-        <!-- ============================================ -->
         <div class="net-salary-box">
             <span class="net-salary-label">GAJI BERSIH (Take Home Pay)</span>
             <span class="net-salary-amount">Rp {{ slip.gaji_bersih|floatformat:0|intcomma }}</span>
         </div>
 
-        <!-- Catatan -->
         {% if slip.catatan %}
         <div class="notes-section">
             <h4>Catatan:</h4>
@@ -540,9 +497,6 @@
         </div>
         {% endif %}
 
-        <!-- ============================================ -->
-        <!--  TANDA TANGAN                                 -->
-        <!-- ============================================ -->
         <div class="signature-section">
             <div class="signature-box">
                 <p class="sig-label">{{ template.signature_kiri_label }},</p>
@@ -560,9 +514,6 @@
             </div>
         </div>
 
-        <!-- ============================================ -->
-        <!--  FOOTER                                       -->
-        <!-- ============================================ -->
         <div class="slip-footer">
             <p>{{ template.footer_ucapan }}</p>
             <p>{{ template.footer_keterangan }}</p>
@@ -572,7 +523,7 @@
         </div>
 
     </div>
-    <!-- Tombol Kembali (ditampilkan setelah native Android print dialog) -->
+    
     <div id="backBtnWrap" class="no-print" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999;">
         <a id="backBtn" href="javascript:void(0)" style="display:inline-block; padding:12px 32px; background:#696cff; color:#fff; text-decoration:none; border-radius:8px; font-size:14px; font-weight:bold; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
             &larr; Kembali
@@ -580,7 +531,7 @@
     </div>
 
     <script>
-        // Smart Print Handler — Universal: Browser + Capacitor Android (SerpApp.triggerPrint)
+        
         (function() {
             var printed = false;
 
@@ -601,13 +552,13 @@
             function doPrint() {
                 if (printed) return;
                 printed = true;
-                // Capacitor Android: gunakan native print via JavascriptInterface
+                
                 if (typeof window.SerpApp !== 'undefined' && typeof window.SerpApp.triggerPrint === 'function') {
                     window.SerpApp.triggerPrint();
-                    // afterprint tidak fire dari native dialog, tampilkan tombol kembali
+                    
                     setTimeout(showBackButton, 500);
                 } else {
-                    // Browser/Mobile: langsung window.print(), kembali via afterprint
+                    
                     if (typeof window.print === 'function') {
                         try { window.print(); } catch(e) { goBack(); }
                     }
@@ -617,7 +568,6 @@
             if (document.readyState === 'complete') { setTimeout(doPrint, 400); }
             else { window.addEventListener('load', function() { setTimeout(doPrint, 400); }); }
 
-            // afterprint fire di browser/WebView standar saat cetak selesai/batal
             window.addEventListener('afterprint', function() { setTimeout(goBack, 200); });
         })();
     </script>
