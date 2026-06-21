@@ -116,15 +116,6 @@
                     <tr><td class="fw-medium">{{ b.nomor_transaksi }}</td><td>{{ b.klien.name }}</td><td>{{ b.tanggal|date:"d/m/Y" }}</td><td class="fw-bold text-success">Rp {{ b.total_harga|floatformat:0|intcomma }}</td><td><span class="badge bg-label-info rounded-pill">{{ b.get_status_display }}</span></td></tr>
                     {% endfor %}
                 </tbody>
-                <tfoot class="table-footer-summary">
-                    <tr>
-                        <td colspan="3" class="text-start ps-4 py-3" style="vertical-align: middle;">
-                            <div class="d-flex align-items-center"><i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i><div class="text-start"><strong class="d-block" style="font-size: 1rem;">RINGKASAN</strong><small class="text-muted" style="font-size: 0.75rem;">{{ total_transaksi }} Transaksi</small></div></div>
-                        </td><td class="py-3"></td><td class="py-3"></td>
-                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-success d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>Rp {{ total_pendapatan|floatformat:0|intcomma }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Total Pendapatan</small></div></td>
-                        <td class="py-3"></td>
-                    </tr>
-                </tfoot>
             </table>
         </div>
     </div>
