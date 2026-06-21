@@ -200,7 +200,7 @@
                                 </div>
                             </div>
                         </td>
-                    </tr>
+                    <td>-</td></tr>
                     {% empty %}
                     <tr><td colspan="6" class="text-center text-muted py-4">Belum ada transaksi</td></tr>
                     {% endfor %}
@@ -213,7 +213,7 @@
                         <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-info d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>Rp {{ total_pendapatan|floatformat:0|intcomma }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Total Pendapatan</small></div></td>
                         <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-success d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ total_completed }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Selesai</small></div></td>
                         <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-warning d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ total_pending }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Pending</small></div></td>
-                    </tr>
+                    <td class="py-3"></td></tr>
                 </tfoot>
             </table>
         </div>
