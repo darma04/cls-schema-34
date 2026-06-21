@@ -156,6 +156,9 @@
                 </div>
                 {% if device_bindings %}
 
+                {% if device_bindings %}
+
+
                 <div class="card-datatable table-responsive">
                     <table class="table table-hover">
                         <thead class="table-light">
@@ -211,6 +214,54 @@
                         </tbody>
                     </table>
                 </div>
+
+
+                {% else %}
+
+
+                <div class="card-body">
+
+
+                    <div class="text-center py-4 py-md-5 px-3 px-md-4">
+
+
+                        <div class="mb-4">
+
+
+                            <div class="bg-label-secondary rounded-circle d-inline-flex align-items-center justify-content-center"
+
+
+                                 style="width: 88px; height: 88px;">
+
+
+                                <i class="ri-shield-keyhole-line" style="font-size: 2.8rem;"></i>
+
+
+                            </div>
+
+
+                        </div>
+
+
+                        <h5 class="mb-3">Belum Ada Lisensi</h5>
+
+
+                        <p class="text-muted mb-5" style="max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.7;">
+
+
+                            Daftar lisensi masih kosong.
+
+
+                        </p>
+
+
+                    </div>
+
+
+                </div>
+
+
+                {% endif %}
 
                 {% else %}
 
@@ -287,14 +338,7 @@
                                 <td><code>{{ log.ip_address|default:"-" }}</code></td>
                                 <td><code style="font-size: 0.75rem;">{{ log.hardware_id|truncatechars:16|default:"-" }}</code></td>
                             </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center text-muted py-4">
-                                    <i class="ri-history-line" style="font-size: 2rem;"></i>
-                                    <p class="mb-0 mt-2">Belum ada riwayat aktivitas.</p>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                    {% endfor %}
                         </tbody>
                     </table>
                 </div>
