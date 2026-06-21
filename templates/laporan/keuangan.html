@@ -161,7 +161,7 @@
                 <button class="btn btn-label-danger btn-sm" onclick="exportTablePDF('tblPemasukan','RINCIAN PEMASUKAN',{4:{{ total_pemasukan|floatformat:0|default:0 }}},'RINGKASAN ({{ total_trx_masuk }} Transaksi)')"><i class="ri-file-pdf-line me-1"></i>PDF</button>
             </div>
         </div>
-        <div class="table-responsive">
+        <div class="card-datatable table-responsive">
             <table class="table table-hover mb-0" id="tblPemasukan">
                 <thead class="table-light"><tr><th>Tanggal</th><th>No. Transaksi</th><th>Klien</th><th>Status</th><th class="text-end">Jumlah</th></tr></thead>
                 <tbody>
