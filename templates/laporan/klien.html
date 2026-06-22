@@ -169,8 +169,8 @@
                         <td>
                             {% if d.total_lisensi > 0 %}
                             <div class="d-flex align-items-center">
-                                <div class="progress w-100 me-2" style="height:8px"><div class="progress-bar {% if d.lisensi_aktif <= 0 %}bg-danger{% else %}
-<span class="fw-bold">{% widthratio d.lisensi_aktif d.total_lisensi 100 %}%</span>
+                                <div class="progress w-100 me-2" style="height:8px"><div class="progress-bar {% if d.lisensi_aktif <= 0 %}bg-danger{% else %}bg-success{% endif %}" style="width:{% widthratio d.lisensi_aktif d.total_lisensi 100 %}%"></div></div>
+                                <span class="fw-bold">{% widthratio d.lisensi_aktif d.total_lisensi 100 %}%</span>
                             </div>
                             {% else %}
                             <span class="text-muted">0%</span>
@@ -192,7 +192,21 @@
             </table>
         </div>
         {% else %}
-{% endif %}
+        <div class="card-body">
+            <div class="text-center py-4 py-md-5 px-3 px-md-4">
+                <div class="mb-4">
+                    <div class="bg-label-secondary rounded-circle d-inline-flex align-items-center justify-content-center"
+                         style="width: 88px; height: 88px;">
+                        <i class="ri-inbox-line" style="font-size: 2.8rem;"></i>
+                    </div>
+                </div>
+                <h5 class="mb-3">Belum Ada Data Klien</h5>
+                <p class="text-muted mb-5" style="max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.7;">
+                    Daftar klien masih kosong.
+                </p>
+            </div>
+        </div>
+        {% endif %}
 
     </div>
 </div>
