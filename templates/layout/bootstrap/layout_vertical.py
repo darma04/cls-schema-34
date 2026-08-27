@@ -71,12 +71,12 @@ class TemplateBootstrapLayoutVertical:
             'dashboard': 'dashboard',
             'produk': 'produk',
             'inventory': 'inventory',
-            'licenses': 'licenses',
             'pembelian': 'pembelian',
-            'tenants': 'tenant_management',
             'penjualan': 'penjualan',
             'pos': 'pos',
-            'invoice': 'pos',
+            'invoice': 'pos',  # Invoice uses same module as POS
+            'kas-bank': 'kas_bank',
+            'kas_bank': 'kas_bank',
             'biaya': 'biaya',
             'hr': 'hr',
             'laporan': 'laporan',
@@ -85,8 +85,18 @@ class TemplateBootstrapLayoutVertical:
             'activity-log': 'activity_log',
             'pengaturan': 'pengaturan',
             'automation': 'automation',
-            'ai-assistant': 'ai',
-            'ai': 'ai',
+            'ai-assistant': 'ai_assistant',
+            'ai-dashboard': 'ai_assistant',
+            'fraud-detection': 'fraud_detection',
+            'akuntansi': 'akuntansi',
+            'laporan-keuangan': 'laporan_keuangan',
+            'piutang': 'piutang',
+            'hutang': 'hutang',
+            'aset': 'aset',
+            'pajak': 'pajak',
+            # SIMS modules
+            'service-center': 'service_center',
+            'sparepart': 'sparepart',
         }
 
         filtered_menu = {"menu": []}
@@ -102,7 +112,7 @@ class TemplateBootstrapLayoutVertical:
             # Check if user has permission for this module
             module_name = slug_to_module.get(slug, slug)
 
-            # Check permission from database ONLY
+            # Check permission from database ONLY - ignore 'allowed_roles' from JSON
             if has_permission(user, 'read', module_name):
                 filtered_menu['menu'].append(item)
             # If no permission, skip this menu item

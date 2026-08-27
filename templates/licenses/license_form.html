@@ -12,7 +12,7 @@
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-1"><i class="ri-key-2-line me-2 text-primary"></i>{{ title }}</h4>
+            <h4 class="mb-1 fs-value-primary"><i class="ri-key-2-line me-2 text-primary"></i>{{ title }}</h4>
             <p class="text-muted mb-0">{% if is_edit %}Ubah status atau detail lisensi{% else %}Generate kunci lisensi baru untuk klien{% endif %}</p>
         </div>
         <a href="{% url 'licenses_ui:licensekey_list' %}" class="btn btn-label-secondary">
@@ -49,7 +49,7 @@
 
                         {% if not is_edit %}
                         <!-- Create mode: pick product and client -->
-                        <h5 class="card-title mb-3">
+                        <h5 class="card-title mb-3 fs-card-title">
                             <i class="ri-links-line me-2"></i>Produk & Klien
                         </h5>
                         <div class="row g-3 mb-4">
@@ -70,7 +70,7 @@
                         </div>
                         {% endif %}
 
-                        <h5 class="card-title mb-3">
+                        <h5 class="card-title mb-3 fs-card-title">
                             <i class="ri-settings-3-line me-2"></i>Pengaturan Lisensi
                         </h5>
                         <div class="row g-3">
@@ -105,7 +105,7 @@
                             </div>
                         </div>
 
-                        <h5 class="card-title mb-3 mt-4">
+                        <h5 class="card-title mb-3 mt-4 fs-card-title">
                             <i class="ri-alert-line me-2 text-warning"></i>Maintenance & Perintah Update
                         </h5>
                         <div class="row g-3">
@@ -147,6 +147,7 @@
                         </div>
                         {% endif %}
 
+                        {% if can_create.licenses or can_edit.licenses %}
                         <div class="d-flex align-items-center mt-4">
                             <button type="submit" class="btn btn-primary me-2">
                                 <i class="ri-save-line me-2"></i>
@@ -156,6 +157,7 @@
                                 <i class="ri-close-line me-2"></i>Batal
                             </a>
                         </div>
+                        {% endif %}
                         </fieldset>
                     </form>
                 </div>

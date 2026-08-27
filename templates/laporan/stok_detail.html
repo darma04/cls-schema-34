@@ -18,7 +18,7 @@
             <h4 class="mb-1"><i class="ri-stack-line me-2"></i>Detail Stok: {{ stok.produk.nama }}</h4>
             <p class="text-muted mb-0">Informasi lengkap stok dengan riwayat pergerakan</p>
         </div>
-        <a href="{% url 'laporan:stok' %}" class="btn btn-label-secondary">
+        <a href="{% url 'laporan:laporan' %}" class="btn btn-label-secondary">
             <i class="ri-arrow-left-line me-1"></i> Kembali
         </a>
     </div>
@@ -28,7 +28,7 @@
         <div class="col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="ri-information-line me-2"></i>Informasi Produk & Stok</h5>
+                    <h5 class="mb-0 fs-card-title"><i class="ri-information-line me-2"></i>Informasi Produk & Stok</h5>
                 </div>
                 <div class="card-body">
                     <table class="table table-borderless">
@@ -71,7 +71,7 @@
         <div class="col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="ri-money-dollar-circle-line me-2"></i>Informasi Harga</h5>
+                    <h5 class="mb-0 fs-card-title"><i class="ri-money-dollar-circle-line me-2"></i>Informasi Harga</h5>
                 </div>
                 <div class="card-body">
                     <table class="table table-borderless">
@@ -87,7 +87,7 @@
                             <th>Nilai Stok (Harga Beli)</th>
                             <td class="text-end">
                                 {% widthratio stok.jumlah 1 stok.produk.harga_beli as nilai_stok %}
-                                <h5 class="mb-0 text-primary">{{ nilai_stok|rupiah }}</h5>
+                                <h5 class="mb-0 fs-value-primary">{{ nilai_stok|rupiah }}</h5>
                             </td>
                         </tr>
                     </table>
@@ -99,7 +99,7 @@
     <!-- Riwayat Aktivitas Stok -->
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="ri-history-line me-2"></i>Riwayat Aktivitas Stok</h5>
+            <h5 class="mb-0 fs-card-title"><i class="ri-history-line me-2"></i>Riwayat Aktivitas Stok</h5>
             <span class="badge bg-label-primary">{{ activity_logs|length }} aktivitas</span>
         </div>
         <div class="card-body">
@@ -108,7 +108,7 @@
             <!-- Custom styles for stock activity -->
             <style>
                 .qty-badge {
-                    font-size: 0.8rem;
+                    font-size: var(--fs-ui-sm);
                     font-weight: 600;
                     padding: 0.25rem 0.5rem;
                     border-radius: 4px;
@@ -173,7 +173,7 @@
                             
                             <!-- Badge perubahan quantity -->
                             {% if log.quantity_change is not None %}
-                                <span class="qty-badge ms-2 {% if log.quantity_change >= 0 %}qty-in{% else %}qty-out{% endif %}">
+                                <span class="qty-badge ms-2 {% if log.quantity_change >= 0 %}qty-in{% else %}qty-out{% endif %} fs-value-secondary">
                                     {% if log.quantity_change >= 0 %}+{% endif %}{{ log.quantity_change|floatformat:0 }}
                                 </span>
                             {% endif %}
@@ -193,7 +193,7 @@
                             {{ log.quantity_after|floatformat:0 }}
                             {% if log.source_type %}
                                 <span class="ms-2">|</span>
-                                <span class="badge bg-label-{% if log.source_type == 'purchase' %}success{% elif log.source_type == 'sales' %}danger{% elif log.source_type == 'transfer' %}info{% elif log.source_type == 'adjustment' %}warning{% else %}secondary{% endif %} ms-1">
+                                <span class="badge bg-label-{% if log.source_type == 'purchase' %}success{% elif log.source_type == 'sales' %}danger{% elif log.source_type == 'transfer' %}info{% elif log.source_type == 'adjustment' %}warning{% else %}secondary{% endif %} ms-1 fs-value-secondary">
                                     {{ log.get_source_type_display }}
                                 </span>
                             {% endif %}
@@ -239,8 +239,8 @@
             </ul>
             {% else %}
             <div class="text-center py-4">
-                <i class="ri-history-line ri-3x text-muted mb-3 d-block"></i>
-                <p class="text-muted">Belum ada riwayat aktivitas untuk stok ini</p>
+                <i class="ri-history-line ri-48px mb-2 d-block" style="opacity:0.3;"></i>
+                Belum ada riwayat aktivitas untuk stok ini
             </div>
             {% endif %}
         </div>
@@ -250,7 +250,7 @@
     {% if po_items %}
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0"><i class="ri-shopping-bag-line me-2"></i>Riwayat Pembelian (Purchase Orders)</h5>
+            <h5 class="mb-0 fs-card-title"><i class="ri-shopping-bag-line me-2"></i>Riwayat Pembelian (Purchase Orders)</h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -287,7 +287,7 @@
     {% if so_items %}
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0"><i class="ri-shopping-cart-line me-2"></i>Riwayat Penjualan (Sales Orders)</h5>
+            <h5 class="mb-0 fs-card-title"><i class="ri-shopping-cart-line me-2"></i>Riwayat Penjualan (Sales Orders)</h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">

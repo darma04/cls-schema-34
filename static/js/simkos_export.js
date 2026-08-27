@@ -4,6 +4,167 @@ var SimkosExport = (function () {
     'use strict';
 
     
+    function _isWebView() {
+        var ua = navigator.userAgent || '';
+        
+        if (window.Capacitor) return true;
+        
+        if (window.SerpApp) return true;
+        
+        if (/wv|WebView/i.test(ua)) return true;
+        
+        if (/Android.*Version\/[\d.]+/i.test(ua) && !/Chrome\/[\d.]+/i.test(ua)) return true;
+        
+        if (/iPhone|iPad|iPod/i.test(ua) && !/Safari/i.test(ua)) return true;
+        return false;
+    }
+
+    
+    function _sendToSerpApp(pureBase64, fname, mimeType) {
+        if (!window.SerpApp) return false;
+        if (window.SerpApp.saveBase64Chunk) {
+            console.log('[SimkosExport] Mengirim via Async Chunking:', fname, '(' + pureBase64.length + ' chars)');
+            var chunkSize = 65536;
+            var i = 0;
+            function sendNext() {
+                if (i < pureBase64.length) {
+                    window.SerpApp.saveBase64Chunk(pureBase64.substring(i, i + chunkSize));
+                    i += chunkSize;
+                    setTimeout(sendNext, 5);
+                } else {
+                    window.SerpApp.finishBase64Chunk(fname, mimeType);
+                }
+            }
+            sendNext();
+        } else if (window.SerpApp.saveBase64) {
+            window.SerpApp.saveBase64(pureBase64, fname, mimeType);
+        }
+        return true;
+    }
+
+    
+    function _downloadBlob(blob, filename) {
+        
+        if (window._downloadBlob && window._downloadBlob !== _downloadBlob) {
+            console.log('[SimkosExport] Delegasi ke window._downloadBlob (master.html)');
+            window._downloadBlob(blob, filename);
+            return;
+        }
+
+        if (_isWebView()) {
+            _downloadBlobWebView(blob, filename);
+        } else {
+            _downloadBlobBrowser(blob, filename);
+        }
+    }
+
+    
+    function _downloadBlobWebView(blob, filename) {
+        
+        if (window.SerpApp) {
+            console.log('[SimkosExport] Menggunakan SerpApp bridge untuk download:', filename);
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                var base64data = reader.result;
+                var pureBase64 = base64data.split(',')[1];
+                if (pureBase64) {
+                    _sendToSerpApp(pureBase64, filename, blob.type || 'application/octet-stream');
+                }
+            };
+            reader.readAsDataURL(blob);
+            return;
+        }
+
+        
+        if (navigator.share && navigator.canShare) {
+            try {
+                var file = new File([blob], filename, { type: blob.type });
+                var shareData = { files: [file], title: filename };
+
+                if (navigator.canShare(shareData)) {
+                    navigator.share(shareData)
+                        .then(function() {
+                            console.log('File berhasil di-share/download via native share');
+                        })
+                        .catch(function(err) {
+                            if (err.name !== 'AbortError') {
+                                console.warn('Share gagal, mencoba fallback:', err);
+                                _showManualDownloadLink(blob, filename);
+                            }
+                        });
+                    return;
+                }
+            } catch (e) {
+                console.warn('navigator.share error:', e);
+            }
+        }
+
+        
+        _showManualDownloadLink(blob, filename);
+    }
+
+    
+    function _downloadBlobBrowser(blob, filename) {
+        try {
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(function () {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 300);
+        } catch (e) {
+            console.error('Download browser gagal:', e);
+            _showManualDownloadLink(blob, filename);
+        }
+    }
+
+    
+    function _showManualDownloadLink(blob, filename) {
+        var blobUrl = URL.createObjectURL(blob);
+
+        var overlay = document.createElement('div');
+        overlay.className = 'download-overlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+        overlay.innerHTML =
+            '<div style="background:#fff;border-radius:16px;padding:28px 24px;text-align:center;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">' +
+                '<div style="width:60px;height:60px;margin:0 auto 16px;background:linear-gradient(135deg,#e8e8ff,#d0d0ff);border-radius:50%;display:flex;align-items:center;justify-content:center;">' +
+                    '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#696cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+                '</div>' +
+                '<h5 style="margin:0 0 8px;color:#333;font-size:1.1rem;font-weight:700;">File Siap Diunduh</h5>' +
+                '<p style="color:#697a8d;font-size:0.85rem;margin-bottom:20px;line-height:1.4;">Ketuk tombol di bawah untuk menyimpan file <strong>' + filename + '</strong></p>' +
+                '<a id="_dl_link" href="' + blobUrl + '" download="' + filename + '" ' +
+                    'style="display:block;background:linear-gradient(135deg,#696cff,#5f61e6);color:#fff;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:600;font-size:0.95rem;margin-bottom:12px;">' +
+                    '📥 Download ' + filename +
+                '</a>' +
+                '<button id="_dl_close" style="background:none;border:none;color:#697a8d;cursor:pointer;font-size:0.8rem;padding:8px 16px;">Tutup</button>' +
+            '</div>';
+
+        overlay.querySelector('#_dl_close').addEventListener('click', function () {
+            overlay.remove();
+            URL.revokeObjectURL(blobUrl);
+        });
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) {
+                overlay.remove();
+                URL.revokeObjectURL(blobUrl);
+            }
+        });
+        overlay.querySelector('#_dl_link').addEventListener('click', function () {
+            setTimeout(function () {
+                overlay.remove();
+                setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 5000);
+            }, 1000);
+        });
+
+        document.body.appendChild(overlay);
+    }
+
+    
     function _formatRupiah(value) {
         var num = parseFloat(String(value).replace(/[^\d.-]/g, ''));
         if (isNaN(num)) return String(value); 
@@ -169,16 +330,27 @@ var SimkosExport = (function () {
     
     function buildExcel(tableId, info, footerData, footerLabel, title, filename, moneyColumns) {
         try {
-            var tableEl = document.querySelector(tableId);
-            if (!tableEl) { alert('Tabel tidak ditemukan!'); return; }
             if (typeof $ === 'undefined' || typeof $.fn.dataTable === 'undefined') {
                 alert('DataTables belum dimuat!'); return;
+            }
+
+            // Cek apakah tabel ada di DOM dulu (bisa disembunyikan oleh {% if data_list %})
+            if (!document.querySelector(tableId)) {
+                if (typeof showExportEmpty === 'function') { showExportEmpty(); }
+                else { alert('Data masih kosong. Tidak ada data yang dapat di-export.'); }
+                return;
             }
 
             var visibleColumns = _getVisibleColumns(tableId);
             var tableApi = new $.fn.dataTable.Api(tableId);
             var colCount = visibleColumns.length;
 
+            // Empty data check — konsisten dengan referensi COA & Daftar Produk
+            if (!tableApi || tableApi.rows({ search: 'applied' }).count() === 0) {
+                if (typeof showExportEmpty === 'function') { showExportEmpty(); }
+                else { alert('Data masih kosong. Tidak ada data yang dapat di-export.'); }
+                return;
+            }
             if (colCount === 0) { alert('Tidak ada kolom yang tersedia untuk di-export!'); return; }
 
             var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office"'
@@ -187,7 +359,7 @@ var SimkosExport = (function () {
                 + '<style>table{border-collapse:collapse;} th,td{font-family:Arial,sans-serif;font-size:9pt;}'
                 + '.kop-judul{font-size:14pt;font-weight:bold;color:#5F61E6;}'
                 + '.kop-info{font-size:9pt;color:#697A8D;}'
-                + '.th-header{background-color:#52d123;color:#FFFFFF;font-weight:bold;padding:6px;}'
+                + '.th-header{background-color:#696CFF;color:#FFFFFF;font-weight:bold;padding:6px;}'
                 + '.td-data{padding:4px 6px;}'
                 + '.td-summary{background-color:#EEF0FF;font-weight:bold;padding:4px 6px;color:#4B4EE6;}'
                 + '.td-label{background-color:#EEF0FF;font-weight:bold;padding:4px 6px;color:#5F61E6;}'
@@ -215,7 +387,7 @@ var SimkosExport = (function () {
             
             html += '<thead><tr>';
             visibleColumns.forEach(function (col) {
-                html += '<th style="background-color:#52d123;color:#FFFFFF;font-weight:bold;padding:6px;white-space:nowrap;border:1px solid #DBDADE;">' + col.text + '</th>';
+                html += '<th style="background-color:#696CFF;color:#FFFFFF;font-weight:bold;padding:6px;white-space:nowrap;border:1px solid #DBDADE;">' + col.text + '</th>';
             });
             html += '</tr></thead><tbody>';
 
@@ -259,12 +431,8 @@ var SimkosExport = (function () {
             html += '</body></html>';
 
             var blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel;charset=utf-8' });
-            var link = document.createElement('a');
-            link.setAttribute('href', URL.createObjectURL(blob));
-            link.setAttribute('download', (filename || 'Export') + '_' + new Date().toISOString().slice(0, 10) + '.xls');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            var exportFilename = (filename || 'Export') + '_' + new Date().toISOString().slice(0, 10) + '.xls';
+            _downloadBlob(blob, exportFilename);
 
         } catch (err) {
             console.error('SimkosExport.buildExcel error:', err);
@@ -279,13 +447,24 @@ var SimkosExport = (function () {
                 alert('pdfMake library tidak tersedia! Pastikan pdfmake.min.js sudah dimuat.');
                 return;
             }
-            var tableEl = document.querySelector(tableId);
-            if (!tableEl) { alert('Tabel tidak ditemukan!'); return; }
+
+            // Cek apakah tabel ada di DOM dulu (bisa disembunyikan oleh {% if data_list %})
+            if (!document.querySelector(tableId)) {
+                if (typeof showExportEmpty === 'function') { showExportEmpty(); }
+                else { alert('Data masih kosong. Tidak ada data yang dapat di-export.'); }
+                return;
+            }
 
             var visibleColumns = _getVisibleColumns(tableId);
             var tableApi = new $.fn.dataTable.Api(tableId);
             var colCount = visibleColumns.length;
 
+            // Empty data check — konsisten dengan referensi COA & Daftar Produk
+            if (!tableApi || tableApi.rows({ search: 'applied' }).count() === 0) {
+                if (typeof showExportEmpty === 'function') { showExportEmpty(); }
+                else { alert('Data masih kosong. Tidak ada data yang dapat di-export.'); }
+                return;
+            }
             if (colCount === 0) { alert('Tidak ada kolom yang tersedia untuk di-export!'); return; }
 
             
@@ -293,7 +472,7 @@ var SimkosExport = (function () {
                 return {
                     text: col.text,
                     style: 'tableHeader',
-                    fillColor: '#52d123',
+                    fillColor: '#696CFF',
                     color: '#FFFFFF',
                     bold: true,
                     alignment: 'center'
@@ -356,7 +535,7 @@ var SimkosExport = (function () {
                         layout: {
                             hLineWidth: function (i, node) { return (i === node.table.body.length) ? 1 : 0; },
                             vLineWidth: function () { return 0; },
-                            hLineColor: function () { return '#52d123'; }
+                            hLineColor: function () { return '#696CFF'; }
                         }
                     };
                 },
@@ -377,7 +556,7 @@ var SimkosExport = (function () {
                         },
                         layout: {
                             fillColor: function (rowIndex) {
-                                if (rowIndex === 0) return '#52d123';            
+                                if (rowIndex === 0) return '#696CFF';            
                                 if (rowIndex === bodyLength - 1) return '#EEF0FF'; 
                                 return (rowIndex % 2 === 0) ? '#F5F5F9' : null;    
                             },
@@ -420,7 +599,17 @@ var SimkosExport = (function () {
                 defaultStyle: { fontSize: 7 }
             };
 
-            pdfMake.createPdf(docDefinition).download((filename || 'Export') + '_' + new Date().toISOString().slice(0, 10) + '.pdf');
+            var pdfFilename = (filename || 'Export') + '_' + new Date().toISOString().slice(0, 10) + '.pdf';
+            var pdfDoc = pdfMake.createPdf(docDefinition);
+
+            
+            if (_isWebView()) {
+                pdfDoc.getBlob(function(blob) {
+                    _downloadBlob(blob, pdfFilename);
+                });
+            } else {
+                pdfDoc.download(pdfFilename);
+            }
 
         } catch (err) {
             console.error('SimkosExport.buildPDF error:', err);

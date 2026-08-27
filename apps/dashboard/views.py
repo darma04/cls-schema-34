@@ -56,20 +56,19 @@ from django.views.generic import TemplateView
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from web_project import TemplateLayout
-from apps.core.mixins import TenantScopedResponseCacheMixin
+from apps.core.mixins import TenantScopedResponseCacheMixin, ReadPermissionMixin
 from django.db.models import Count
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
 from datetime import timedelta
-import json
 import traceback
 
 
 
-@method_decorator(login_required, name='dispatch')
-class DashboardView(TenantScopedResponseCacheMixin, TemplateView):
+class DashboardView(ReadPermissionMixin, TenantScopedResponseCacheMixin, TemplateView):
     """View utama DASHBOARD CENTRAL LICENSE SERVER."""
     template_name = 'dashboard/dashboard.html'
+    permission_module = 'dashboard'
     cache_timeout = 60
 
     def get_context_data(self, **kwargs):
@@ -221,12 +220,12 @@ class DashboardView(TenantScopedResponseCacheMixin, TemplateView):
                 'expired_licenses': expired_licenses,
                 'recent_clients': recent_clients,
                 'recent_licenses': recent_licenses,
-                # Chart data (JSON-safe untuk JavaScript)
-                'chart_labels': json.dumps(chart_labels),
-                'chart_total': json.dumps(chart_total),
-                'chart_active': json.dumps(chart_active),
-                'chart_expired': json.dumps(chart_expired),
-                'chart_suspended': json.dumps(chart_suspended),
+                # Chart data (untuk json_script di template — kirim list mentah)
+                'chart_labels': chart_labels,
+                'chart_total': chart_total,
+                'chart_active': chart_active,
+                'chart_expired': chart_expired,
+                'chart_suspended': chart_suspended,
             })
 
         except Exception as e:
@@ -237,11 +236,11 @@ class DashboardView(TenantScopedResponseCacheMixin, TemplateView):
                 'total_product': 0, 'total_client': 0, 'total_licenses': 0,
                 'active_licenses': 0, 'suspended_licenses': 0, 'expired_licenses': 0,
                 'recent_clients': [], 'recent_licenses': [],
-                'chart_labels': json.dumps([]),
-                'chart_total': json.dumps([]),
-                'chart_active': json.dumps([]),
-                'chart_expired': json.dumps([]),
-                'chart_suspended': json.dumps([]),
+                'chart_labels': [],
+                'chart_total': [],
+                'chart_active': [],
+                'chart_expired': [],
+                'chart_suspended': [],
             })
 
         return context

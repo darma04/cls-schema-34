@@ -1,4 +1,4 @@
-{% extends 'layout/layout_vertical.html' %}
+﻿{% extends 'layout/layout_vertical.html' %}
 {% comment %}
 ==========================================================================
    TENANT FORM - Buat Tenant Baru (Pilih Software: SIMS/SIMKOS/SERPTECH)
@@ -44,7 +44,7 @@
         <div class="col-xl-8">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="ri-server-line me-2 text-primary"></i>Informasi Tenant</h5>
+                    <h5 class="mb-0 fs-card-title"><i class="ri-server-line me-2 text-primary"></i>Informasi Tenant</h5>
                 </div>
                 <div class="card-body">
                     <form method="POST" id="tenantForm">
@@ -53,10 +53,10 @@
                         <div class="mb-4">
                             <label for="software" class="form-label">Target Software <span class="text-danger">*</span></label>
                             <select class="form-select" id="software" name="software" required>
-                                <option value="">— Pilih Software —</option>
+                                <option value="">â€” Pilih Software â€”</option>
                                 {% for code, config in software_servers.items %}
                                 <option value="{{ code }}" {% if form_data.software == code %}selected{% endif %} data-color="{{ config.color }}" data-icon="{{ config.icon }}">
-                                    {{ config.label }} — {{ config.full_name }}
+                                    {{ config.label }} â€” {{ config.full_name }}
                                 </option>
                                 {% endfor %}
                             </select>
@@ -110,6 +110,7 @@
                             </div>
                         </div>
 
+                        {% if can_create.licenses or can_edit.licenses %}
                         <div class="d-flex justify-content-end gap-2">
                             <a href="{% url 'licenses_ui:tenant_list' %}" class="btn btn-label-secondary">
                                 <i class="ri-close-line me-1"></i>Batal
@@ -118,6 +119,7 @@
                                 <i class="ri-add-line me-1"></i>Buat Tenant
                             </button>
                         </div>
+                        {% endif %}
                     </form>
                 </div>
             </div>

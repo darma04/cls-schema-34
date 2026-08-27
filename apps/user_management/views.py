@@ -83,7 +83,7 @@ from web_project import TemplateLayout
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import Http404,  JsonResponse
 from django.db import transaction
 from auth.models import Profile
 from apps.core.models import RolePermission
@@ -299,6 +299,11 @@ class UserDetailAjaxView(ReadPermissionMixin, View):
                     'permissions': permissions[:10] if permissions else ['No specific permissions'],
                 }
             })
+        except Http404:
+            return JsonResponse({
+                'success': False,
+                'message': 'User tidak ditemukan'
+            }, status=404)
         except Exception as e:
             return JsonResponse({
                 'success': False,
@@ -398,6 +403,7 @@ class UserDeleteView(DeletePermissionMixin, DeleteView):
     """
     model = User
     pk_url_kwarg = 'pk'
+    template_name = 'user_management/user_confirm_delete.html'
     success_url = reverse_lazy('user_management:index')
     permission_module = 'user_management'
     

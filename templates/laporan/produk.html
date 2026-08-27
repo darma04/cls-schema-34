@@ -35,76 +35,84 @@
     </div>
 
     <!-- Summary Cards (4 cards) -->
-    <div class="row g-3 mb-4">
-        <div class="col-lg-3 col-sm-6">
-            <div class="card">
+    <div class="row g-6 mb-6">
+        <div class="col-6 col-md-3 col-lg-3">
+            <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div class="card-info">
-                            <p class="card-text text-muted">Total Keseluruhan Aset</p>
-                            <h4 class="mb-0 text-primary">{{ total_keseluruhan_aset|rupiah }}</h4>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-primary">
+<i class="ri-safe-2-line ri-24px"></i>
+                            </span>
+</div>
+<div class="card-info">
+
+                            <span class="d-block text-muted small">Total Keseluruhan Aset</span>
+                            <h5 class="mb-0 text-primary fw-bold fs-value-primary">{{ total_keseluruhan_aset|rupiah }}</h5>
                             <small class="text-muted">Seluruh produk yang pernah masuk</small>
-                        </div>
-                        <div class="card-icon">
-                            <span class="badge bg-label-primary rounded p-2">
-                                <i class="ri-safe-2-line ri-24px"></i>
-                            </span>
-                        </div>
-                    </div>
+                        
+</div>
+</div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-sm-6">
-            <div class="card">
+        <div class="col-6 col-md-3 col-lg-3">
+            <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div class="card-info">
-                            <p class="card-text text-muted">Total Harga Beli</p>
-                            <h4 class="mb-0 text-danger">{{ total_harga_beli_ready|rupiah }}</h4>
-                            <small class="text-muted">Produk ready (stok > 0)</small>
-                        </div>
-                        <div class="card-icon">
-                            <span class="badge bg-label-danger rounded p-2">
-                                <i class="ri-shopping-cart-line ri-24px"></i>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-danger">
+<i class="ri-shopping-cart-line ri-24px"></i>
                             </span>
-                        </div>
-                    </div>
+</div>
+<div class="card-info">
+
+                            <span class="d-block text-muted small">Total Harga Beli</span>
+                            <h5 class="mb-0 text-danger fw-bold fs-value-primary">{{ total_harga_beli_ready|rupiah }}</h5>
+                            <small class="text-muted">Produk ready (stok > 0)</small>
+                        
+</div>
+</div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-sm-6">
-            <div class="card">
+        <div class="col-6 col-md-3 col-lg-3">
+            <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div class="card-info">
-                            <p class="card-text text-muted">Total Harga Jual</p>
-                            <h4 class="mb-0 text-success">{{ total_harga_jual_ready|rupiah }}</h4>
-                            <small class="text-muted">Produk ready (stok > 0)</small>
-                        </div>
-                        <div class="card-icon">
-                            <span class="badge bg-label-success rounded p-2">
-                                <i class="ri-price-tag-3-line ri-24px"></i>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-success">
+<i class="ri-price-tag-3-line ri-24px"></i>
                             </span>
-                        </div>
-                    </div>
+</div>
+<div class="card-info">
+
+                            <span class="d-block text-muted small">Total Harga Jual</span>
+                            <h5 class="mb-0 text-success fw-bold fs-value-primary">{{ total_harga_jual_ready|rupiah }}</h5>
+                            <small class="text-muted">Produk ready (stok > 0)</small>
+                        
+</div>
+</div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-sm-6">
-            <div class="card">
+        <div class="col-6 col-md-3 col-lg-3">
+            <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div class="card-info">
-                            <p class="card-text text-muted">Estimasi Keuntungan</p>
-                            <h4 class="mb-0 {% if estimasi_keuntungan >= 0 %}text-success{% else %}text-danger{% endif %}">{{ estimasi_keuntungan|rupiah }}</h4>
-                            <small class="text-muted">Produk ready (stok > 0)</small>
-                        </div>
-                        <div class="card-icon">
-                            <span class="badge bg-label-warning rounded p-2">
-                                <i class="ri-bar-chart-grouped-line ri-24px"></i>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-warning">
+<i class="ri-bar-chart-grouped-line ri-24px"></i>
                             </span>
-                        </div>
-                    </div>
+</div>
+<div class="card-info">
+
+                            <span class="d-block text-muted small">Estimasi Keuntungan</span>
+                            <h5 class="mb-0 {% if estimasi_keuntungan >= 0 %}text-success{% else %}text-danger{% endif %} fw-bold fs-value-primary">{{ estimasi_keuntungan|rupiah }}</h5>
+                            <small class="text-muted">Produk ready (stok > 0)</small>
+                        
+</div>
+</div>
                 </div>
             </div>
         </div>
@@ -216,7 +224,7 @@
 
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Daftar Produk</h5>
+            <h5 class="mb-0 fs-card-title">Daftar Produk</h5>
             <div class="d-flex gap-2">
                 <button class="btn btn-sm btn-label-success" onclick="exportToExcel()"><i
                         class="ri-file-excel-2-line me-1"></i>Export Excel</button>
@@ -278,7 +286,7 @@
                                     <i class="ri-more-2-line"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="{% url 'laporan:produk-detail' produk.pk %}">
+                                    <a class="dropdown-item" href="#">
                                         <i class="ri-eye-line me-2"></i>Lihat Detail
                                     </a>
                                 </div>
@@ -302,7 +310,7 @@
                         <td class="py-3" style="vertical-align: middle;">
                             <div class="d-flex flex-column align-items-center">
                                 <span class="badge bg-label-success d-flex align-items-center gap-1 mb-2"
-                                    style="font-size: 0.9rem; padding: 0.5rem 0.75rem; min-width: 120px;">
+                                    style="font-size: var(--fs-ui-value); padding: 0.5rem 0.75rem; min-width: 120px;">
                                     <i class="ri-shopping-cart-line"></i>
                                     <span>{{ total_nilai_beli|rupiah }}</span>
                                 </span>
@@ -312,7 +320,7 @@
                         <td class="py-3" style="vertical-align: middle;">
                             <div class="d-flex flex-column align-items-center">
                                 <span class="badge bg-label-primary d-flex align-items-center gap-1 mb-2"
-                                    style="font-size: 0.9rem; padding: 0.5rem 0.75rem; min-width: 120px;">
+                                    style="font-size: var(--fs-ui-value); padding: 0.5rem 0.75rem; min-width: 120px;">
                                     <i class="ri-price-tag-3-line"></i>
                                     <span>{{ total_nilai_jual|rupiah }}</span>
                                 </span>
@@ -322,7 +330,7 @@
                         <td class="py-3" style="vertical-align: middle;">
                             <div class="d-flex flex-column align-items-center">
                                 <span class="badge bg-label-info d-flex align-items-center gap-1 mb-2"
-                                    style="font-size: 0.9rem; padding: 0.5rem 0.75rem; min-width: 100px;">
+                                    style="font-size: var(--fs-ui-value); padding: 0.5rem 0.75rem; min-width: 100px;">
                                     <i class="ri-stack-line"></i>
                                     <span>{{ total_stok|floatformat:0 }}</span>
                                 </span>
@@ -376,7 +384,7 @@
     .dataTables_wrapper .dataTables_info {
         padding: 1rem 1.5rem;
         font-size: 0.875rem;
-        color: #697a8d
+        
     }
 
     .dataTables_wrapper .dataTables_paginate {
@@ -409,7 +417,11 @@
     });
     function exportToExcel() {
         const table = document.getElementById('produkTable');
-        if (!table) { alert('Tabel tidak ditemukan!'); return; }
+        if (!table) { showExportEmpty(); return; }
+        if (!table.querySelector('tbody tr') || table.querySelectorAll('tbody tr').length === 0) {
+            alert('Data masih kosong. Tidak ada data yang dapat di-export.');
+            return;
+        }
 
         // Buat tabel HTML untuk Excel (format .xls)
         let html = '<table border="1">';
@@ -469,7 +481,11 @@
     function exportToPDF() {
         if (typeof pdfMake === 'undefined') { alert('pdfMake library tidak tersedia!'); return; }
         const table = document.getElementById('produkTable');
-        if (!table) { alert('Tabel tidak ditemukan!'); return; }
+        if (!table) { showExportEmpty(); return; }
+        if (!table.querySelector('tbody tr') || table.querySelectorAll('tbody tr').length === 0) {
+            alert('Data masih kosong. Tidak ada data yang dapat di-export.');
+            return;
+        }
 
         const headers = [];
         const headerRow = table.querySelector('thead tr');

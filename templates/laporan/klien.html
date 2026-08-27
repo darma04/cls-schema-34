@@ -76,44 +76,64 @@
     </div>
 
     <!-- Summary Cards -->
-    <div class="row mb-4 g-3">
-        <div class="col-6 col-lg-3">
+    <div class="row g-6 mb-6">
+        <div class="col-6 col-md-3 col-lg-3">
             <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div><p class="text-muted mb-1">Total Klien</p><h4 class="mb-0">{{ total_klien }}</h4><small class="text-muted">terdaftar</small></div>
-                        <div class="avatar"><span class="avatar-initial rounded bg-label-primary"><i class="ri-team-line ri-24px"></i></span></div>
-                    </div>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-primary">
+<i class="ri-team-line ri-24px"></i></span>
+</div>
+<div>
+<p class="text-muted mb-1">Total Klien</p><h5 class="mb-0 fw-bold fs-value-primary">{{ total_klien }}</h5><small class="text-muted">terdaftar</small>
+</div>
+</div>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
+        <div class="col-6 col-md-3 col-lg-3">
             <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div><p class="text-muted mb-1">Total Lisensi</p><h4 class="mb-0 text-info">{{ total_lisensi_all }}</h4><small class="text-info"><i class="ri-key-2-line"></i> seluruh klien</small></div>
-                        <div class="avatar"><span class="avatar-initial rounded bg-label-info"><i class="ri-key-2-line ri-24px"></i></span></div>
-                    </div>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-info">
+<i class="ri-key-2-line ri-24px"></i></span>
+</div>
+<div>
+<p class="text-muted mb-1">Total Lisensi</p><h5 class="mb-0 text-info fw-bold fs-value-primary">{{ total_lisensi_all }}</h5><small class="text-info"><i class="ri-key-2-line"></i> seluruh klien</small>
+</div>
+</div>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
+        <div class="col-6 col-md-3 col-lg-3">
             <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div><p class="text-muted mb-1">Lisensi Aktif</p><h4 class="mb-0 text-success">{{ total_lisensi_aktif }}</h4><small class="text-success"><i class="ri-arrow-up-s-line"></i> {% widthratio total_lisensi_aktif total_lisensi_all 100 %}% dari total</small></div>
-                        <div class="avatar"><span class="avatar-initial rounded bg-label-success"><i class="ri-checkbox-circle-line ri-24px"></i></span></div>
-                    </div>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-success">
+<i class="ri-checkbox-circle-line ri-24px"></i></span>
+</div>
+<div>
+<p class="text-muted mb-1">Lisensi Aktif</p><h5 class="mb-0 text-success fw-bold fs-value-primary">{{ total_lisensi_aktif }}</h5><small class="text-success"><i class="ri-arrow-up-s-line"></i> {% widthratio total_lisensi_aktif total_lisensi_all 100 %}% dari total</small>
+</div>
+</div>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
+        <div class="col-6 col-md-3 col-lg-3">
             <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div><p class="text-muted mb-1">Rasio Aktif</p><h4 class="mb-0 text-primary">{{ rasio_aktif }}%</h4><small class="text-muted">lisensi yang masih aktif</small></div>
-                        <div class="avatar"><span class="avatar-initial rounded bg-label-primary"><i class="ri-pie-chart-line ri-24px"></i></span></div>
-                    </div>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-primary">
+<i class="ri-pie-chart-line ri-24px"></i></span>
+</div>
+<div>
+<p class="text-muted mb-1">Rasio Aktif</p><h5 class="mb-0 text-primary fw-bold fs-value-primary">{{ rasio_aktif }}%</h5><small class="text-muted">lisensi yang masih aktif</small>
+</div>
+</div>
                 </div>
             </div>
         </div>
@@ -123,9 +143,20 @@
     <div class="row g-3 mb-4">
         <div class="col-md-6">
             <div class="card h-100">
-                <div class="card-header pb-1">
-                    <h5 class="mb-0"><i class="ri-pie-chart-2-line me-2 text-primary"></i>Statistik Lisensi</h5>
-                    <small class="text-muted">Status seluruh lisensi</small>
+                <div class="card-header d-flex flex-nowrap align-items-center justify-content-between">
+                    <div>
+                        <h5 class="mb-0 fs-card-title"><i class="ri-pie-chart-2-line me-2 text-primary"></i>Statistik Lisensi</h5>
+                        <small class="text-muted">Status seluruh lisensi</small>
+                    </div>
+                    <div class="dropdown flex-shrink-0">
+                        <button class="btn btn-text-secondary rounded-pill text-muted border-0 p-1" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
+                            <i class="ri-more-2-line ri-20px"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a class="dropdown-item" href="javascript:window.location.reload();"><i class="ri-loop-left-line me-2"></i>Refresh Data</a>
+                            <a class="dropdown-item" href="javascript:void(0)" onclick="if(window.__lisensiChart) window.__lisensiChart.exportTo({type:'png'});"><i class="ri-download-2-line me-2"></i>Unduh Grafik</a>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body pt-2 d-flex flex-column justify-content-center">
                     <div id="hunianDonutChart" style="min-height: 280px;"></div>
@@ -135,7 +166,7 @@
         <div class="col-md-6">
             <div class="card h-100">
                 <div class="card-header pb-1">
-                    <h5 class="mb-0"><i class="ri-bar-chart-horizontal-line me-2 text-info"></i>Lisensi Aktif per Klien</h5>
+                    <h5 class="mb-0 fs-card-title"><i class="ri-bar-chart-horizontal-line me-2 text-info"></i>Lisensi Aktif per Klien</h5>
                     <small class="text-muted">Top klien berdasarkan lisensi aktif</small>
                 </div>
                 <div class="card-body pt-2">
@@ -148,10 +179,10 @@
     <!-- Detail Table Card -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="ri-list-check-2 me-2"></i>Detail Klien</h5>
+            <h5 class="mb-0 fs-card-title"><i class="ri-list-check-2 me-2"></i>Detail Klien</h5>
             <div class="d-flex gap-2">
-                <button class="btn btn-label-success" onclick="exportExcel()"><i class="ri-file-excel-2-line me-1"></i>Export Excel</button>
-                <button class="btn btn-label-danger" onclick="exportPDF()"><i class="ri-file-pdf-line me-1"></i>Export PDF</button>
+                <button class="btn btn-label-success" onclick="exportToExcel()"><i class="ri-file-excel-2-line me-1"></i>Export Excel</button>
+                <button class="btn btn-label-danger" onclick="exportToPDF()"><i class="ri-file-pdf-line me-1"></i>Export PDF</button>
             </div>
         </div>
                 {% if klien_list %}
@@ -184,9 +215,9 @@
                         <td colspan="3" class="text-start ps-4 py-3" style="vertical-align: middle;">
                             <div class="d-flex align-items-center"><i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i><div class="text-start"><strong class="d-block" style="font-size: 1rem;">RINGKASAN</strong><small class="text-muted" style="font-size: 0.75rem;">{{ total_klien }} Klien</small></div></div>
                         </td>
-                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-info d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ total_lisensi_all }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Total Lisensi</small></div></td>
-                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-success d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ total_lisensi_aktif }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Aktif</small></div></td>
-                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-primary d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ rasio_aktif }}%</span></span><small class="text-muted" style="font-size: 0.7rem;">Rasio</small></div></td>
+                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-info d-flex align-items-center gap-1 mb-1" style="font-size: var(--fs-ui-sm); padding: 0.4rem 0.6rem;"><span>{{ total_lisensi_all }}</span></span><small class="text-muted" style="font-size: var(--fs-ui-xxs);">Total Lisensi</small></div></td>
+                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-success d-flex align-items-center gap-1 mb-1" style="font-size: var(--fs-ui-sm); padding: 0.4rem 0.6rem;"><span>{{ total_lisensi_aktif }}</span></span><small class="text-muted" style="font-size: var(--fs-ui-xxs);">Aktif</small></div></td>
+                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-primary d-flex align-items-center gap-1 mb-1" style="font-size: var(--fs-ui-sm); padding: 0.4rem 0.6rem;"><span>{{ rasio_aktif }}%</span></span><small class="text-muted" style="font-size: var(--fs-ui-xxs);">Rasio</small></div></td>
                     </tr>
                 </tfoot>
             </table>
@@ -227,8 +258,7 @@ $(document).ready(function(){
     flatpickr('#endDate', { dateFormat: 'Y-m-d' });
 
     // === Donut Chart: Statistik Lisensi ===
-    if (typeof ApexCharts !== 'undefined') {
-        var isDarkDonut = document.documentElement.classList.contains('dark-style') ||
+    var isDarkDonut = document.documentElement.classList.contains('dark-style') ||
                      document.body.classList.contains('dark-style') ||
                      window.getComputedStyle(document.body).backgroundColor.includes('rgb(35') ||
                      window.getComputedStyle(document.body).backgroundColor.includes('rgb(40');
@@ -243,16 +273,20 @@ $(document).ready(function(){
 
         var headingColor = isDarkDonut ? '#d0d2d6' : '#5e5873';
 
-        new ApexCharts(document.querySelector("#hunianDonutChart"), {
-            series: [{{ total_lisensi_aktif }}, {{ total_lisensi_nonaktif }}],
+    var totalLisensi = {{ total_lisensi_all|default:0 }};
+    var _lisensiHasData = totalLisensi > 0;
+    var __lisensiChart; try { __lisensiChart = new ApexCharts(document.querySelector("#hunianDonutChart"), {
+            series: _lisensiHasData ? [{{ total_lisensi_aktif }}, {{ total_lisensi_nonaktif }}] : [1],
             chart: {
                 type: 'donut',
                 height: 355,
                 fontFamily: '"Inter", sans-serif',
-                parentHeightOffset: 0
+                parentHeightOffset: 0,
+                background: 'transparent',
+                toolbar: { show: false }
             },
-            labels: ['Aktif', 'Nonaktif/Suspended'],
-            colors: ['#ff9f43', '#fdb528cc'],
+            labels: _lisensiHasData ? ['Aktif', 'Nonaktif/Suspended'] : ['Belum ada data'],
+            colors: _lisensiHasData ? ['#ff9f43', '#fdb528cc'] : ['#e9ecef'],
             plotOptions: {
                 pie: {
                     endAngle: 130,
@@ -288,7 +322,7 @@ $(document).ready(function(){
                     }
                 }
             },
-            tooltip: { enabled: false },
+            tooltip: { enabled: totalLisensi > 0, y: { formatter: function(val) { return val + ' lisensi'; } } },
             dataLabels: { enabled: false },
             stroke: {
                 width: 3,
@@ -308,7 +342,7 @@ $(document).ready(function(){
                 labels: { colors: headingColor }
             },
             responsive: [{ breakpoint: 480, options: { chart: { height: 240 } } }]
-        }).render();
+    }); __lisensiChart.render(); window.__lisensiChart = __lisensiChart; } catch(e) { console.error('Gagal merender chart lisensi:', e); }
 
         // === Bar Chart: Lisensi Aktif per Klien (Chart.js) ===
         var propNames = [{% for d in top_klien %}'{{ d.name|truncatechars:15|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}];
@@ -322,7 +356,7 @@ $(document).ready(function(){
 
         var barEl = document.getElementById('hunianBarCanvas');
         if (barEl) {
-            new Chart(barEl.getContext('2d'), {
+            try { window.__klienBarChart = new Chart(barEl.getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: propNames,
@@ -371,9 +405,8 @@ $(document).ready(function(){
                         }
                     }
                 }
-            });
+            }); } catch(e) { console.error('Gagal merender chart:', e); }
         }
-    }
 });
 function toggleColumns() { SimkosExport.toggleColumns('#dataTable'); }
 function selectAllColumns(){document.querySelectorAll('.column-checkbox').forEach(cb=>{cb.checked=true;});toggleColumns();}
@@ -404,7 +437,7 @@ var FOOTER_DATA  = { 3: '{{ total_lisensi_all }}', 4: '{{ total_lisensi_aktif }}
 var FOOTER_LABEL = 'RINGKASAN ({{ total_klien }} Klien)';
 // moneyColumns = [] → tidak ada kolom uang di tabel, semua angka biasa
 var MONEY_COLS   = [];
-function exportExcel() { SimkosExport.buildExcel('#dataTable', EXCEL_INFO, FOOTER_DATA, FOOTER_LABEL, 'LAPORAN KLIEN', 'Laporan_Klien', MONEY_COLS); }
-function exportPDF()   { SimkosExport.buildPDF('#dataTable',   PDF_INFO,   FOOTER_DATA, FOOTER_LABEL, 'LAPORAN KLIEN', 'Laporan_Klien', MONEY_COLS); }
+function exportToExcel() { SimkosExport.buildExcel('#dataTable', EXCEL_INFO, FOOTER_DATA, FOOTER_LABEL, 'LAPORAN KLIEN', 'Laporan_Klien', MONEY_COLS); }
+function exportToPDF()   { SimkosExport.buildPDF('#dataTable',   PDF_INFO,   FOOTER_DATA, FOOTER_LABEL, 'LAPORAN KLIEN', 'Laporan_Klien', MONEY_COLS); }
 </script>
 {% endblock page_js %}

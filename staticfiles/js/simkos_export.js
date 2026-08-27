@@ -1,104 +1,207 @@
-/**
- * ==========================================================================
- *  SIMKOS EXPORT UTILITIES - Versi 3.0
- *  Export Excel & PDF dengan DataTables API, Kop Surat, Baris Ringkasan
- *  yang TEPAT SEJAJAR di kolom nominal yang benar.
- * ==========================================================================
- *
- *  CARA PAKAI DI SETIAP HALAMAN:
- *
- *  1. Include di vendor_js:
- *     <script src="{% static 'js/simkos_export.js' %}"></script>
- *
- *  2. Definisikan variabel konfigurasi:
- *     var EXCEL_INFO = { name, address, phone, email, copyright };
- *     var PDF_INFO   = { name, address, phone, email, copyright };
- *     // FOOTER_DATA: key = indeks kolom DataTables (0-based, termasuk kolom Aksi),
- *     //              value = nominal ANGKA (akan diformat otomatis menjadi Rp)
- *     var FOOTER_DATA  = { 3: 5000000 };   // total di kolom indeks ke-3
- *     var FOOTER_LABEL = 'RINGKASAN (10 Tagihan | Belum: 3 | Lunas: 7)';
- *
- *  3. Panggil fungsi:
- *     function exportToExcel() { SimkosExport.buildExcel('#tabelId', EXCEL_INFO, FOOTER_DATA, FOOTER_LABEL, 'JUDUL', 'NamaFile'); }
- *     function exportToPDF()   { SimkosExport.buildPDF('#tabelId', PDF_INFO,   FOOTER_DATA, FOOTER_LABEL, 'JUDUL', 'NamaFile'); }
- *     function toggleColumns() { SimkosExport.toggleColumns('#tabelId'); }
- *
- * ==========================================================================
- */
+
 
 var SimkosExport = (function () {
     'use strict';
 
-    // ── FORMAT RUPIAH ─────────────────────────────────────────────────────────
-    /**
-     * Format angka menjadi string Rupiah Indonesia.
-     * Contoh: 10400000 → "Rp 10.400.000"
-     * @param {number|string} value
-     * @returns {string}
-     */
+    
+    function _isWebView() {
+        var ua = navigator.userAgent || '';
+        
+        if (window.Capacitor) return true;
+        
+        if (window.SerpApp) return true;
+        
+        if (/wv|WebView/i.test(ua)) return true;
+        
+        if (/Android.*Version\/[\d.]+/i.test(ua) && !/Chrome\/[\d.]+/i.test(ua)) return true;
+        
+        if (/iPhone|iPad|iPod/i.test(ua) && !/Safari/i.test(ua)) return true;
+        return false;
+    }
+
+    
+    function _sendToSerpApp(pureBase64, fname, mimeType) {
+        if (!window.SerpApp) return false;
+        if (window.SerpApp.saveBase64Chunk) {
+            console.log('[SimkosExport] Mengirim via Async Chunking:', fname, '(' + pureBase64.length + ' chars)');
+            var chunkSize = 65536;
+            var i = 0;
+            function sendNext() {
+                if (i < pureBase64.length) {
+                    window.SerpApp.saveBase64Chunk(pureBase64.substring(i, i + chunkSize));
+                    i += chunkSize;
+                    setTimeout(sendNext, 5);
+                } else {
+                    window.SerpApp.finishBase64Chunk(fname, mimeType);
+                }
+            }
+            sendNext();
+        } else if (window.SerpApp.saveBase64) {
+            window.SerpApp.saveBase64(pureBase64, fname, mimeType);
+        }
+        return true;
+    }
+
+    
+    function _downloadBlob(blob, filename) {
+        
+        if (window._downloadBlob && window._downloadBlob !== _downloadBlob) {
+            console.log('[SimkosExport] Delegasi ke window._downloadBlob (master.html)');
+            window._downloadBlob(blob, filename);
+            return;
+        }
+
+        if (_isWebView()) {
+            _downloadBlobWebView(blob, filename);
+        } else {
+            _downloadBlobBrowser(blob, filename);
+        }
+    }
+
+    
+    function _downloadBlobWebView(blob, filename) {
+        
+        if (window.SerpApp) {
+            console.log('[SimkosExport] Menggunakan SerpApp bridge untuk download:', filename);
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                var base64data = reader.result;
+                var pureBase64 = base64data.split(',')[1];
+                if (pureBase64) {
+                    _sendToSerpApp(pureBase64, filename, blob.type || 'application/octet-stream');
+                }
+            };
+            reader.readAsDataURL(blob);
+            return;
+        }
+
+        
+        if (navigator.share && navigator.canShare) {
+            try {
+                var file = new File([blob], filename, { type: blob.type });
+                var shareData = { files: [file], title: filename };
+
+                if (navigator.canShare(shareData)) {
+                    navigator.share(shareData)
+                        .then(function() {
+                            console.log('File berhasil di-share/download via native share');
+                        })
+                        .catch(function(err) {
+                            if (err.name !== 'AbortError') {
+                                console.warn('Share gagal, mencoba fallback:', err);
+                                _showManualDownloadLink(blob, filename);
+                            }
+                        });
+                    return;
+                }
+            } catch (e) {
+                console.warn('navigator.share error:', e);
+            }
+        }
+
+        
+        _showManualDownloadLink(blob, filename);
+    }
+
+    
+    function _downloadBlobBrowser(blob, filename) {
+        try {
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(function () {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 300);
+        } catch (e) {
+            console.error('Download browser gagal:', e);
+            _showManualDownloadLink(blob, filename);
+        }
+    }
+
+    
+    function _showManualDownloadLink(blob, filename) {
+        var blobUrl = URL.createObjectURL(blob);
+
+        var overlay = document.createElement('div');
+        overlay.className = 'download-overlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+        overlay.innerHTML =
+            '<div style="background:#fff;border-radius:16px;padding:28px 24px;text-align:center;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">' +
+                '<div style="width:60px;height:60px;margin:0 auto 16px;background:linear-gradient(135deg,#e8e8ff,#d0d0ff);border-radius:50%;display:flex;align-items:center;justify-content:center;">' +
+                    '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#696cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+                '</div>' +
+                '<h5 style="margin:0 0 8px;color:#333;font-size:1.1rem;font-weight:700;">File Siap Diunduh</h5>' +
+                '<p style="color:#697a8d;font-size:0.85rem;margin-bottom:20px;line-height:1.4;">Ketuk tombol di bawah untuk menyimpan file <strong>' + filename + '</strong></p>' +
+                '<a id="_dl_link" href="' + blobUrl + '" download="' + filename + '" ' +
+                    'style="display:block;background:linear-gradient(135deg,#696cff,#5f61e6);color:#fff;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:600;font-size:0.95rem;margin-bottom:12px;">' +
+                    '📥 Download ' + filename +
+                '</a>' +
+                '<button id="_dl_close" style="background:none;border:none;color:#697a8d;cursor:pointer;font-size:0.8rem;padding:8px 16px;">Tutup</button>' +
+            '</div>';
+
+        overlay.querySelector('#_dl_close').addEventListener('click', function () {
+            overlay.remove();
+            URL.revokeObjectURL(blobUrl);
+        });
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) {
+                overlay.remove();
+                URL.revokeObjectURL(blobUrl);
+            }
+        });
+        overlay.querySelector('#_dl_link').addEventListener('click', function () {
+            setTimeout(function () {
+                overlay.remove();
+                setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 5000);
+            }, 1000);
+        });
+
+        document.body.appendChild(overlay);
+    }
+
+    
     function _formatRupiah(value) {
         var num = parseFloat(String(value).replace(/[^\d.-]/g, ''));
-        if (isNaN(num)) return String(value); // biarkan apa adanya jika bukan angka
+        if (isNaN(num)) return String(value); 
         return 'Rp ' + num.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
 
-    /**
-     * Format angka biasa (tanpa prefix Rp).
-     * Contoh: 11 → "11", 1500 → "1.500"
-     * @param {number|string} value
-     * @returns {string}
-     */
+    
     function _formatNumber(value) {
         var num = parseFloat(String(value).replace(/[^\d.-]/g, ''));
         if (isNaN(num)) return String(value);
         return num.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
 
-    /**
-     * Cek apakah nilai tampak seperti nominal uang (bisa berisi "Rp", titik, koma, angka)
-     * Angka 0 dianggap valid!
-     * @param {string} str
-     * @returns {boolean}
-     */
+    
     function _isMoneyLike(str) {
         var s = String(str).trim();
         return /^(Rp[\s\.]?)?[\d.,]+$/.test(s) || s === '0';
     }
 
-    /**
-     * Cek apakah kolom tertentu adalah kolom nominal uang.
-     * @param {number}      colIdx       - Indeks kolom DataTables
-     * @param {Array|null}  moneyColumns - Array indeks kolom yang merupakan nominal uang. Null=semua dianggap uang.
-     * @returns {boolean}
-     */
+    
     function _isMoneyColumn(colIdx, moneyColumns) {
-        if (!moneyColumns || !Array.isArray(moneyColumns)) return true; // default: semua diformat Rp (backward compatible)
+        if (!moneyColumns || !Array.isArray(moneyColumns)) return true; 
         return moneyColumns.indexOf(colIdx) !== -1;
     }
 
-    /**
-     * Format nilai footer sesuai tipe kolom (uang atau angka biasa).
-     * @param {*}           rawVal       - Nilai mentah
-     * @param {number}      colIdx       - Indeks kolom
-     * @param {Array|null}  moneyColumns - Kolom mana yang nominal uang
-     * @returns {string}
-     */
+    
     function _formatFooterValue(rawVal, colIdx, moneyColumns) {
         var str = String(rawVal);
         if (_isMoneyColumn(colIdx, moneyColumns)) {
             return _isMoneyLike(str) ? _formatRupiah(rawVal) : str;
         } else {
-            // Bukan kolom uang — tampilkan sebagai angka biasa tanpa Rp
+            
             return _isMoneyLike(str) ? _formatNumber(rawVal) : str;
         }
     }
 
-    // ── TOGGLE KOLOM ─────────────────────────────────────────────────────────
-    /**
-     * Toggle visibility kolom DataTable berdasarkan checkbox .column-checkbox.
-     * Menggunakan new $.fn.dataTable.Api() agar TIDAK re-initialize tabel.
-     * @param {string} tableId - Selector ID tabel, mis: '#pembayaranTable'
-     */
+    
     function toggleColumns(tableId) {
         if (typeof $ === 'undefined' || typeof $.fn.dataTable === 'undefined') {
             console.error('SimkosExport: jQuery DataTables belum dimuat!');
@@ -114,12 +217,7 @@ var SimkosExport = (function () {
         }
     }
 
-    // ── AMBIL KOLOM VISIBLE ───────────────────────────────────────────────────
-    /**
-     * Ambil daftar kolom yang visible dari DataTable (kecuali kolom "Aksi").
-     * @param {string} tableId
-     * @returns {Array} [{index, text}]
-     */
+    
     function _getVisibleColumns(tableId) {
         var tableApi = new $.fn.dataTable.Api(tableId);
         var cols = [];
@@ -127,7 +225,7 @@ var SimkosExport = (function () {
             var headerNode = this.header();
             var headerText = headerNode ? headerNode.textContent.trim() : '';
             var lowerText = headerText.toLowerCase();
-            // Skip kolom "Aksi", "Action", "Tindakan", atau header kosong dari export
+            
             var isActionCol = (lowerText === 'aksi' || lowerText === 'action' || lowerText === 'tindakan' || lowerText === '');
             if (this.visible() && !isActionCol) {
                 cols.push({ index: index, text: headerText });
@@ -136,21 +234,7 @@ var SimkosExport = (function () {
         return cols;
     }
 
-    // ── BANGUN BARIS RINGKASAN EXCEL ──────────────────────────────────────────
-    /**
-     * Bangun array sel baris ringkasan untuk Excel.
-     * Algoritma:
-     *  - Scan visibleColumns dari kiri ke kanan
-     *  - Jika colIdx ada di footerData → tampilkan total (format Rupiah HANYA jika termasuk moneyColumns)
-     *  - Jika tidak → kumpulkan kolom berurutan, jadikan satu colspan
-     *                 Kolom span pertama (paling kiri) tampilkan footerLabel
-     *
-     * @param {Array}      visibleColumns - [{index, text}]
-     * @param {Object}     footerData     - { colIdx: nilaiTotal } (colIdx = indeks DataTables asli)
-     * @param {string}     footerLabel    - Teks label ringkasan
-     * @param {Array|null} moneyColumns   - Indeks kolom yang merupakan nominal uang (Rp). Null=semua.
-     * @returns {Array} [{text, span}]
-     */
+    
     function _buildSummaryRowExcel(visibleColumns, footerData, footerLabel, moneyColumns) {
         var cells = [];
         var labelPlaced = false;
@@ -160,13 +244,13 @@ var SimkosExport = (function () {
             var colIdx = visibleColumns[ri].index;
 
             if (footerData && footerData[colIdx] !== undefined && footerData[colIdx] !== null && footerData[colIdx] !== '') {
-                // Kolom ini punya total — format sesuai tipe (uang atau angka biasa)
+                
                 var rawVal = footerData[colIdx];
                 var formatted = _formatFooterValue(rawVal, colIdx, moneyColumns);
                 cells.push({ text: formatted, span: 1, align: 'right', isTotal: true });
                 ri++;
             } else {
-                // Kumpulkan kolom berurutan yang tidak punya total
+                
                 var spanCount = 0;
                 var si = ri;
                 while (
@@ -187,15 +271,7 @@ var SimkosExport = (function () {
         return cells;
     }
 
-    // ── BANGUN BARIS RINGKASAN PDF ────────────────────────────────────────────
-    /**
-     * Bangun array sel baris ringkasan untuk pdfMake.
-     * @param {Array}      visibleColumns
-     * @param {Object}     footerData
-     * @param {string}     footerLabel
-     * @param {Array|null} moneyColumns - Indeks kolom yang merupakan nominal uang (Rp). Null=semua.
-     * @returns {Array} array pdfMake cell objects
-     */
+    
     function _buildSummaryRowPDF(visibleColumns, footerData, footerLabel, moneyColumns) {
         var summaryRow = [];
         var labelPlaced = false;
@@ -241,7 +317,7 @@ var SimkosExport = (function () {
                     cell.colSpan = spanCount;
                 }
                 summaryRow.push(cell);
-                // Tambah sel kosong untuk colspan
+                
                 for (var k = 1; k < spanCount; k++) {
                     summaryRow.push({ text: '', fillColor: '#EEF0FF' });
                 }
@@ -251,31 +327,30 @@ var SimkosExport = (function () {
         return summaryRow;
     }
 
-    // ── EXPORT EXCEL ──────────────────────────────────────────────────────────
-    /**
-     * Export data tabel ke file Excel (.xls) dengan kop surat perusahaan dan baris ringkasan.
-     *
-     * @param {string} tableId     - Selector tabel, mis: '#pembayaranTable'
-     * @param {Object} info        - { name, address, phone, email, copyright }
-     * @param {Object} footerData  - { colIdx: nilaiTotal } — indeks kolom DataTables asli
-     * @param {string} footerLabel - Label ringkasan (mis: 'RINGKASAN (10 Tagihan)')
-     * @param {string} title       - Judul dokumen
-     * @param {string} filename    - Nama file tanpa ekstensi
-     * @param {Array}  [moneyColumns] - Opsional. Indeks kolom yang merupakan nominal uang (format Rp).
-     *                                 Jika tidak diberikan, SEMUA kolom numerik diformat Rp (backward compatible).
-     */
+    
     function buildExcel(tableId, info, footerData, footerLabel, title, filename, moneyColumns) {
         try {
-            var tableEl = document.querySelector(tableId);
-            if (!tableEl) { alert('Tabel tidak ditemukan!'); return; }
             if (typeof $ === 'undefined' || typeof $.fn.dataTable === 'undefined') {
                 alert('DataTables belum dimuat!'); return;
+            }
+
+            // Cek apakah tabel ada di DOM dulu (bisa disembunyikan oleh {% if data_list %})
+            if (!document.querySelector(tableId)) {
+                if (typeof showExportEmpty === 'function') { showExportEmpty(); }
+                else { alert('Data masih kosong. Tidak ada data yang dapat di-export.'); }
+                return;
             }
 
             var visibleColumns = _getVisibleColumns(tableId);
             var tableApi = new $.fn.dataTable.Api(tableId);
             var colCount = visibleColumns.length;
 
+            // Empty data check — konsisten dengan referensi COA & Daftar Produk
+            if (!tableApi || tableApi.rows({ search: 'applied' }).count() === 0) {
+                if (typeof showExportEmpty === 'function') { showExportEmpty(); }
+                else { alert('Data masih kosong. Tidak ada data yang dapat di-export.'); }
+                return;
+            }
             if (colCount === 0) { alert('Tidak ada kolom yang tersedia untuk di-export!'); return; }
 
             var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office"'
@@ -284,13 +359,13 @@ var SimkosExport = (function () {
                 + '<style>table{border-collapse:collapse;} th,td{font-family:Arial,sans-serif;font-size:9pt;}'
                 + '.kop-judul{font-size:14pt;font-weight:bold;color:#5F61E6;}'
                 + '.kop-info{font-size:9pt;color:#697A8D;}'
-                + '.th-header{background-color:#52d123;color:#FFFFFF;font-weight:bold;padding:6px;}'
+                + '.th-header{background-color:#696CFF;color:#FFFFFF;font-weight:bold;padding:6px;}'
                 + '.td-data{padding:4px 6px;}'
                 + '.td-summary{background-color:#EEF0FF;font-weight:bold;padding:4px 6px;color:#4B4EE6;}'
                 + '.td-label{background-color:#EEF0FF;font-weight:bold;padding:4px 6px;color:#5F61E6;}'
                 + '</style></head><body>';
 
-            // ── KOP SURAT ──
+            
             html += '<table border="0" style="margin-bottom:8px;width:100%;">';
             html += '<tr><td colspan="' + colCount + '" style="text-align:center;font-size:16pt;font-weight:bold;color:#5F61E6;border:none;">' + (info.name || 'SIMKOS') + '</td></tr>';
             html += '<tr><td colspan="' + colCount + '" style="text-align:center;font-size:9pt;color:#697A8D;border:none;">' + (info.address || '') + '</td></tr>';
@@ -298,7 +373,7 @@ var SimkosExport = (function () {
             html += '<tr><td colspan="' + colCount + '" style="border:none;">&nbsp;</td></tr>';
             html += '</table>';
 
-            // ── JUDUL & TANGGAL ──
+            
             html += '<table border="0" style="margin-bottom:6px;">';
             html += '<tr><td colspan="' + colCount + '" style="font-size:12pt;font-weight:bold;color:#5F61E6;border:none;">' + (title || 'Laporan') + '</td></tr>';
             html += '<tr><td colspan="' + colCount + '" style="font-size:8pt;color:#697A8D;border:none;">Tanggal: '
@@ -306,18 +381,17 @@ var SimkosExport = (function () {
             html += '<tr><td colspan="' + colCount + '" style="border:none;">&nbsp;</td></tr>';
             html += '</table>';
 
-            // ── TABEL DATA ──
+            
             html += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%;">';
 
-            // Header
+            
             html += '<thead><tr>';
             visibleColumns.forEach(function (col) {
-                html += '<th style="background-color:#52d123;color:#FFFFFF;font-weight:bold;padding:6px;white-space:nowrap;border:1px solid #DBDADE;">' + col.text + '</th>';
+                html += '<th style="background-color:#696CFF;color:#FFFFFF;font-weight:bold;padding:6px;white-space:nowrap;border:1px solid #DBDADE;">' + col.text + '</th>';
             });
             html += '</tr></thead><tbody>';
 
-            // Baris data — SEMUA baris yang lolos filter DataTables (bukan hanya halaman aktif)
-            // search:'applied' = hormati filter pencarian tapi export semua halaman
+            
             tableApi.rows({ search: 'applied' }).every(function (rowIdx) {
                 html += '<tr>';
                 visibleColumns.forEach(function (col) {
@@ -329,7 +403,7 @@ var SimkosExport = (function () {
                 html += '</tr>';
             });
 
-            // ── BARIS RINGKASAN ──
+            
             var hasFooter = footerData && Object.keys(footerData).length > 0;
             var summaryCells = _buildSummaryRowExcel(visibleColumns, hasFooter ? footerData : {}, footerLabel, moneyColumns);
             html += '<tr>';
@@ -347,7 +421,7 @@ var SimkosExport = (function () {
 
             html += '</tbody></table>';
 
-            // ── FOOTER ──
+            
             html += '<table border="0" style="margin-top:8px;width:100%;">';
             html += '<tr>';
             html += '<td style="font-size:8pt;color:#697A8D;border:none;">Dicetak pada: ' + new Date().toLocaleString('id-ID') + '</td>';
@@ -357,12 +431,8 @@ var SimkosExport = (function () {
             html += '</body></html>';
 
             var blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel;charset=utf-8' });
-            var link = document.createElement('a');
-            link.setAttribute('href', URL.createObjectURL(blob));
-            link.setAttribute('download', (filename || 'Export') + '_' + new Date().toISOString().slice(0, 10) + '.xls');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            var exportFilename = (filename || 'Export') + '_' + new Date().toISOString().slice(0, 10) + '.xls';
+            _downloadBlob(blob, exportFilename);
 
         } catch (err) {
             console.error('SimkosExport.buildExcel error:', err);
@@ -370,46 +440,46 @@ var SimkosExport = (function () {
         }
     }
 
-    // ── EXPORT PDF ────────────────────────────────────────────────────────────
-    /**
-     * Export data tabel ke PDF menggunakan pdfMake, dengan kop surat dan baris ringkasan.
-     *
-     * @param {string} tableId     - Selector tabel
-     * @param {Object} info        - { name, address, phone, email, copyright }
-     * @param {Object} footerData  - { colIdx: nilaiTotal }
-     * @param {string} footerLabel - Label ringkasan
-     * @param {string} title       - Judul dokumen
-     * @param {string} filename    - Nama file tanpa ekstensi
-     * @param {Array}  [moneyColumns] - Opsional. Indeks kolom yang merupakan nominal uang (format Rp).
-     */
+    
     function buildPDF(tableId, info, footerData, footerLabel, title, filename, moneyColumns) {
         try {
             if (typeof pdfMake === 'undefined') {
                 alert('pdfMake library tidak tersedia! Pastikan pdfmake.min.js sudah dimuat.');
                 return;
             }
-            var tableEl = document.querySelector(tableId);
-            if (!tableEl) { alert('Tabel tidak ditemukan!'); return; }
+
+            // Cek apakah tabel ada di DOM dulu (bisa disembunyikan oleh {% if data_list %})
+            if (!document.querySelector(tableId)) {
+                if (typeof showExportEmpty === 'function') { showExportEmpty(); }
+                else { alert('Data masih kosong. Tidak ada data yang dapat di-export.'); }
+                return;
+            }
 
             var visibleColumns = _getVisibleColumns(tableId);
             var tableApi = new $.fn.dataTable.Api(tableId);
             var colCount = visibleColumns.length;
 
+            // Empty data check — konsisten dengan referensi COA & Daftar Produk
+            if (!tableApi || tableApi.rows({ search: 'applied' }).count() === 0) {
+                if (typeof showExportEmpty === 'function') { showExportEmpty(); }
+                else { alert('Data masih kosong. Tidak ada data yang dapat di-export.'); }
+                return;
+            }
             if (colCount === 0) { alert('Tidak ada kolom yang tersedia untuk di-export!'); return; }
 
-            // ── HEADER KOLOM ──
+            
             var headers = visibleColumns.map(function (col) {
                 return {
                     text: col.text,
                     style: 'tableHeader',
-                    fillColor: '#52d123',
+                    fillColor: '#696CFF',
                     color: '#FFFFFF',
                     bold: true,
                     alignment: 'center'
                 };
             });
 
-            // ── DATA BARIS — semua baris yang lolos filter (bukan hanya halaman aktif) ──
+            
             var body = [headers];
             tableApi.rows({ search: 'applied' }).every(function (rowIdx) {
                 var row = [];
@@ -417,20 +487,19 @@ var SimkosExport = (function () {
                     var cellNode = tableApi.cell(rowIdx, col.index).node();
                     var text = cellNode ? cellNode.textContent.trim().replace(/\s+/g, ' ') : '';
                     if (text.length > 80) { text = text.substring(0, 77) + '...'; }
-                    // Alignment kanan untuk kolom yang mengandung "Rp" atau angka
+                    
                     var isRightAlign = /^Rp[\s]/.test(text) || /^[\d.,]+$/.test(text);
                     row.push({ text: text, alignment: isRightAlign ? 'right' : 'left' });
                 });
                 if (row.length > 0) body.push(row);
             });
 
-            // ── BARIS RINGKASAN ──
+            
             var hasFooter = footerData && Object.keys(footerData).length > 0;
             var summaryRow = _buildSummaryRowPDF(visibleColumns, hasFooter ? footerData : {}, footerLabel, moneyColumns);
             if (summaryRow.length > 0) body.push(summaryRow);
 
-            // ── HITUNG LEBAR KOLOM ──
-            // Auto widths agar pdfMake menghitung otomatis berdasarkan konten
+            
             var colWidths = Array(colCount).fill('auto');
 
             var bodyLength = body.length;
@@ -440,7 +509,7 @@ var SimkosExport = (function () {
                 pageSize: 'A4',
                 pageMargins: [30, 110, 30, 55],
 
-                // ── KOP SURAT DI HEADER PDF ──
+                
                 header: function (currentPage) {
                     return {
                         margin: [30, 12, 30, 0],
@@ -466,7 +535,7 @@ var SimkosExport = (function () {
                         layout: {
                             hLineWidth: function (i, node) { return (i === node.table.body.length) ? 1 : 0; },
                             vLineWidth: function () { return 0; },
-                            hLineColor: function () { return '#52d123'; }
+                            hLineColor: function () { return '#696CFF'; }
                         }
                     };
                 },
@@ -487,9 +556,9 @@ var SimkosExport = (function () {
                         },
                         layout: {
                             fillColor: function (rowIndex) {
-                                if (rowIndex === 0) return '#52d123';            // Header biru
-                                if (rowIndex === bodyLength - 1) return '#EEF0FF'; // Ringkasan biru muda
-                                return (rowIndex % 2 === 0) ? '#F5F5F9' : null;    // Zebra stripe
+                                if (rowIndex === 0) return '#696CFF';            
+                                if (rowIndex === bodyLength - 1) return '#EEF0FF'; 
+                                return (rowIndex % 2 === 0) ? '#F5F5F9' : null;    
                             },
                             hLineWidth: function () { return 0.5; },
                             vLineWidth: function () { return 0.5; },
@@ -503,7 +572,7 @@ var SimkosExport = (function () {
                     }
                 ],
 
-                // ── FOOTER PDF ──
+                
                 footer: function (currentPage, pageCount) {
                     return {
                         margin: [30, 8, 30, 0],
@@ -530,7 +599,17 @@ var SimkosExport = (function () {
                 defaultStyle: { fontSize: 7 }
             };
 
-            pdfMake.createPdf(docDefinition).download((filename || 'Export') + '_' + new Date().toISOString().slice(0, 10) + '.pdf');
+            var pdfFilename = (filename || 'Export') + '_' + new Date().toISOString().slice(0, 10) + '.pdf';
+            var pdfDoc = pdfMake.createPdf(docDefinition);
+
+            
+            if (_isWebView()) {
+                pdfDoc.getBlob(function(blob) {
+                    _downloadBlob(blob, pdfFilename);
+                });
+            } else {
+                pdfDoc.download(pdfFilename);
+            }
 
         } catch (err) {
             console.error('SimkosExport.buildPDF error:', err);
@@ -538,12 +617,12 @@ var SimkosExport = (function () {
         }
     }
 
-    // ── PUBLIC API ────────────────────────────────────────────────────────────
+    
     return {
         toggleColumns: toggleColumns,
         buildExcel:    buildExcel,
         buildPDF:      buildPDF,
-        formatRupiah:  _formatRupiah   // expose untuk penggunaan di halaman jika perlu
+        formatRupiah:  _formatRupiah   
     };
 
 })();

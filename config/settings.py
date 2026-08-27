@@ -96,7 +96,7 @@ INSTALLED_APPS = [
     "apps.pengaturan.apps.PengaturanConfig",
     "apps.laporan.apps.LaporanConfig",
     "apps.ai_assistant.apps.AiAssistantConfig",
-    "apps.pembelian.apps.PembelianConfig",
+    # (pembelian dihapus — CLS tidak memerlukan modul pembelian)
     
     # Original Apps
     "apps.pages",
@@ -129,6 +129,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "apps.core.csp_middleware.CSPMiddleware",
     "apps.core.license_middleware.SaaSLicenseMiddleware",  # SaaS License Interceptor
     "django.middleware.gzip.GZipMiddleware",  # Compress responses for faster load
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -189,8 +190,8 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/hour',
-        'user': '1000/hour',
+        'anon': '30/hour',
+        'user': '100/hour',
     }
 }
 
@@ -259,7 +260,7 @@ LANGUAGES = [
 LANGUAGE_CODE = "en"
 FILE_CHARSET = 'utf-8'
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Jakarta"
 
 USE_I18N = True
 
@@ -324,6 +325,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_AGE = 86400  # 24 hours
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Sesi tetap persisten (user tetap login setelah browser ditutup)
 SESSION_SAVE_EVERY_REQUEST = True  # Refresh session expiry setiap request (cegah logout mendadak)
 
 # Cookie name unik per aplikasi — WAJIB agar session & CSRF tidak saling tabrakan
@@ -390,6 +392,7 @@ if _CACHE_BACKEND == "redis":
         'default': {
             'BACKEND': 'django.core.cache.backends.redis.RedisCache',
             'LOCATION': os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/1'),
+            'KEY_PREFIX': 'cls_schema',
             'TIMEOUT': 300,
         }
     }

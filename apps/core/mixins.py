@@ -37,17 +37,21 @@
 ==========================================================================
 """
 
+# Import dari framework Django
 from django.shortcuts import redirect                   # Fungsi redirect
+# Import dari framework Django
 from django.contrib import messages                      # Framework pesan flash
+# Import dari framework Django
 from django.core.exceptions import PermissionDenied      # Exception 403 Forbidden
 from django.core.cache import cache
+from django.conf import settings
+# Import dari modul internal proyek
 from apps.core.cache_utils import build_scoped_cache_key
-from apps.core.permissions import has_permission, get_user_role         # Fungsi cek permission & user role
-from functools import wraps                              # Untuk decorator FBV
+from apps.core.permissions import has_permission, is_superuser_role  # Fungsi cek permission
 
 
 class TenantScopedResponseCacheMixin:
-    """Cache response GET per schema/host, user, role, query string, dan versi cache."""
+    """Cache response GET per tenant/schema, user, query string, dan versi permission."""
     cache_timeout = 0
 
     def dispatch(self, request, *args, **kwargs):
@@ -84,43 +88,6 @@ class TenantScopedResponseCacheMixin:
         return response
 
 
-# ==================== DECORATOR UNTUK FUNCTION-BASED VIEWS ====================
-
-def permission_required_func(action, module, sub_module=None):
-    """
-    Decorator untuk function-based views yang mengecek RBAC permission.
-    Equivalent dari ReadPermissionMixin / CreatePermissionMixin untuk FBV.
-
-    Cara pakai:
-        @login_required
-        @permission_required_func('read', 'tenant_management')
-        def tenant_list(request):
-            ...
-
-    Parameter:
-    - action: 'read', 'create', 'write'/'update', 'delete'
-    - module: Nama modul (contoh: 'tenant_management')
-    - sub_module: Nama sub-modul (opsional)
-    """
-    def decorator(view_func):
-        @wraps(view_func)
-        def wrapper(request, *args, **kwargs):
-            # Superuser bypass semua
-            if request.user.is_superuser:
-                return view_func(request, *args, **kwargs)
-
-            # Cek permission dari database
-            if not has_permission(request.user, action, module, sub_module):
-                module_name = sub_module or module
-                raise PermissionDenied(
-                    f"Anda tidak memiliki akses {action} untuk {module_name.replace('_', ' ').title()}"
-                )
-
-            return view_func(request, *args, **kwargs)
-        return wrapper
-    return decorator
-
-
 class SubModulePermissionMixin:
     """
     Mixin UTAMA — Mengecek permission modul DAN sub-modul sebelum view diakses.
@@ -129,7 +96,10 @@ class SubModulePermissionMixin:
     Mendukung pengecekan di level sub-modul (lebih granular).
 
     Cara pakai:
+
+        # ═══ Class: KategoriListView ═══
         class KategoriListView(SubModulePermissionMixin, ListView):
+            # Modul permission yang dicek: 'produk'          # Wajib: nama modul'
             permission_module = 'produk'          # Wajib: nama modul
             permission_sub_module = 'kategori'    # Opsional: nama sub-modul
             permission_action = 'read'            # Wajib: aksi ('read'/'create'/'write'/'delete')
@@ -156,14 +126,24 @@ class SubModulePermissionMixin:
         Ini yang memutuskan apakah view boleh dijalankan atau tidak.
 
         Alur:
-        1. Jika superuser → langsung izinkan (bypass semua cek)
-        2. Validasi: pastikan permission_module sudah diisi
-        3. Panggil has_permission() dengan module + sub_module
-        4. Jika True → panggil super().dispatch() (jalankan view)
-        5. Jika False → raise PermissionDenied (halaman 403)
+        1. Jika user belum login → redirect ke LOGIN_URL (bukan 403!)
+        2. Jika superuser → langsung izinkan (bypass semua cek)
+        3. Validasi: pastikan permission_module sudah diisi
+        4. Panggil has_permission() dengan module + sub_module
+        5. Jika True → panggil super().dispatch() (jalankan view)
+        6. Jika False → raise PermissionDenied (halaman 403)
         """
+        # User belum login → redirect ke halaman login, BUKAN 403
+        if not request.user.is_authenticated:
+            from django.shortcuts import redirect as rd
+            from django.contrib.auth import REDIRECT_FIELD_NAME
+            from django.utils.http import urlencode
+            path = request.get_full_path()
+            login_url = settings.LOGIN_URL if hasattr(settings, 'LOGIN_URL') else '/login/'
+            return rd(f'{login_url}?{urlencode({REDIRECT_FIELD_NAME: path})}')
+
         # Superuser bypass semua pengecekan
-        if request.user.is_superuser:
+        if is_superuser_role(request.user):
             return super().dispatch(request, *args, **kwargs)
 
         # Validasi: permission_module WAJIB diisi
@@ -198,18 +178,30 @@ class SubModulePermissionMixin:
         context['rbac_current_sub_module'] = self.permission_sub_module
         
         user = getattr(self.request, 'user', None)
-        if user and not user.is_superuser:
-            from apps.core.permissions import has_permission
+        if user and not is_superuser_role(user):
             context['rbac_can_read'] = has_permission(user, 'read', self.permission_module, self.permission_sub_module)
             context['rbac_can_create'] = has_permission(user, 'create', self.permission_module, self.permission_sub_module)
             context['rbac_can_edit'] = has_permission(user, 'write', self.permission_module, self.permission_sub_module)
             context['rbac_can_delete'] = has_permission(user, 'delete', self.permission_module, self.permission_sub_module)
-            context['is_readonly_mode'] = not context['rbac_can_edit']
         else:
             context['rbac_can_read'] = context['rbac_can_create'] = context['rbac_can_edit'] = context['rbac_can_delete'] = True
-            context['is_readonly_mode'] = False
             
         return context
+
+    def post(self, request, *args, **kwargs):
+        """
+        Ensure POST requests explicitly call the delete() method if this is a DeleteView.
+        Django 4.0+ DeletionMixin.post() uses FormMixin.form_valid() instead
+        of directly calling delete(). This breaks custom AJAX delete() implementations.
+        """
+        # Hack to bypass form_valid for ajax delete views
+        if hasattr(self, 'delete') and getattr(self, 'object', None) is None and 'delete' in request.path:
+            return self.delete(request, *args, **kwargs)
+        if hasattr(super(), 'post'):
+            return super().post(request, *args, **kwargs)
+        # Fallback if no post method
+        from django.http import HttpResponseNotAllowed
+        return HttpResponseNotAllowed(['GET', 'POST'])
 
 
 class ModulePermissionMixin:
@@ -220,7 +212,10 @@ class ModulePermissionMixin:
     yang tidak perlu pengecekan sub-modul.
 
     Cara pakai:
+
+        # ═══ Class: DashboardView ═══
         class DashboardView(ModulePermissionMixin, TemplateView):
+            # Modul permission yang dicek: 'dashboard'
             permission_module = 'dashboard'
             permission_action = 'read'
 
@@ -236,7 +231,7 @@ class ModulePermissionMixin:
     def dispatch(self, request, *args, **kwargs):
         """Cek permission level modul sebelum view dijalankan."""
         # Superuser bypass
-        if request.user.is_superuser:
+        if is_superuser_role(request.user):
             return super().dispatch(request, *args, **kwargs)
 
         # Validasi
@@ -252,9 +247,30 @@ class ModulePermissionMixin:
 
             # Tampilkan pesan warning dan redirect
             messages.warning(request, f"Anda tidak memiliki akses ke modul {self.permission_module.title()}")
+            # Redirect ke halaman tujuan
             return redirect(self.permission_redirect_url)
 
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        """Inject RBAC variables into context for global UI gating."""
+        context = {}
+        if hasattr(super(), 'get_context_data'):
+            context = super().get_context_data(**kwargs)
+        
+        context['rbac_current_module'] = self.permission_module
+        context['rbac_current_sub_module'] = None
+        
+        user = getattr(self.request, 'user', None)
+        if user and not is_superuser_role(user):
+            context['rbac_can_read'] = has_permission(user, 'read', self.permission_module)
+            context['rbac_can_create'] = has_permission(user, 'create', self.permission_module)
+            context['rbac_can_edit'] = has_permission(user, 'write', self.permission_module)
+            context['rbac_can_delete'] = has_permission(user, 'delete', self.permission_module)
+        else:
+            context['rbac_can_read'] = context['rbac_can_create'] = context['rbac_can_edit'] = context['rbac_can_delete'] = True
+            
+        return context
 
 
 # ==================== MIXIN LEGACY (Backward Compatibility) ====================
@@ -268,8 +284,17 @@ class AdminOrSuperuserMixin:
     """
     def dispatch(self, request,  *args, **kwargs):
         """Dipanggil sebelum view dijalankan — cek permission."""
-        if not (request.user.is_superuser or request.user.is_staff):
+        if not request.user.is_authenticated:
+            from django.shortcuts import redirect as rd
+            from django.contrib.auth import REDIRECT_FIELD_NAME
+            from django.utils.http import urlencode
+            path = request.get_full_path()
+            login_url = getattr(settings, 'LOGIN_URL', '/login/')
+            return rd(f'{login_url}?{urlencode({REDIRECT_FIELD_NAME: path})}')
+        if not (is_superuser_role(request.user) or request.user.is_staff):
+            # Tampilkan pesan error ke user
             messages.error(request, 'Akses ditolak. Hanya admin yang dapat mengakses halaman ini.')
+            # Redirect ke halaman tujuan
             return redirect('dashboard:index')
         return super().dispatch(request, *args, **kwargs)
 
@@ -281,10 +306,32 @@ class SuperuserRequiredMixin:
     """
     def dispatch(self, request, *args, **kwargs):
         """Dipanggil sebelum view dijalankan — cek permission."""
-        if not request.user.is_superuser:
+        if not request.user.is_authenticated:
+            from django.shortcuts import redirect as rd
+            from django.contrib.auth import REDIRECT_FIELD_NAME
+            from django.utils.http import urlencode
+            path = request.get_full_path()
+            login_url = getattr(settings, 'LOGIN_URL', '/login/')
+            return rd(f'{login_url}?{urlencode({REDIRECT_FIELD_NAME: path})}')
+        if not is_superuser_role(request.user):
+            # Tampilkan pesan error ke user
             messages.error(request, 'Akses ditolak. Hanya superuser yang dapat mengakses halaman ini.')
+            # Redirect ke halaman tujuan
             return redirect('dashboard:index')
         return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Ensure POST requests explicitly call the delete() method if this is a DeleteView.
+        Django 4.0+ DeletionMixin.post() uses FormMixin.form_valid() instead
+        of directly calling delete(). This breaks custom AJAX delete() implementations.
+        """
+        if hasattr(self, 'delete') and 'delete' in request.path:
+            return self.delete(request, *args, **kwargs)
+        if hasattr(super(), 'post'):
+            return super().post(request, *args, **kwargs)
+        from django.http import HttpResponseNotAllowed
+        return HttpResponseNotAllowed(['GET', 'POST'])
 
 
 # ==================== MIXIN CRUD SPESIFIK ====================
@@ -297,7 +344,10 @@ class ReadPermissionMixin:
     Raise PermissionDenied (403) jika user tidak punya akses baca.
 
     Cara pakai:
+
+        # ═══ Class: KategoriListView ═══
         class KategoriListView(ReadPermissionMixin, ListView):
+            # Modul permission yang dicek: 'produk'
             permission_module = 'produk'
             permission_sub_module = 'kategori'  # Opsional
     """
@@ -306,7 +356,14 @@ class ReadPermissionMixin:
 
     def dispatch(self, request, *args, **kwargs):
         """Dipanggil sebelum view dijalankan — cek permission."""
-        if request.user.is_superuser:
+        if not request.user.is_authenticated:
+            from django.shortcuts import redirect as rd
+            from django.contrib.auth import REDIRECT_FIELD_NAME
+            from django.utils.http import urlencode
+            path = request.get_full_path()
+            login_url = getattr(settings, 'LOGIN_URL', '/login/')
+            return rd(f'{login_url}?{urlencode({REDIRECT_FIELD_NAME: path})}')
+        if is_superuser_role(request.user):
             return super().dispatch(request, *args, **kwargs)
 
         if not self.permission_module:
@@ -320,7 +377,6 @@ class ReadPermissionMixin:
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        """Inject RBAC variables into context for global UI gating."""
         context = {}
         if hasattr(super(), 'get_context_data'):
             context = super().get_context_data(**kwargs)
@@ -329,16 +385,19 @@ class ReadPermissionMixin:
         context['rbac_current_sub_module'] = self.permission_sub_module
         
         user = getattr(self.request, 'user', None)
-        if user and not user.is_superuser:
-            from apps.core.permissions import has_permission
+        if user and not is_superuser_role(user):
             context['rbac_can_read'] = has_permission(user, 'read', self.permission_module, self.permission_sub_module)
             context['rbac_can_create'] = has_permission(user, 'create', self.permission_module, self.permission_sub_module)
-            context['rbac_can_edit'] = has_permission(user, 'write', self.permission_module, self.permission_sub_module)
+            
+            # CEK EDIT UNTUK READ-ONLY MODE
+            can_write = has_permission(user, 'write', self.permission_module, self.permission_sub_module)
+            context['rbac_can_edit'] = can_write
+            context['is_readonly_mode'] = not can_write
+            
             context['rbac_can_delete'] = has_permission(user, 'delete', self.permission_module, self.permission_sub_module)
-            context['is_readonly_mode'] = not context['rbac_can_edit']
         else:
-            context['rbac_can_read'] = context['rbac_can_create'] = context['rbac_can_edit'] = context['rbac_can_delete'] = True
             context['is_readonly_mode'] = False
+            context['rbac_can_read'] = context['rbac_can_create'] = context['rbac_can_edit'] = context['rbac_can_delete'] = True
             
         return context
 
@@ -353,7 +412,14 @@ class CreatePermissionMixin:
 
     def dispatch(self, request, *args, **kwargs):
         """Dipanggil sebelum view dijalankan — cek permission."""
-        if request.user.is_superuser:
+        if not request.user.is_authenticated:
+            from django.shortcuts import redirect as rd
+            from django.contrib.auth import REDIRECT_FIELD_NAME
+            from django.utils.http import urlencode
+            path = request.get_full_path()
+            login_url = getattr(settings, 'LOGIN_URL', '/login/')
+            return rd(f'{login_url}?{urlencode({REDIRECT_FIELD_NAME: path})}')
+        if is_superuser_role(request.user):
             return super().dispatch(request, *args, **kwargs)
 
         if not self.permission_module:
@@ -366,86 +432,60 @@ class CreatePermissionMixin:
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = {}
-        if hasattr(super(), 'get_context_data'):
-            context = super().get_context_data(**kwargs)
-        context['rbac_current_module'] = self.permission_module
-        context['rbac_current_sub_module'] = self.permission_sub_module
-        user = getattr(self.request, 'user', None)
-        if user and not user.is_superuser:
-            from apps.core.permissions import has_permission
-            context['rbac_can_read'] = has_permission(user, 'read', self.permission_module, self.permission_sub_module)
-            context['rbac_can_create'] = has_permission(user, 'create', self.permission_module, self.permission_sub_module)
-            context['rbac_can_edit'] = has_permission(user, 'write', self.permission_module, self.permission_sub_module)
-            context['rbac_can_delete'] = has_permission(user, 'delete', self.permission_module, self.permission_sub_module)
-            context['is_readonly_mode'] = not context['rbac_can_edit']
-        else:
-            context['rbac_can_read'] = context['rbac_can_create'] = context['rbac_can_edit'] = context['rbac_can_delete'] = True
-            context['is_readonly_mode'] = False
-        return context
-
 
 class UpdatePermissionMixin:
     """
     Mixin untuk cek permission EDIT (can_edit) dengan support sub-modul.
-    Dukung read-only mode: GET dengan 'read' permission akan render form readonly.
+    Jika user hanya punya akses baca, maka izinkan GET (read-only mode),
+    tetapi tolak POST (simpan).
     """
     permission_module = None
     permission_sub_module = None
 
     def dispatch(self, request, *args, **kwargs):
-        SUPERUSER_ROLE_CODES = {'SUPERUSER', 'PEMILIK'}
-        if request.user.is_superuser or get_user_role(request.user) in SUPERUSER_ROLE_CODES:
+        """Dipanggil sebelum view dijalankan — cek permission."""
+        if not request.user.is_authenticated:
+            from django.shortcuts import redirect as rd
+            from django.contrib.auth import REDIRECT_FIELD_NAME
+            from django.utils.http import urlencode
+            path = request.get_full_path()
+            login_url = getattr(settings, 'LOGIN_URL', '/login/')
+            return rd(f'{login_url}?{urlencode({REDIRECT_FIELD_NAME: path})}')
+        if is_superuser_role(request.user):
             return super().dispatch(request, *args, **kwargs)
 
         if not self.permission_module:
             raise ValueError(f"{self.__class__.__name__} must define 'permission_module'")
 
-        has_write = has_permission(request.user, 'write', self.permission_module, self.permission_sub_module)
-        
-        if request.method == 'GET':
-            if not has_permission(request.user, 'read', self.permission_module, self.permission_sub_module):
-                module_name = self.permission_sub_module or self.permission_module
-                raise PermissionDenied(f'Anda tidak memiliki akses untuk melihat data di {module_name.title()}')
-        else:
-            if not has_write:
-                module_name = self.permission_sub_module or self.permission_module
-                messages.error(request, f'Anda tidak memiliki izin untuk mengubah data di {module_name.title()}.')
-                return redirect(self.request.path)
-        
+        # Izinkan untuk MELIHAT halaman jika punya akses BACA
+        if not has_permission(request.user, 'read', self.permission_module, self.permission_sub_module):
+            module_name = self.permission_sub_module or self.permission_module
+            raise PermissionDenied(f'Anda tidak memiliki akses untuk melihat form {module_name.title()}')
+
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        """Inject RBAC variables into context for global UI gating."""
+        """Inject is_readonly_mode ke context agar UI form bisa terkunci otomatis."""
         context = {}
         if hasattr(super(), 'get_context_data'):
             context = super().get_context_data(**kwargs)
         
-        context['rbac_current_module'] = self.permission_module
-        context['rbac_current_sub_module'] = self.permission_sub_module
-        
-        user = getattr(self.request, 'user', None)
-        if user and not user.is_superuser:
-            from apps.core.permissions import has_permission
-            context['rbac_can_read'] = has_permission(user, 'read', self.permission_module, self.permission_sub_module)
-            context['rbac_can_create'] = has_permission(user, 'create', self.permission_module, self.permission_sub_module)
-            context['rbac_can_edit'] = has_permission(user, 'write', self.permission_module, self.permission_sub_module)
-            context['rbac_can_delete'] = has_permission(user, 'delete', self.permission_module, self.permission_sub_module)
-            context['is_readonly_mode'] = not context['rbac_can_edit']
-        else:
-            context['rbac_can_read'] = context['rbac_can_create'] = context['rbac_can_edit'] = context['rbac_can_delete'] = True
+        # Inject is_readonly_mode = True jika user tidak punya izin edit
+        if getattr(self.request, 'user', None) and is_superuser_role(self.request.user):
             context['is_readonly_mode'] = False
-            
+        else:
+            context['is_readonly_mode'] = not has_permission(self.request.user, 'write', self.permission_module, self.permission_sub_module)
         return context
 
     def post(self, request, *args, **kwargs):
-        SUPERUSER_ROLE_CODES = {'SUPERUSER', 'PEMILIK'}
-        if not (request.user.is_superuser or get_user_role(request.user) in SUPERUSER_ROLE_CODES):
+        """Validasi akses saat mencoba menyimpan data (POST)."""
+        if not is_superuser_role(request.user):
             if not has_permission(request.user, 'write', self.permission_module, self.permission_sub_module):
-                module_name = self.permission_sub_module or self.permission_module
-                messages.error(request, f'Anda tidak memiliki izin untuk mengubah data di {module_name.title()}.')
-                return redirect(self.request.path)
+                messages.error(request, 'Anda tidak memiliki akses untuk mengubah data ini. Mode Cuma-baca aktif.')
+                # Fallback redirect ke current URL / success_url / referer
+                if hasattr(self, 'success_url') and self.success_url:
+                    return redirect(self.success_url)
+                return redirect(request.META.get('HTTP_REFERER', 'dashboard:index'))
         if hasattr(super(), 'post'):
             return super().post(request, *args, **kwargs)
         from django.http import HttpResponseNotAllowed
@@ -462,7 +502,14 @@ class DeletePermissionMixin:
 
     def dispatch(self, request, *args, **kwargs):
         """Dipanggil sebelum view dijalankan — cek permission."""
-        if request.user.is_superuser:
+        if not request.user.is_authenticated:
+            from django.shortcuts import redirect as rd
+            from django.contrib.auth import REDIRECT_FIELD_NAME
+            from django.utils.http import urlencode
+            path = request.get_full_path()
+            login_url = getattr(settings, 'LOGIN_URL', '/login/')
+            return rd(f'{login_url}?{urlencode({REDIRECT_FIELD_NAME: path})}')
+        if is_superuser_role(request.user):
             return super().dispatch(request, *args, **kwargs)
 
         if not self.permission_module:
@@ -475,21 +522,37 @@ class DeletePermissionMixin:
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = {}
-        if hasattr(super(), 'get_context_data'):
-            context = super().get_context_data(**kwargs)
-        context['rbac_current_module'] = self.permission_module
-        context['rbac_current_sub_module'] = self.permission_sub_module
-        user = getattr(self.request, 'user', None)
-        if user and not user.is_superuser:
-            from apps.core.permissions import has_permission
-            context['rbac_can_read'] = has_permission(user, 'read', self.permission_module, self.permission_sub_module)
-            context['rbac_can_create'] = has_permission(user, 'create', self.permission_module, self.permission_sub_module)
-            context['rbac_can_edit'] = has_permission(user, 'write', self.permission_module, self.permission_sub_module)
-            context['rbac_can_delete'] = has_permission(user, 'delete', self.permission_module, self.permission_sub_module)
-            context['is_readonly_mode'] = not context['rbac_can_edit']
-        else:
-            context['rbac_can_read'] = context['rbac_can_create'] = context['rbac_can_edit'] = context['rbac_can_delete'] = True
-            context['is_readonly_mode'] = False
-        return context
+    def post(self, request, *args, **kwargs):
+        """
+        Ensure POST requests explicitly call the delete() method.
+        Django 4.0+ DeletionMixin.post() uses FormMixin.form_valid() instead
+        of directly calling delete(). This breaks custom AJAX delete() implementations.
+        """
+        if hasattr(self, 'delete'):
+            return self.delete(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
+
+
+def permission_required_func(action, module, sub_module=None):
+    """
+    Decorator untuk function-based views (FBV).
+    Alternatif dari mixin untuk views yang bukan CBV.
+    Raise PermissionDenied (403) jika user tidak punya akses.
+    """
+    from functools import wraps
+    from django.http import HttpResponseForbidden
+    from apps.core.permissions import has_permission, is_superuser_role
+
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+            if not request.user.is_authenticated:
+                from django.shortcuts import redirect as rd
+                return rd('/login/')
+            if is_superuser_role(request.user):
+                return view_func(request, *args, **kwargs)
+            if has_permission(request.user, action, module, sub_module):
+                return view_func(request, *args, **kwargs)
+            return HttpResponseForbidden("Anda tidak memiliki akses untuk operasi ini.")
+        return wrapper
+    return decorator

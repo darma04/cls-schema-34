@@ -70,46 +70,22 @@ def has_perm(user, action, module, sub_module=None):
 
 
 @register.filter
-def has_module_perm(user, module_action):
+def has_module_perm(user, module_action_str):
     """
     Template filter untuk mengecek permission level modul.
-
-    Filter ini lebih ringkas daripada tag has_perm, cocok untuk
-    pengecekan sederhana di dalam {% if %}.
-
-    Format input: "nama_modul:aksi" (dipisahkan titik dua)
-
-    Cara pakai di template:
-        {% load permission_tags %}
-
-        {# Cek apakah user bisa melihat modul produk #}
-        {% if user|has_module_perm:"produk:read" %}
-            <li>Produk</li>
-        {% endif %}
-
-        {# Cek apakah user bisa membuat data inventory #}
-        {% if user|has_module_perm:"inventory:create" %}
-            <button>Tambah Stok</button>
-        {% endif %}
-
-    Parameter:
-    - user          : Object User Django
-    - module_action : String format "modul:aksi" (contoh: "produk:read")
-
-    Return:
-    - True/False berdasarkan hasil pengecekan permission
-
-    Penanganan error:
-    - Jika format salah (tidak ada titik dua) → return False
-    - Jika user belum login → return False (ditangani has_permission)
+    Mendukung pengecekan single ("modul:aksi") atau multiple dengan koma ("modul1:aksi,modul2:aksi").
+    Jika multiple, mengembalikan True jika SALAH SATU permission terpenuhi (OR logic).
     """
     try:
-        # Pisahkan string "produk:read" menjadi module="produk" dan action="read"
-        module, action = module_action.split(':')
-        return has_permission(user, action, module)
-    except (ValueError, AttributeError):
-        # ValueError: string tidak bisa di-split (tidak ada ':')
-        # AttributeError: module_action bukan string
+        permissions = str(module_action_str).split(',')
+        for perm in permissions:
+            parts = perm.strip().split(':')
+            if len(parts) == 2:
+                module, action = parts
+                if has_permission(user, action.strip(), module.strip()):
+                    return True
+        return False
+    except AttributeError:
         return False
 
 
@@ -282,6 +258,31 @@ def extract_submodule(slug):
     """
     try:
         slug_str = str(slug).strip()
+        # PENTING: Hanya prefix yang benar-benar memetakan ke MODULE NAMA di sidebar.
+        # 'ai-assistant-' DIHAPUS karena 'ai-assistant-settings' harus memetakan ke
+        # sub-modul 'assistant-settings' (sesuai SUB_MODULE_TO_SLUG['pengaturan_ai']),
+        # bukan 'settings'.
+        known_prefixes = [
+            'kas-bank-',
+            'laporan-keuangan-',
+            'access-control-',
+            'activity-log-',
+            'fraud-detection-',
+            'service-center-',
+        ]
+        slug_lower = slug_str.lower()
+        for prefix in known_prefixes:
+            if slug_lower.startswith(prefix):
+                result = slug_lower[len(prefix):]
+                # Strip redundant prefix components from module name
+                # e.g., 'kas-bank-bank-dashboard' -> after 'kas-bank-' -> 'bank-dashboard'
+                # strip redundant 'bank-' -> 'dashboard'
+                for component in prefix.strip('-').split('-'):
+                    comp_prefix = component + '-'
+                    if result.startswith(comp_prefix):
+                        result = result[len(comp_prefix):]
+                return result
+
         parts = slug_str.split('-')
         if len(parts) > 1:
             # Ada dash → ambil semua bagian SETELAH dash pertama
@@ -306,3 +307,11 @@ Ringkasan semua tag/filter yang terdaftar:
 6. extract_submodule → Filter: {{ slug|extract_submodule }}
 7. has_permission    → Filter: {{ user|has_permission:"produk:view" }}
 """
+
+
+@register.filter(name='get_item')
+def get_item(dictionary, key):
+    if not dictionary:
+        return None
+    return dictionary.get(key, None)
+

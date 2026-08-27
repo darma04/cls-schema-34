@@ -11,6 +11,8 @@ app_name = 'permission_management'
 
 urlpatterns = [
     path('', RedirectView.as_view(url='/access/roles/'), name='index'),
+    # Matrix Permission - Edit semua modul + sub-modul dalam satu halaman
+    path('role-permissions/', views.RolePermissionMatrixView.as_view(), name='role_permission_matrix'),
     path('roles/', views.RoleListView.as_view(), name='role_list'),
     path('roles/ajax/create/', views.RoleCreateAjaxView.as_view(), name='role_create'),
     path('roles/ajax/<str:role>/data/', views.RoleDataAjaxView.as_view(), name='role_data'),

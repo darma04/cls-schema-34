@@ -28,72 +28,80 @@
     <h4 class="mb-4"><i class="ri-shopping-cart-line me-2"></i>Laporan Penjualan</h4>
 
     <!-- 4 Summary Cards -->
-    <div class="row g-3 mb-4">
-        <div class="col-lg-3 col-sm-6">
-            <div class="card">
+    <div class="row g-6 mb-6">
+        <div class="col-6 col-md-3 col-lg-3">
+            <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div class="card-info">
-                            <p class="card-text text-muted">Total Penjualan</p>
-                            <h4 class="mb-0 text-success">{{ total_penjualan|rupiah }}</h4>
-                        </div>
-                        <div class="card-icon">
-                            <span class="badge bg-label-success rounded p-2">
-                                <i class="ri-money-dollar-circle-line ri-24px"></i>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-success">
+<i class="ri-money-dollar-circle-line ri-24px"></i>
                             </span>
-                        </div>
-                    </div>
+</div>
+<div class="card-info">
+
+                            <span class="d-block text-muted small">Total Penjualan</span>
+                            <h5 class="mb-0 text-success fw-bold fs-value-primary">{{ total_penjualan|rupiah }}</h5>
+                        
+</div>
+</div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-sm-6">
-            <div class="card">
+        <div class="col-6 col-md-3 col-lg-3">
+            <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div class="card-info">
-                            <p class="card-text text-muted">Total Keuntungan</p>
-                            <h4 class="mb-0 {% if total_keuntungan >= 0 %}text-success{% else %}text-danger{% endif %}">{{ total_keuntungan|rupiah }}</h4>
-                        </div>
-                        <div class="card-icon">
-                            <span class="badge bg-label-primary rounded p-2">
-                                <i class="ri-bar-chart-grouped-line ri-24px"></i>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-primary">
+<i class="ri-bar-chart-grouped-line ri-24px"></i>
                             </span>
-                        </div>
-                    </div>
+</div>
+<div class="card-info">
+
+                            <span class="d-block text-muted small">Total Keuntungan</span>
+                            <h5 class="mb-0 {% if total_keuntungan >= 0 %}text-success{% else %}text-danger{% endif %} fw-bold fs-value-primary">{{ total_keuntungan|rupiah }}</h5>
+                        
+</div>
+</div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-sm-6">
-            <div class="card">
+        <div class="col-6 col-md-3 col-lg-3">
+            <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div class="card-info">
-                            <p class="card-text text-muted">Harga Beli</p>
-                            <h4 class="mb-0 text-info">{{ total_harga_beli|rupiah }}</h4>
-                        </div>
-                        <div class="card-icon">
-                            <span class="badge bg-label-info rounded p-2">
-                                <i class="ri-shopping-bag-line ri-24px"></i>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-info">
+<i class="ri-shopping-bag-line ri-24px"></i>
                             </span>
-                        </div>
-                    </div>
+</div>
+<div class="card-info">
+
+                            <span class="d-block text-muted small">Harga Beli</span>
+                            <h5 class="mb-0 text-info fw-bold fs-value-primary">{{ total_harga_beli|rupiah }}</h5>
+                        
+</div>
+</div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-sm-6">
-            <div class="card">
+        <div class="col-6 col-md-3 col-lg-3">
+            <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div class="card-info">
-                            <p class="card-text text-muted">Rata-rata Order</p>
-                            <h4 class="mb-0 text-warning">{{ rata_rata_order|rupiah }}</h4>
-                        </div>
-                        <div class="card-icon">
-                            <span class="badge bg-label-warning rounded p-2">
-                                <i class="ri-percent-line ri-24px"></i>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-warning">
+<i class="ri-percent-line ri-24px"></i>
                             </span>
-                        </div>
-                    </div>
+</div>
+<div class="card-info">
+
+                            <span class="d-block text-muted small">Rata-rata Order</span>
+                            <h5 class="mb-0 text-warning fw-bold fs-value-primary">{{ rata_rata_order|rupiah }}</h5>
+                        
+</div>
+</div>
                 </div>
             </div>
         </div>
@@ -250,8 +258,8 @@
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between">
             <div>
-                <h5 class="mb-0">Daftar Sales Order</h5>
-                <small class="text-muted">{{ so_count }} transaksi - {{ so_total|rupiah }}</small>
+                <h5 class="mb-0 fs-card-title">Daftar Sales Order</h5>
+                <small class="text-muted fs-value-secondary">{{ so_count }} transaksi - {{ so_total|rupiah }}</small>
             </div>
             <div class="d-flex gap-2">
                 <button class="btn btn-sm btn-label-success" onclick="exportSOExcel()"><i
@@ -312,7 +320,7 @@
                                     <i class="ri-more-2-line"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="{% url 'laporan:penjualan-detail' so.pk %}">
+                                    <a class="dropdown-item" href="{% url 'laporan:keuangan' so.pk %}">
                                         <i class="ri-eye-line me-2"></i>Lihat Detail
                                     </a>
                                 </div>
@@ -336,31 +344,31 @@
                         <td class="py-3" style="vertical-align: middle;">
                             <div class="d-flex flex-column align-items-center">
                                 <span class="badge bg-label-success d-flex align-items-center gap-1 mb-1"
-                                    style="font-size: 0.85rem; padding: 0.4rem 0.6rem;">
+                                    style="font-size: var(--fs-ui-sm); padding: 0.4rem 0.6rem;">
                                     <i class="ri-money-dollar-circle-line"></i>
                                     <span>{{ so_total|rupiah }}</span>
                                 </span>
-                                <small class="text-muted fw-medium" style="font-size: 0.7rem;">Harga Jual</small>
+                                <small class="text-muted fw-medium" style="font-size: var(--fs-ui-xxs);">Harga Jual</small>
                             </div>
                         </td>
                         <td class="py-3" style="vertical-align: middle;">
                             <div class="d-flex flex-column align-items-center">
                                 <span class="badge bg-label-info d-flex align-items-center gap-1 mb-1"
-                                    style="font-size: 0.85rem; padding: 0.4rem 0.6rem;">
+                                    style="font-size: var(--fs-ui-sm); padding: 0.4rem 0.6rem;">
                                     <i class="ri-shopping-bag-line"></i>
                                     <span>{{ so_harga_beli_total|rupiah }}</span>
                                 </span>
-                                <small class="text-muted fw-medium" style="font-size: 0.7rem;">Harga Beli</small>
+                                <small class="text-muted fw-medium" style="font-size: var(--fs-ui-xxs);">Harga Beli</small>
                             </div>
                         </td>
                         <td class="py-3" style="vertical-align: middle;">
                             <div class="d-flex flex-column align-items-center">
                                 <span class="badge bg-label-{% if so_keuntungan_total >= 0 %}success{% else %}danger{% endif %} d-flex align-items-center gap-1 mb-1"
-                                    style="font-size: 0.85rem; padding: 0.4rem 0.6rem;">
+                                    style="font-size: var(--fs-ui-sm); padding: 0.4rem 0.6rem;">
                                     <i class="ri-bar-chart-grouped-line"></i>
                                     <span>{{ so_keuntungan_total|rupiah }}</span>
                                 </span>
-                                <small class="text-muted fw-medium" style="font-size: 0.7rem;">Keuntungan</small>
+                                <small class="text-muted fw-medium" style="font-size: var(--fs-ui-xxs);">Keuntungan</small>
                             </div>
                         </td>
                         <td class="py-3"></td>
@@ -455,8 +463,8 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div>
-                <h5 class="mb-0"><i class="ri-store-2-line me-2"></i>Transaksi POS / Kasir</h5>
-                <small class="text-muted">{{ pos_count }} transaksi - {{ pos_total|rupiah }}</small>
+                <h5 class="mb-0 fs-card-title"><i class="ri-store-2-line me-2"></i>Transaksi POS / Kasir</h5>
+                <small class="text-muted fs-value-secondary">{{ pos_count }} transaksi - {{ pos_total|rupiah }}</small>
             </div>
             <div class="d-flex gap-2">
                 <button class="btn btn-sm btn-label-success" onclick="exportPOSExcel()"><i
@@ -522,31 +530,31 @@
                         <td class="py-3" style="vertical-align: middle;">
                             <div class="d-flex flex-column align-items-center">
                                 <span class="badge bg-label-success d-flex align-items-center gap-1 mb-1"
-                                    style="font-size: 0.85rem; padding: 0.4rem 0.6rem;">
+                                    style="font-size: var(--fs-ui-sm); padding: 0.4rem 0.6rem;">
                                     <i class="ri-money-dollar-circle-line"></i>
                                     <span>{{ pos_total|rupiah }}</span>
                                 </span>
-                                <small class="text-muted fw-medium" style="font-size: 0.7rem;">Harga Jual</small>
+                                <small class="text-muted fw-medium" style="font-size: var(--fs-ui-xxs);">Harga Jual</small>
                             </div>
                         </td>
                         <td class="py-3" style="vertical-align: middle;">
                             <div class="d-flex flex-column align-items-center">
                                 <span class="badge bg-label-info d-flex align-items-center gap-1 mb-1"
-                                    style="font-size: 0.85rem; padding: 0.4rem 0.6rem;">
+                                    style="font-size: var(--fs-ui-sm); padding: 0.4rem 0.6rem;">
                                     <i class="ri-shopping-bag-line"></i>
                                     <span>{{ pos_harga_beli_total|rupiah }}</span>
                                 </span>
-                                <small class="text-muted fw-medium" style="font-size: 0.7rem;">Harga Beli</small>
+                                <small class="text-muted fw-medium" style="font-size: var(--fs-ui-xxs);">Harga Beli</small>
                             </div>
                         </td>
                         <td class="py-3" style="vertical-align: middle;">
                             <div class="d-flex flex-column align-items-center">
                                 <span class="badge bg-label-{% if pos_keuntungan_total >= 0 %}success{% else %}danger{% endif %} d-flex align-items-center gap-1 mb-1"
-                                    style="font-size: 0.85rem; padding: 0.4rem 0.6rem;">
+                                    style="font-size: var(--fs-ui-sm); padding: 0.4rem 0.6rem;">
                                     <i class="ri-bar-chart-grouped-line"></i>
                                     <span>{{ pos_keuntungan_total|rupiah }}</span>
                                 </span>
-                                <small class="text-muted fw-medium" style="font-size: 0.7rem;">Keuntungan</small>
+                                <small class="text-muted fw-medium" style="font-size: var(--fs-ui-xxs);">Keuntungan</small>
                             </div>
                         </td>
                         <td class="py-3"></td>
@@ -661,7 +669,7 @@
     // ========================
     function genericExportExcel(tableId, filename, titleLabel) {
         var table = document.getElementById(tableId);
-        if (!table) { alert('Tabel tidak ditemukan!'); return; }
+        if (!table) { showExportEmpty(); return; }
 
         var html = '<table border="1">';
         html += '<thead><tr style="background-color: #52d123; color: #FFFFFF; font-weight: bold;">';
@@ -727,7 +735,7 @@
     function genericExportPDF(tableId, filename, docTitle, excludeLastCol) {
         if (typeof pdfMake === 'undefined') { alert('pdfMake library tidak tersedia!'); return; }
         var table = document.getElementById(tableId);
-        if (!table) { alert('Tabel tidak ditemukan!'); return; }
+        if (!table) { showExportEmpty(); return; }
 
         var headers = [];
         var headerRow = table.querySelector('thead tr');

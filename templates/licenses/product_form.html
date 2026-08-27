@@ -12,7 +12,7 @@
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-1"><i class="ri-box-3-line me-2 text-primary"></i>{{ title }}</h4>
+            <h4 class="mb-1 fs-value-primary"><i class="ri-box-3-line me-2 text-primary"></i>{{ title }}</h4>
             <p class="text-muted mb-0">Kelola data produk/aplikasi</p>
         </div>
         <a href="{% url 'licenses_ui:product_list' %}" class="btn btn-label-secondary">
@@ -47,7 +47,7 @@
                         </div>
                         {% endif %}
 
-                        <h5 class="card-title mb-3">
+                        <h5 class="card-title mb-3 fs-card-title">
                             <i class="ri-information-line me-2"></i>Informasi Produk
                         </h5>
 
@@ -77,6 +77,7 @@
                             </div>
                         </div>
 
+                        {% if can_create.licenses or can_edit.licenses %}
                         <div class="d-flex align-items-center mt-4">
                             <button type="submit" class="btn btn-primary me-2">
                                 <i class="ri-save-line me-2"></i>
@@ -86,6 +87,7 @@
                                 <i class="ri-close-line me-2"></i>Batal
                             </a>
                         </div>
+                        {% endif %}
                         </fieldset>
                     </form>
                 </div>

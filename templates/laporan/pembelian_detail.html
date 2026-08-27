@@ -18,7 +18,7 @@
             <h4 class="mb-1"><i class="ri-shopping-bag-line me-2"></i>Detail Purchase Order: {{ purchase_order.nomor_po }}</h4>
             <p class="text-muted mb-0">Informasi lengkap pembelian dengan riwayat aktivitas</p>
         </div>
-        <a href="{% url 'laporan:pembelian' %}" class="btn btn-label-secondary">
+        <a href="{% url 'laporan:keuangan' %}" class="btn btn-label-secondary">
             <i class="ri-arrow-left-line me-1"></i> Kembali
         </a>
     </div>
@@ -28,11 +28,9 @@
         <div class="col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="ri-information-line me-2"></i>Informasi Purchase Order</h5>
+                    <h5 class="mb-0 fs-card-title"><i class="ri-information-line me-2"></i>Informasi Purchase Order</h5>
                 </div>
                 <div class="card-body">
-                    {% if activity_logs %}
-
                     <table class="table table-borderless">
                         <tr>
                             <th width="40%"><i class="ri-file-list-line me-1 text-primary"></i> No. PO</th>
@@ -85,38 +83,6 @@
                             <td>{{ purchase_order.diupdate_pada|date:"d M Y H:i" }}</td>
                         </tr>
                     </table>
-
-                    {% else %}
-
-                    <div class="card-body">
-
-                        <div class="text-center py-4 py-md-5 px-3 px-md-4">
-
-                            <div class="mb-4">
-
-                                <div class="bg-label-secondary rounded-circle d-inline-flex align-items-center justify-content-center"
-
-                                     style="width: 88px; height: 88px;">
-
-                                    <i class="ri-shopping-cart-line" style="font-size: 2.8rem;"></i>
-
-                                </div>
-
-                            </div>
-
-                            <h5 class="mb-3">Belum Ada Pembelian</h5>
-
-                            <p class="text-muted mb-5" style="max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.7;">
-
-                                Daftar data masih kosong.
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -125,7 +91,7 @@
         <div class="col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="ri-money-dollar-circle-line me-2"></i>Rincian Harga</h5>
+                    <h5 class="mb-0 fs-card-title"><i class="ri-money-dollar-circle-line me-2"></i>Rincian Harga</h5>
                 </div>
                 <div class="card-body">
                     <table class="table table-borderless">
@@ -150,7 +116,7 @@
                     <hr>
                     <div>
                         <strong><i class="ri-sticky-note-line me-1"></i> Catatan:</strong>
-                        <p class="mt-2">{{ purchase_order.catatan }}</p>
+                        <p class="mt-2 fs-value-secondary">{{ purchase_order.catatan }}</p>
                     </div>
                     {% endif %}
                 </div>
@@ -161,9 +127,10 @@
     <!-- Item Produk -->
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0"><i class="ri-box-3-line me-2"></i>Detail Produk</h5>
+            <h5 class="mb-0 fs-card-title"><i class="ri-box-3-line me-2"></i>Detail Produk</h5>
         </div>
         <div class="card-body">
+            {% if purchase_order.items.all %}
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -188,13 +155,28 @@
                     </tbody>
                 </table>
             </div>
+            {% else %}
+            <div class="card-body">
+                <div class="text-center py-4 py-md-5 px-3 px-md-4">
+                    <div class="mb-4">
+                        <div class="bg-label-secondary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 88px; height: 88px;">
+                            <i class="ri-box-3-line" style="font-size: 2.8rem;"></i>
+                        </div>
+                    </div>
+                    <h5 class="mb-3">Belum Ada Detail Produk</h5>
+                    <p class="text-muted mb-5" style="max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.7;">
+                        Belum ada item produk pada purchase order ini.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 
     <!-- Riwayat Aktivitas -->
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0"><i class="ri-history-line me-2"></i>Riwayat Aktivitas Purchase Order</h5>
+            <h5 class="mb-0 fs-card-title"><i class="ri-history-line me-2"></i>Riwayat Aktivitas Purchase Order</h5>
         </div>
         <div class="card-body">
             {% include 'laporan/partials/timeline_style.html' %}
@@ -242,8 +224,8 @@
             </ul>
             {% else %}
             <div class="text-center py-4">
-                <i class="ri-history-line ri-3x text-muted mb-3 d-block"></i>
-                <p class="text-muted">Belum ada riwayat aktivitas untuk purchase order ini</p>
+                <i class="ri-history-line ri-48px mb-2 d-block" style="opacity:0.3;"></i>
+                Belum ada riwayat aktivitas untuk purchase order ini
             </div>
             {% endif %}
         </div>

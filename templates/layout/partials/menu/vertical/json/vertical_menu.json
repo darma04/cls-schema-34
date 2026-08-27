@@ -38,12 +38,6 @@
       "slug": "tenants"
     },
     {
-      "url": "pembelian:pembelian_list",
-      "name": "Pembelian Lisensi",
-      "icon": "menu-icon tf-icons ri-shopping-cart-2-line",
-      "slug": "pembelian"
-    },
-    {
       "menu_header": "LAPORAN & AI"
     },
     {

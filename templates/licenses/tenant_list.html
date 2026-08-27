@@ -101,8 +101,8 @@
                     <span class="avatar-initial rounded bg-success"><i class="ri-checkbox-circle-line"></i></span>
                 </div>
                 <div>
-                    <h6 class="mb-0">Tenant Baru Berhasil Dibuat
-                        <span class="badge bg-label-{{ request.session.new_tenant_info.software_color }} ms-1">{{ request.session.new_tenant_info.software_label }}</span>
+                    <h6 class="mb-0 fs-card-title">Tenant Baru Berhasil Dibuat
+                        <span class="badge bg-label-{{ request.session.new_tenant_info.software_color }} ms-1 fs-value-secondary">{{ request.session.new_tenant_info.software_label }}</span>
                     </h6>
                     <small class="text-muted">Database dan akun admin telah disiapkan</small>
                 </div>
@@ -112,10 +112,10 @@
         <div class="card-body pt-3 pb-3">
             <div class="row g-3">
                 <div class="col-md-6">
-                    <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 0.08em;">Informasi Tenant</h6>
+                    <h6 class="text-muted text-uppercase mb-3" style="font-size: var(--fs-ui-xxs); letter-spacing: 0.08em;">Informasi Tenant</h6>
                     <div class="d-flex align-items-center mb-2">
                         <span class="text-muted me-2" style="width: 90px; font-size: 0.8125rem;">Software</span>
-                        <span class="badge bg-label-{{ request.session.new_tenant_info.software_color }}">{{ request.session.new_tenant_info.software_label }}</span>
+                        <span class="badge bg-label-{{ request.session.new_tenant_info.software_color }} fs-value-secondary">{{ request.session.new_tenant_info.software_label }}</span>
                     </div>
                     <div class="d-flex align-items-center mb-2">
                         <span class="text-muted me-2" style="width: 90px; font-size: 0.8125rem;">Nama</span>
@@ -123,28 +123,28 @@
                     </div>
                     <div class="d-flex align-items-center mb-2">
                         <span class="text-muted me-2" style="width: 90px; font-size: 0.8125rem;">Schema</span>
-                        <span class="badge bg-label-info"><i class="ri-database-2-line me-1 ri-12px"></i>{{ request.session.new_tenant_info.schema_name }}</span>
+                        <span class="badge bg-label-info fs-value-secondary"><i class="ri-database-2-line me-1 ri-12px"></i>{{ request.session.new_tenant_info.schema_name }}</span>
                     </div>
                     <div class="d-flex align-items-center">
                         <span class="text-muted me-2" style="width: 90px; font-size: 0.8125rem;">Domain</span>
-                        <span class="badge bg-label-primary"><i class="ri-global-line me-1 ri-12px"></i>{{ request.session.new_tenant_info.domain }}</span>
+                        <span class="badge bg-label-primary fs-value-secondary"><i class="ri-global-line me-1 ri-12px"></i>{{ request.session.new_tenant_info.domain }}</span>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 0.08em;"><i class="ri-shield-user-line me-1"></i>Kredensial Superuser</h6>
+                    <h6 class="text-muted text-uppercase mb-3" style="font-size: var(--fs-ui-xxs); letter-spacing: 0.08em;"><i class="ri-shield-user-line me-1"></i>Kredensial Superuser</h6>
                     <div class="rounded p-3" style="background: #f8f7fa;">
                         <div class="d-flex align-items-center mb-2">
                             <span class="text-muted me-2" style="width: 80px; font-size: 0.8125rem;">Username</span>
-                            <code class="fw-semibold" id="newUsername" style="color: #7367f0; font-size: 0.9rem;">{{ request.session.new_tenant_info.username }}</code>
+                            <code class="fw-semibold fs-value-secondary" id="newUsername" style="color: #7367f0; font-size: var(--fs-ui-value);">{{ request.session.new_tenant_info.username }}</code>
                         </div>
                         <div class="d-flex align-items-center mb-2">
                             <span class="text-muted me-2" style="width: 80px; font-size: 0.8125rem;">Password</span>
-                            <code class="fw-bold" id="newPassword" style="color: #28c76f; font-size: 0.95rem; letter-spacing: 0.5px;">{{ request.session.new_tenant_info.password }}</code>
+                            <code class="fw-bold fs-value-primary" id="newPassword" style="color: #28c76f; font-size: var(--fs-ui-body); letter-spacing: 0.5px;">{{ request.session.new_tenant_info.password }}</code>
                             <button class="btn btn-xs btn-icon btn-label-primary ms-2" onclick="copyToClipboard('newPassword')" title="Salin Password"><i class="ri-file-copy-line ri-14px"></i></button>
                         </div>
                         <div class="d-flex align-items-center">
                             <span class="text-muted me-2" style="width: 80px; font-size: 0.8125rem;">Email</span>
-                            <span style="font-size: 0.85rem; color: #6e6b7b;">{{ request.session.new_tenant_info.email }}</span>
+                            <span style="font-size: var(--fs-ui-sm); color: #6e6b7b;">{{ request.session.new_tenant_info.email }}</span>
                         </div>
                     </div>
                     <div class="d-flex align-items-center mt-2 px-1" style="font-size: 0.75rem;">
@@ -226,13 +226,13 @@
     <!-- Data Table Card -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Daftar Tenant</h5>
+            <h5 class="mb-0 fs-card-title">Daftar Tenant</h5>
             <div class="d-flex gap-2">
                 <button type="button" class="btn btn-sm btn-label-success" onclick="exportToExcel()"><i class="ri-file-excel-2-line me-1"></i>Export Excel</button>
                 <button type="button" class="btn btn-sm btn-label-danger" onclick="exportToPDF()"><i class="ri-file-pdf-line me-1"></i>Export PDF</button>
             </div>
         </div>
-        {% if messages %}
+        {% if tenants %}
 
         <div class="card-datatable table-responsive">
             <table class="datatables-tenant table table-hover" id="tenantTable">
@@ -339,7 +339,7 @@
 
 {% block page_js %}
 <style>
-    .dataTables_wrapper .dataTables_info { padding: 1rem 1.5rem; font-size: 0.875rem; color: #697a8d; }
+    .dataTables_wrapper .dataTables_info { padding: 1rem 1.5rem; font-size: 0.875rem; ; }
     .dataTables_wrapper .dataTables_paginate { padding: 1rem 1.5rem; }
     .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter { padding: 0 1.5rem 1rem 1.5rem; }
     .dataTables_wrapper .dataTables_filter input { border: 1px solid #d9dee3; border-radius: 0.375rem; padding: 0.4375rem 0.875rem; }
@@ -356,10 +356,11 @@
         .dataTables_wrapper { overflow-x: hidden !important; max-width: 100% !important; }
     }
 </style>
+
 <script>
     $(document).ready(function () {
-        {% if messages %}
-        var table = $('#tenantTable').DataTable({
+        {% if tenants %}
+        $('#tenantTable').DataTable({
             language: { "sEmptyTable": "Tidak ada data", "sProcessing": "Sedang memproses...", "sLengthMenu": "Tampilkan _MENU_ data", "sZeroRecords": "Tidak ditemukan tenant yang sesuai", "sInfo": "Menampilkan _START_ sampai _END_ dari _TOTAL_ tenant", "sInfoEmpty": "Menampilkan 0 sampai 0 dari 0 tenant", "sInfoFiltered": "(disaring dari _MAX_ total data)", "sSearch": "Cari:", "oPaginate": { "sFirst": "Pertama", "sPrevious": "Sebelumnya", "sNext": "Selanjutnya", "sLast": "Terakhir" } },
             order: [[4, 'desc']],
             pageLength: 25,
@@ -442,7 +443,7 @@
             html: '<p>Apakah Anda yakin ingin menghapus tenant <strong>"' + tenantName + '"</strong> dari <strong>' + softwareCode + '</strong>?</p>' +
                   '<div class="alert alert-danger d-flex align-items-start mt-2 mb-0 text-start" style="background:rgba(255,62,29,0.08);border:1px solid rgba(255,62,29,0.3);border-radius:8px;padding:12px 16px;">' +
                   '<i class="ri-error-warning-line me-2 fs-5 text-danger" style="margin-top:2px"></i>' +
-                  '<div class="text-danger" style="font-size:0.85rem;"><strong>PERINGATAN:</strong> Menghapus tenant akan menghapus SELURUH database klien ini secara permanen.</div></div>',
+                  '<div class="text-danger" style="font-size: var(--fs-ui-sm);"><strong>PERINGATAN:</strong> Menghapus tenant akan menghapus SELURUH database klien ini secara permanen.</div></div>',
             showCancelButton: true,
             confirmButtonText: '<i class="ri-delete-bin-line me-1"></i>Ya, Hapus Permanen',
             cancelButtonText: '<i class="ri-close-line me-1"></i>Batal',

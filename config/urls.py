@@ -23,7 +23,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.views.generic.base import RedirectView
 from apps.core.cache_views import refresh_cache_view
-from web_project.views import custom_error_404, custom_error_403, custom_error_400, custom_error_500
+from web_project.views import custom_error_404, custom_error_403, custom_error_400, custom_error_500, custom_error_401
 
 
 @never_cache
@@ -123,7 +123,6 @@ urlpatterns = [
     path("pengaturan/", include("apps.pengaturan.urls")),
     path("laporan/", include("apps.laporan.urls")),
     path("ai/", include("apps.ai_assistant.urls")),
-    path("pembelian/", include("apps.pembelian.urls")),
 
     # Original URLs
     path("", include("apps.pages.urls")),
@@ -135,6 +134,7 @@ if settings.DEBUG:
     urlpatterns += [
         path("test-error/404/", lambda request: custom_error_404(request, Exception("Test 404"))),
         path("test-error/403/", lambda request: custom_error_403(request, Exception("Test 403"))),
+        path("test-error/401/", lambda request: custom_error_401(request, Exception("Test 401"))),
         path("test-error/400/", lambda request: custom_error_400(request, Exception("Test 400"))),
         path("test-error/500/", lambda request: custom_error_500(request)),
     ]
@@ -147,5 +147,6 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # Error Handlers
 handler404 = custom_error_404
 handler403 = custom_error_403
+handler401 = custom_error_401
 handler400 = custom_error_400
 handler500 = custom_error_500

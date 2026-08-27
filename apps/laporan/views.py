@@ -47,16 +47,17 @@ Data diambil dari model di module licenses dan pembelian.
 # ==========================================================================
 
 from django.views.generic import TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+
 from django.db.models import Count, Sum, Q
 from django.utils import timezone
 from web_project import TemplateLayout
-from apps.core.mixins import TenantScopedResponseCacheMixin
+from apps.core.mixins import TenantScopedResponseCacheMixin, ReadPermissionMixin
 from apps.licenses.models import Product, Client, LicenseKey
 
 
-class LaporanLisensiView(TenantScopedResponseCacheMixin, LoginRequiredMixin, TemplateView):
+class LaporanLisensiView(ReadPermissionMixin, TenantScopedResponseCacheMixin, TemplateView):
     template_name = 'laporan/lisensi.html'
+    permission_module = 'laporan'
     cache_timeout = 120
 
     def get_context_data(self, **kwargs):
@@ -100,8 +101,9 @@ class LaporanLisensiView(TenantScopedResponseCacheMixin, LoginRequiredMixin, Tem
         return context
 
 
-class LaporanKlienView(TenantScopedResponseCacheMixin, LoginRequiredMixin, TemplateView):
+class LaporanKlienView(ReadPermissionMixin, TenantScopedResponseCacheMixin, TemplateView):
     template_name = 'laporan/klien.html'
+    permission_module = 'laporan'
     cache_timeout = 120
 
     def get_context_data(self, **kwargs):
@@ -143,8 +145,9 @@ class LaporanKlienView(TenantScopedResponseCacheMixin, LoginRequiredMixin, Templ
         return context
 
 
-class LaporanPendapatanView(TenantScopedResponseCacheMixin, LoginRequiredMixin, TemplateView):
+class LaporanPendapatanView(ReadPermissionMixin, TenantScopedResponseCacheMixin, TemplateView):
     template_name = 'laporan/pendapatan.html'
+    permission_module = 'laporan'
     cache_timeout = 120
 
     def get_context_data(self, **kwargs):
@@ -184,8 +187,9 @@ class LaporanPendapatanView(TenantScopedResponseCacheMixin, LoginRequiredMixin, 
         return context
 
 
-class LaporanKeuanganView(TenantScopedResponseCacheMixin, LoginRequiredMixin, TemplateView):
+class LaporanKeuanganView(ReadPermissionMixin, TenantScopedResponseCacheMixin, TemplateView):
     template_name = 'laporan/keuangan.html'
+    permission_module = 'laporan'
     cache_timeout = 120
 
     def get_context_data(self, **kwargs):

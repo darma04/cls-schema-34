@@ -11,6 +11,9 @@
 {% block vendor_css %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}" />
 {% endblock vendor_css %}
 
 {% block content %}
@@ -54,7 +57,7 @@
             <div class="card mb-4">
                 <div class="card-header d-flex align-items-center">
                     <i class="ri-shield-keyhole-line me-2 text-primary"></i>
-                    <h5 class="mb-0">Informasi Kunci Lisensi</h5>
+                    <h5 class="mb-0 fs-card-title">Informasi Kunci Lisensi</h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
@@ -76,8 +79,8 @@
                                     </span>
                                 </div>
                                 <div>
-                                    <strong>{{ license.product.name }}</strong>
-                                    <br><span class="badge bg-label-secondary">{{ license.product.code }}</span>
+                                    <strong  class="fs-value-primary">{{ license.product.name }}</strong>
+                                    <br><span class="badge bg-label-secondary fs-value-secondary">{{ license.product.code }}</span>
                                 </div>
                             </div>
                         </div>
@@ -89,7 +92,7 @@
                                         {{ license.client.name|first }}
                                     </span>
                                 </div>
-                                <strong>{{ license.client.name }}</strong>
+                                <strong  class="fs-value-primary">{{ license.client.name }}</strong>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -102,7 +105,7 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label text-muted">Maks Perangkat</label>
-                            <p class="mb-0"><span class="badge bg-label-primary">{{ license.max_devices }}</span></p>
+                            <p class="mb-0"><span class="badge bg-label-primary fs-value-secondary">{{ license.max_devices }}</span></p>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label text-muted">Dibuat</label>
@@ -123,7 +126,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label text-muted">Min Versi Aplikasi</label>
-                                    <p class="mb-0 text-primary fw-bold">{{ license.min_app_version }}</p>
+                                    <p class="mb-0 text-primary fw-bold fs-value-primary">{{ license.min_app_version }}</p>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label text-muted">URL Update</label>
@@ -145,22 +148,27 @@
 
             <!-- Tabel Perangkat Terikat (Device Bindings) -->
             <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <div class="d-flex align-items-center">
                         <i class="ri-smartphone-line me-2 text-primary"></i>
-                        <h5 class="mb-0">Perangkat Terikat</h5>
+                        <h5 class="mb-0 fs-card-title">Perangkat Terikat</h5>
                     </div>
-                    <span class="badge bg-label-{% if active_devices >= license.max_devices %}danger{% else %}success{% endif %}">
-                        {{ active_devices }}/{{ license.max_devices }} Slot Terisi
-                    </span>
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <span class="badge bg-label-{% if active_devices >= license.max_devices %}danger{% else %}success{% endif %} fs-value-secondary">
+                            {{ active_devices }}/{{ license.max_devices }} Slot Terisi
+                        </span>
+                        <button class="btn btn-sm btn-label-success" onclick="exportAccountingTableExcelFromButton(this)">
+                            <i class="ri-file-excel-2-line me-1"></i>Export Excel
+                        </button>
+                        <button class="btn btn-sm btn-label-danger" onclick="exportAccountingTablePDFFromButton(this)">
+                            <i class="ri-file-pdf-line me-1"></i>Export PDF
+                        </button>
+                    </div>
                 </div>
                 {% if device_bindings %}
 
-                {% if device_bindings %}
-
-
                 <div class="card-datatable table-responsive">
-                    <table class="table table-hover">
+                    <table class="accounting-data-table table table-hover" data-accounting-primary="true" data-export-title="Perangkat Terikat - {{ license.key }}" data-search-placeholder="Cari perangkat...">
                         <thead class="table-light">
                             <tr>
                                 <th>Hardware ID</th>
@@ -176,7 +184,7 @@
                             {% for binding in device_bindings %}
                             <tr id="device-row-{{ binding.pk }}">
                                 <td>
-                                    <code class="text-primary" style="font-size: 0.8rem;">{{ binding.hardware_id|truncatechars:20 }}</code>
+                                    <code class="text-primary" style="font-size: var(--fs-ui-sm);">{{ binding.hardware_id|truncatechars:20 }}</code>
                                 </td>
                                 <td>{{ binding.device_name|default:"-" }}</td>
                                 <td><code>{{ binding.ip_address|default:"-" }}</code></td>
@@ -212,6 +220,29 @@
                             </tr>
                     {% endfor %}
                         </tbody>
+                        <tfoot class="table-footer-summary">
+                            <tr>
+                                <td colspan="5" class="text-start ps-4 py-3" style="vertical-align: middle;">
+                                    <div class="d-flex align-items-center justify-content-start">
+                                        <i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i>
+                                        <div class="text-start">
+                                            <strong class="d-block" style="font-size: 1rem;">RINGKASAN</strong>
+                                            <small class="text-muted" style="font-size: 0.75rem;">{{ device_bindings|length }} Perangkat</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3" style="vertical-align: middle;">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <span class="badge bg-label-success d-flex align-items-center gap-1 mb-2" style="font-size: var(--fs-ui-value); padding: 0.5rem 0.75rem; min-width: 60px;">
+                                            <i class="ri-smartphone-line"></i>
+                                            <span>{{ active_devices }}</span>
+                                        </span>
+                                        <small class="text-muted fw-medium" style="font-size: 0.75rem;">Aktif</small>
+                                    </div>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
 
@@ -243,13 +274,13 @@
                         </div>
 
 
-                        <h5 class="mb-3">Belum Ada Lisensi</h5>
+                        <h5 class="mb-3">Belum Ada Perangkat Terikat</h5>
 
 
                         <p class="text-muted mb-5" style="max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.7;">
 
 
-                            Daftar lisensi masih kosong.
+                            Belum ada perangkat yang terikat pada lisensi ini.
 
 
                         </p>
@@ -260,50 +291,29 @@
 
                 </div>
 
-
-                {% endif %}
-
-                {% else %}
-
-                <div class="card-body">
-
-                    <div class="text-center py-4 py-md-5 px-3 px-md-4">
-
-                        <div class="mb-4">
-
-                            <div class="bg-label-secondary rounded-circle d-inline-flex align-items-center justify-content-center"
-
-                                 style="width: 88px; height: 88px;">
-
-                                <i class="ri-shield-keyhole-line" style="font-size: 2.8rem;"></i>
-
-                            </div>
-
-                        </div>
-
-                        <h5 class="mb-3">Belum Ada Lisensi</h5>
-
-                        <p class="text-muted mb-5" style="max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.7;">
-
-                            Daftar data masih kosong.
-
-                        </p>
-
-                    </div>
-
-                </div>
 
                 {% endif %}
             </div>
 
             <!-- Tabel Riwayat Aktivitas (License Log) -->
             <div class="card">
-                <div class="card-header d-flex align-items-center">
-                    <i class="ri-history-line me-2 text-primary"></i>
-                    <h5 class="mb-0">Riwayat Aktivitas Lisensi</h5>
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center">
+                        <i class="ri-history-line me-2 text-primary"></i>
+                        <h5 class="mb-0 fs-card-title">Riwayat Aktivitas Lisensi</h5>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-label-success" onclick="exportAccountingTableExcelFromButton(this)">
+                            <i class="ri-file-excel-2-line me-1"></i>Export Excel
+                        </button>
+                        <button class="btn btn-sm btn-label-danger" onclick="exportAccountingTablePDFFromButton(this)">
+                            <i class="ri-file-pdf-line me-1"></i>Export PDF
+                        </button>
+                    </div>
                 </div>
+                {% if license_logs %}
                 <div class="card-datatable table-responsive">
-                    <table class="table table-hover">
+                    <table class="accounting-data-table table table-hover" data-accounting-primary="true" data-export-title="Riwayat Aktivitas Lisensi - {{ license.key }}" data-search-placeholder="Cari aktivitas...">
                         <thead class="table-light">
                             <tr>
                                 <th>Waktu</th>
@@ -340,8 +350,37 @@
                             </tr>
                     {% endfor %}
                         </tbody>
+                        <tfoot class="table-footer-summary">
+                            <tr>
+                                <td colspan="5" class="text-start ps-4 py-3" style="vertical-align: middle;">
+                                    <div class="d-flex align-items-center justify-content-start">
+                                        <i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i>
+                                        <div class="text-start">
+                                            <strong class="d-block" style="font-size: 1rem;">RINGKASAN</strong>
+                                            <small class="text-muted" style="font-size: 0.75rem;">{{ license_logs|length }} Aktivitas</small>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
+                {% else %}
+                <div class="card-body">
+                    <div class="text-center py-4 py-md-5 px-3 px-md-4">
+                        <div class="mb-4">
+                            <div class="bg-label-secondary rounded-circle d-inline-flex align-items-center justify-content-center"
+                                 style="width: 88px; height: 88px;">
+                                <i class="ri-history-line" style="font-size: 2.8rem;"></i>
+                            </div>
+                        </div>
+                        <h5 class="mb-3">Belum Ada Riwayat Aktivitas</h5>
+                        <p class="text-muted mb-5" style="max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.7;">
+                            Belum ada aktivitas yang tercatat pada lisensi ini.
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -350,7 +389,7 @@
             <!-- Status Card -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="ri-pulse-line me-2"></i>Status Lisensi</h5>
+                    <h5 class="mb-0 fs-card-title"><i class="ri-pulse-line me-2"></i>Status Lisensi</h5>
                 </div>
                 <div class="card-body d-flex flex-column align-items-center text-center">
                     {% if license.status == 'active' %}
@@ -384,12 +423,12 @@
             <!-- Device Summary Card -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="ri-smartphone-line me-2"></i>Perangkat</h5>
+                    <h5 class="mb-0 fs-card-title"><i class="ri-smartphone-line me-2"></i>Perangkat</h5>
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-2">
                         <span>Slot Terisi</span>
-                        <strong>{{ active_devices }} / {{ license.max_devices }}</strong>
+                        <strong  class="fs-value-primary">{{ active_devices }} / {{ license.max_devices }}</strong>
                     </div>
                     <div class="progress mb-3" style="height: 8px;">
                         {% widthratio active_devices license.max_devices 100 as usage_pct %}
@@ -410,7 +449,7 @@
             {% if can_view.licenses.kunci_lisensi %}
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="ri-printer-line me-2"></i>Cetak Dokumen</h5>
+                    <h5 class="mb-0 fs-card-title"><i class="ri-printer-line me-2"></i>Cetak Dokumen</h5>
                 </div>
                 <div class="card-body">
                     <a href="{% url 'licenses_ui:licensekey_print' license.pk %}" target="_blank" class="btn btn-primary w-100 mb-2">
@@ -424,7 +463,7 @@
             <!-- Timeline Card -->
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="ri-time-line me-2"></i>Timeline</h5>
+                    <h5 class="mb-0 fs-card-title"><i class="ri-time-line me-2"></i>Timeline</h5>
                 </div>
                 <div class="card-body">
                     <ul class="timeline mb-0">
@@ -481,9 +520,13 @@
 {% block vendor_js %}
 {{ block.super }}
 <script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+<script src="{% static 'vendor/libs/datatables-bs5/datatables-bootstrap5.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 {% endblock vendor_js %}
 
 {% block page_js %}
+{% include 'accounting/partials/table_tools.html' %}
 {% csrf_token %}
 <script>
 function getCsrfToken() {

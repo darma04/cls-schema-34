@@ -18,7 +18,7 @@
             <h4 class="mb-1"><i class="ri-box-3-line me-2"></i>Detail Produk: {{ produk.nama }}</h4>
             <p class="text-muted mb-0">Informasi lengkap produk dengan riwayat aktivitas dan data terhubung</p>
         </div>
-        <a href="{% url 'laporan:produk' %}" class="btn btn-label-secondary">
+        <a href="{% url 'laporan:laporan' %}" class="btn btn-label-secondary">
             <i class="ri-arrow-left-line me-1"></i> Kembali
         </a>
     </div>
@@ -28,7 +28,7 @@
         <div class="col-md-4 mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="ri-image-line me-2"></i>Foto Produk</h5>
+                    <h5 class="mb-0 fs-card-title"><i class="ri-image-line me-2"></i>Foto Produk</h5>
                 </div>
                 <div class="card-body text-center">
                     {% if produk.gambar %}
@@ -51,11 +51,11 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <small class="text-muted d-block">Total Stok</small>
-                        <h4 class="mb-0 text-primary">{{ produk.stok_total|floatformat:0 }} <small>{{ produk.satuan.nama|default:"pcs" }}</small></h4>
+                        <h4 class="mb-0 fs-value-primary">{{ produk.stok_total|floatformat:0 }} <small>{{ produk.satuan.nama|default:"pcs" }}</small></h4>
                     </div>
                     <div class="mb-3">
                         <small class="text-muted d-block">Margin Keuntungan</small>
-                        <h5 class="mb-0 text-success">{{ margin|rupiah }}</h5>
+                        <h5 class="mb-0 fs-value-primary">{{ margin|rupiah }}</h5>
                     </div>
                     <div>
                         <small class="text-muted d-block">Status Aktif</small>
@@ -73,7 +73,7 @@
         <div class="col-md-8 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="ri-information-line me-2"></i>Informasi Detail Produk</h5>
+                    <h5 class="mb-0 fs-card-title"><i class="ri-information-line me-2"></i>Informasi Detail Produk</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -150,7 +150,7 @@
                     <hr>
                     <div>
                         <strong><i class="ri-file-text-line me-1"></i> Deskripsi:</strong>
-                        <p class="mt-2">{{ produk.deskripsi }}</p>
+                        <p class="mt-2 fs-value-secondary">{{ produk.deskripsi }}</p>
                     </div>
                     {% endif %}
                 </div>
@@ -161,7 +161,7 @@
     <!-- Stok di Gudang - Full Width Section -->
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0"><i class="ri-archive-line me-2"></i>Stok di Gudang</h5>
+            <h5 class="mb-0 fs-card-title"><i class="ri-archive-line me-2"></i>Stok di Gudang</h5>
         </div>
         <div class="card-body">
             {% if stok_list %}
@@ -200,7 +200,7 @@
     <!-- Riwayat Aktivitas Lengkap -->
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0"><i class="ri-history-line me-2"></i>Riwayat Aktivitas & Perubahan Data</h5>
+            <h5 class="mb-0 fs-card-title"><i class="ri-history-line me-2"></i>Riwayat Aktivitas & Perubahan Data</h5>
         </div>
         <div class="card-body">
             {% include 'laporan/partials/timeline_style.html' %}
@@ -216,7 +216,7 @@
                         <div class="timeline-title">
                             {{ log.get_action_display }}
                             {% if log.gudang_name %}
-                            <small class="text-muted ms-2">@ {{ log.gudang_name }}</small>
+                            <small class="text-muted ms-2 fs-value-secondary">@ {{ log.gudang_name }}</small>
                             {% endif %}
                         </div>
                         
@@ -226,10 +226,10 @@
 
                         {% if log.is_stock_action and log.quantity_before is not None %}
                         <div class="d-flex align-items-center gap-2 mb-2">
-                            <span class="badge bg-label-secondary">{{ log.quantity_before|floatformat:0 }}</span>
+                            <span class="badge bg-label-secondary fs-value-secondary">{{ log.quantity_before|floatformat:0 }}</span>
                             <i class="ri-arrow-right-line text-muted"></i>
-                            <span class="badge bg-label-{% if log.quantity_change > 0 %}success{% else %}danger{% endif %}">{{ log.quantity_after|floatformat:0 }}</span>
-                            <span class="badge bg-{% if log.quantity_change > 0 %}success{% else %}danger{% endif %}">
+                            <span class="badge bg-label-{% if log.quantity_change > 0 %}success{% else %}danger{% endif %} fs-value-secondary">{{ log.quantity_after|floatformat:0 }}</span>
+                            <span class="badge bg-{% if log.quantity_change > 0 %}success{% else %}danger{% endif %} fs-value-secondary">
                                 {% if log.quantity_change > 0 %}+{% endif %}{{ log.quantity_change|floatformat:0 }}
                             </span>
                         </div>
@@ -278,8 +278,8 @@
             </ul>
             {% else %}
             <div class="text-center py-5">
-                <i class="ri-history-line ri-3x text-muted mb-3 d-block"></i>
-                <p class="text-muted mb-0">Belum ada riwayat aktivitas untuk produk ini</p>
+                <i class="ri-history-line ri-48px mb-2 d-block" style="opacity:0.3;"></i>
+                Belum ada riwayat aktivitas untuk produk ini<br>
                 <small class="text-muted d-block mt-2">
                     Aktivitas akan dicatat secara otomatis ketika ada perubahan atau akses ke data produk ini
                 </small>
@@ -292,7 +292,7 @@
     {% if po_items %}
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0"><i class="ri-shopping-cart-line me-2"></i>Riwayat Pembelian (Purchase Orders)</h5>
+            <h5 class="mb-0 fs-card-title"><i class="ri-shopping-cart-line me-2"></i>Riwayat Pembelian (Purchase Orders)</h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -329,7 +329,7 @@
     {% if so_items %}
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0"><i class="ri-shopping-bag-line me-2"></i>Riwayat Penjualan (Sales Orders)</h5>
+            <h5 class="mb-0 fs-card-title"><i class="ri-shopping-bag-line me-2"></i>Riwayat Penjualan (Sales Orders)</h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">

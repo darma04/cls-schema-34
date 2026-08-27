@@ -40,42 +40,48 @@
     </div>
 
     <!-- Statistik -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body d-flex align-items-center">
-                    <div class="avatar avatar-md me-3">
-                        <span class="avatar-initial rounded bg-label-primary"><i class="ri-send-plane-line"></i></span>
-                    </div>
-                    <div>
-                        <h4 class="mb-0">{{ total_semua }}</h4>
-                        <small class="text-muted">Total Notifikasi</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body d-flex align-items-center">
-                    <div class="avatar avatar-md me-3">
-                        <span class="avatar-initial rounded bg-label-success"><i class="ri-check-line"></i></span>
-                    </div>
-                    <div>
-                        <h4 class="mb-0">{{ total_sukses }}</h4>
-                        <small class="text-muted">Terkirim</small>
+    <div class="row g-6 mb-6">
+        <div class="col-lg-4 col-md-4 col-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="avatar flex-shrink-0">
+                            <span class="avatar-initial rounded bg-label-primary"><i class="ri-send-plane-line ri-24px"></i></span>
+                        </div>
+                        <div>
+                            <span class="d-block text-muted small">Total Notifikasi</span>
+                            <h5 class="mb-0 fw-bold fs-value-primary">{{ total_semua }}</h5>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body d-flex align-items-center">
-                    <div class="avatar avatar-md me-3">
-                        <span class="avatar-initial rounded bg-label-danger"><i class="ri-close-line"></i></span>
+        <div class="col-lg-4 col-md-4 col-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="avatar flex-shrink-0">
+                            <span class="avatar-initial rounded bg-label-success"><i class="ri-check-line ri-24px"></i></span>
+                        </div>
+                        <div>
+                            <span class="d-block text-muted small">Terkirim</span>
+                            <h5 class="mb-0 fw-bold fs-value-primary">{{ total_sukses }}</h5>
+                        </div>
                     </div>
-                    <div>
-                        <h4 class="mb-0">{{ total_gagal }}</h4>
-                        <small class="text-muted">Gagal</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 col-12">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="avatar flex-shrink-0">
+                            <span class="avatar-initial rounded bg-label-danger"><i class="ri-close-line ri-24px"></i></span>
+                        </div>
+                        <div>
+                            <span class="d-block text-muted small">Gagal</span>
+                            <h5 class="mb-0 fw-bold fs-value-primary">{{ total_gagal }}</h5>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -172,7 +178,7 @@
     <!-- Tabel Log -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Riwayat Notifikasi</h5>
+            <h5 class="mb-0 fs-card-title">Riwayat Notifikasi</h5>
             <div class="d-flex gap-2">
                 <button class="btn btn-sm btn-label-success" onclick="exportToExcel()">
                     <i class="ri-file-excel-2-line me-1"></i>Export Excel
@@ -246,8 +252,8 @@
                             <div class="d-flex align-items-center"><i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i><div class="text-start"><strong class="d-block" style="font-size: 1rem;">RINGKASAN</strong><small class="text-muted" style="font-size: 0.75rem;">{{ total_semua }} total notifikasi</small></div></div>
                         </td>
                         <td class="py-3" style="vertical-align: middle;"></td>
-                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-success d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ total_sukses }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Sukses</small></div></td>
-                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-danger d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ total_gagal }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Gagal</small></div></td>
+                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-success d-flex align-items-center gap-1 mb-1" style="font-size: var(--fs-ui-sm); padding: 0.4rem 0.6rem;"><span>{{ total_sukses }}</span></span><small class="text-muted" style="font-size: var(--fs-ui-xxs);">Sukses</small></div></td>
+                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-danger d-flex align-items-center gap-1 mb-1" style="font-size: var(--fs-ui-sm); padding: 0.4rem 0.6rem;"><span>{{ total_gagal }}</span></span><small class="text-muted" style="font-size: var(--fs-ui-xxs);">Gagal</small></div></td>
                     </tr>
                 </tfoot>
             </table>
@@ -294,7 +300,7 @@
     .dataTables_wrapper .dataTables_info {
         padding: 1rem 1.5rem;
         font-size: 0.875rem;
-        color: #697a8d;
+        ;
     }
 
     .dataTables_wrapper .dataTables_paginate {
@@ -429,6 +435,10 @@
     };
 
     function exportToExcel() {
+        const tbody = document.querySelector('#logTable tbody');
+        if (!tbody) { showExportEmpty(); return; }
+        if (tbody.querySelectorAll('tr').length === 0) { showExportEmpty(); return; }
+
         const headers = ['No', 'Waktu', 'Jenis Transaksi', 'Nomor Referensi', 'Status', 'Pesan Error'];
 
         let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
@@ -484,7 +494,11 @@
         if (typeof pdfMake === 'undefined') { alert('pdfMake library tidak tersedia!'); return; }
 
         const table = document.getElementById('logTable');
-        if (!table) { alert('Tabel tidak ditemukan!'); return; }
+        if (!table) { showExportEmpty(); return; }
+        if (!table.querySelector('tbody tr') || table.querySelectorAll('tbody tr').length === 0) {
+            alert('Data masih kosong. Tidak ada data yang dapat di-export.');
+            return;
+        }
 
         const headers = ['No', 'Waktu', 'Jenis', 'No. Referensi', 'Status', 'Error'].map(h => ({
             text: h,

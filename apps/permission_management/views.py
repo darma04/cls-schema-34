@@ -47,19 +47,24 @@
 #         return context
 # ==========================================================================
 
-from django.views.generic import ListView, View
+from django.views.generic import ListView, View, TemplateView
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.db.models import Count
+from django.urls import reverse_lazy, reverse
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.db import transaction
 
 from web_project import TemplateLayout
 from apps.core.models import RolePermission
 from auth.models import Profile
 
 from apps.core.mixins import (
-    ReadPermissionMixin, CreatePermissionMixin, UpdatePermissionMixin, DeletePermissionMixin
+    ReadPermissionMixin, CreatePermissionMixin, UpdatePermissionMixin, DeletePermissionMixin,
+    SuperuserRequiredMixin
 )
 from apps.core.cache_utils import invalidate_role_permissions_cache
 
@@ -288,3 +293,60 @@ class RoleDeleteView(DeletePermissionMixin, View):
             return JsonResponse({'success': True, 'message': f'Role berhasil dihapus. ({deleted_count} permission records dihapus)'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': f'Error: {str(e)}'}, status=500)
+
+
+@method_decorator(login_required, name='dispatch')
+class RolePermissionMatrixView(SuperuserRequiredMixin, TemplateView):
+    template_name = 'permission_management/role_permission_matrix.html'
+
+    def get_context_data(self, **kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        context['title'] = 'Edit Role Permissions'
+        all_roles = RolePermission.get_all_roles()
+        admin_roles = [(r, n) for r, n in all_roles if r != 'SUPERUSER']
+        context['roles'] = admin_roles
+        context['modules'] = RolePermission.MODULE_CHOICES
+        context['sub_module_choices'] = getattr(RolePermission, 'SUB_MODULE_CHOICES', {})
+        selected_role = self.request.GET.get('role', admin_roles[0][0] if admin_roles else '')
+        context['selected_role'] = selected_role
+        existing = RolePermission.objects.filter(role__iexact=selected_role)
+        context['mod_perms'] = {p.module: p for p in existing if p.sub_module is None}
+        sub_perms_dict = {}
+        for p in existing:
+            if p.sub_module is not None:
+                sub_perms_dict.setdefault(p.module, {})[p.sub_module] = True
+        context['sub_perms_dict'] = sub_perms_dict
+        return context
+
+    def post(self, request, *args, **kwargs):
+        role = request.POST.get('role', '').strip().upper()
+        if not role:
+            messages.error(request, 'Role tidak boleh kosong.')
+            return redirect('permission_management:role_permission_matrix')
+        with transaction.atomic():
+            RolePermission.objects.filter(role__iexact=role).delete()
+            for module_code, _ in RolePermission.MODULE_CHOICES:
+                pfx = f'mod_{module_code}'
+                can_view = request.POST.get(f'{pfx}_view') == 'on'
+                can_create = request.POST.get(f'{pfx}_create') == 'on'
+                can_edit = request.POST.get(f'{pfx}_edit') == 'on'
+                can_delete = request.POST.get(f'{pfx}_delete') == 'on'
+                if can_view or can_create or can_edit or can_delete:
+                    RolePermission.objects.create(
+                        role=role, module=module_code, sub_module=None,
+                        can_view=can_view, can_create=can_create,
+                        can_edit=can_edit, can_delete=can_delete,
+                    )
+            sub_choices = getattr(RolePermission, 'SUB_MODULE_CHOICES', {})
+            for module_code, subs in sub_choices.items():
+                for sub_code, _ in subs:
+                    if request.POST.get(f'sub_{module_code}_{sub_code}') == 'on':
+                        RolePermission.objects.create(
+                            role=role, module=module_code, sub_module=sub_code,
+                            can_view=True, can_create=False,
+                            can_edit=False, can_delete=False,
+                        )
+        messages.success(request, f'Semua permission untuk role {role} berhasil disimpan!')
+        from apps.core.cache_utils import invalidate_role_permissions_cache
+        invalidate_role_permissions_cache(role)
+        return redirect(f'{reverse("permission_management:role_permission_matrix")}?role={role}')

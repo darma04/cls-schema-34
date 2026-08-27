@@ -63,7 +63,23 @@
         {% endif %}
     </style>
     {% endif %}
-  </head>
+  
+    <!-- Komponen Tabel Global (pola CoA): pagination center + anti double-scroll -->
+    <style>
+        .dataTables_wrapper .dataTables_paginate { text-align: center; }
+        .dataTables_wrapper .dataTables_paginate .pagination { justify-content: center !important; flex-wrap: wrap; }
+        .card-datatable { overflow-x: hidden !important; overflow-y: hidden !important; max-width: 100%; }
+        .card-datatable .dataTables_wrapper { overflow-x: hidden !important; overflow-y: hidden !important; max-width: 100%; width: 100%; }
+        .card-datatable .dataTables_wrapper > .table-responsive { overflow-x: auto !important; overflow-y: hidden; -webkit-overflow-scrolling: touch; max-width: 100%; width: 100%; }
+        .card-datatable .dataTables_wrapper .dataTables_paginate { padding: 1rem 1.5rem; }
+        @media (max-width: 768px) {
+            .card-datatable, .card-datatable .dataTables_wrapper { overflow-x: hidden !important; overflow-y: hidden !important; max-width: 100% !important; }
+            .card-datatable .dataTables_wrapper > .table-responsive { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+            .card-datatable .dataTables_wrapper .pagination { flex-wrap: wrap; overflow-x: hidden !important; }
+        }
+    </style>
+
+</head>
 
   <body>
 
@@ -81,7 +97,76 @@
     <!--Page Javascript-->
     {% block page_js %} {% endblock page_js %}
 
-    {% include "partials/refresh_cache_button.html" %}
+<div class="modal fade" id="exportErrorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header align-items-center py-3" style="background-color: #666CFF;">
+                <h5 class="modal-title text-dark mb-0">
+                    <i class="ri-error-warning-line me-2"></i>Export Gagal
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center py-3">
+                    <i class="ri-file-warning-line" style="font-size: 4rem; color: #666CFF;"></i>
+                    <h4 class="mt-3 mb-2">Tabel Tidak Ditemukan</h4>
+                    <p class="text-muted mb-0">Tidak ada data tabel yang dapat di-export. Pastikan tabel sudah dimuat dengan benar sebelum melakukan export.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                    <i class="ri-close-line me-1"></i>Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="exportEmptyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header align-items-center py-3" style="background-color: #666CFF;">
+                <h5 class="modal-title text-white mb-0">
+                    <i class="ri-information-line me-2"></i>Export Data
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center py-3">
+                    <i class="ri-file-search-line" style="font-size: 4rem; color: #666CFF;"></i>
+                    <h4 class="mt-3 mb-2">Data Kosong</h4>
+                    <p class="text-muted mb-0">Data masih kosong. Tidak ada data yang dapat di-export.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                    <i class="ri-close-line me-1"></i>Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showExportError() {
+    var modal = document.getElementById('exportErrorModal');
+    if (modal) {
+        new bootstrap.Modal(modal).show();
+    } else {
+        alert('Tabel tidak ditemukan! Export gagal.');
+    }
+}
+function showExportEmpty() {
+    var modal = document.getElementById('exportEmptyModal');
+    if (modal) {
+        new bootstrap.Modal(modal).show();
+    } else {
+        alert('Data masih kosong. Tidak ada data yang dapat di-export.');
+    }
+}
+</script>
+
 
     {% load ai_tags %}
     {% get_ai_name as ai_display_name %}
@@ -135,6 +220,57 @@
     </script>
     {% endif %}
 
-  </body>
+  
+<script>
+/* ApexCharts Global Defaults - Konsisten di semua halaman */
+(function() {
+    if (typeof ApexCharts !== 'undefined') {
+        /* Deteksi dark mode */
+        var isDark = document.documentElement.classList.contains('dark-style');
+        var labelColor = isDark ? '#b4b5ba' : '#a5a3ae';
+        var gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+        /* Inject global style defaults */
+        Apex = {
+            chart: {
+                toolbar: { show: false },
+                animations: { enabled: true, easing: 'easeinout', speed: 800 },
+                background: 'transparent',
+                fontFamily: 'Inter, -apple-system, sans-serif'
+            },
+            grid: {
+                borderColor: gridColor,
+                strokeDashArray: 4
+            },
+            xaxis: {
+                labels: { style: { colors: labelColor } }
+            },
+            yaxis: {
+                labels: { style: { colors: labelColor } }
+            },
+            tooltip: {
+                theme: isDark ? 'dark' : 'light'
+            }
+        };
+    }
+})();
+</script>
+
+
+<script>
+/* Chart Colors Helper - Dark mode aware untuk semua chart */
+window.getChartColors = function() {
+    var isDark = document.documentElement.classList.contains('dark-style');
+    return {
+        isDark: isDark,
+        gridColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+        labelColor: isDark ? '#b4b5ba' : '#a5a3ae',
+        tooltipTheme: isDark ? 'dark' : 'light',
+        markerStroke: isDark ? '#2b2c40' : '#fff',
+        legendColor: isDark ? '#ccc' : '#555'
+    };
+};
+</script>
+
+</body>
 
 </html>

@@ -1,5 +1,5 @@
 {% extends 'layout/layout_vertical.html' %}
-{% load static humanize %}
+{% load static humanize  currency_filters %}
 {% block title %}Laporan Pemasukan - SIMKOS{% endblock title %}
 {% block vendor_css %}{{ block.super }}
 <link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
@@ -50,31 +50,41 @@
                     <small class="text-muted d-block mt-1">Klik untuk memilih kolom</small>
                 </div>
                 <div class="col-md-6"></div>
-                <div class="col-md-3"><div class="d-grid gap-2"><button type="submit" class="btn btn-primary"><i class="ri-filter-3-line me-1"></i>Terapkan Filter</button><a href="{% url 'laporan:pemasukan' %}" class="btn btn-label-secondary"><i class="ri-refresh-line me-1"></i>Reset</a></div></div>
+                <div class="col-md-3"><div class="d-grid gap-2"><button type="submit" class="btn btn-primary"><i class="ri-filter-3-line me-1"></i>Terapkan Filter</button><a href="{% url 'laporan:pendapatan' %}" class="btn btn-label-secondary"><i class="ri-refresh-line me-1"></i>Reset</a></div></div>
             </div>
             </form>
         </div>
     </div>
 
     <!-- Summary Cards -->
-    <div class="row mb-4 g-3">
-        <div class="col-md-6">
+    <div class="row g-6 mb-6">
+        <div class="col-lg-4 col-md-4 col-6">
             <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div><p class="text-muted mb-1">Total Pemasukan</p><h4 class="mb-0 text-success">Rp {{ total_pemasukan|floatformat:0|intcomma }}</h4></div>
-                        <div class="avatar"><span class="avatar-initial rounded bg-label-success"><i class="ri-arrow-up-circle-line ri-24px"></i></span></div>
-                    </div>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-success">
+<i class="ri-arrow-up-circle-line ri-24px"></i></span>
+</div>
+<div>
+<p class="text-muted mb-1">Total Pemasukan</p><h5 class="mb-0 text-success fw-bold fs-value-primary">Rp {{ total_pemasukan|floatformat:0|thousands }}</h5>
+</div>
+</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-lg-4 col-md-4 col-6">
             <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div><p class="text-muted mb-1">Total Transaksi</p><h4 class="mb-0">{{ total_transaksi }}</h4></div>
-                        <div class="avatar"><span class="avatar-initial rounded bg-label-primary"><i class="ri-exchange-line ri-24px"></i></span></div>
-                    </div>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-primary">
+<i class="ri-exchange-line ri-24px"></i></span>
+</div>
+<div>
+<p class="text-muted mb-1">Total Transaksi</p><h5 class="mb-0 fw-bold fs-value-primary">{{ total_transaksi }}</h5>
+</div>
+</div>
                 </div>
             </div>
         </div>
@@ -83,10 +93,10 @@
     <!-- Table Card -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="ri-list-check-2 me-2"></i>Rincian Pemasukan</h5>
+            <h5 class="mb-0 fs-card-title"><i class="ri-list-check-2 me-2"></i>Rincian Pemasukan</h5>
             <div class="d-flex gap-2">
-                <button class="btn btn-label-success" onclick="exportExcel()"><i class="ri-file-excel-2-line me-1"></i>Export Excel</button>
-                <button class="btn btn-label-danger" onclick="exportPDF()"><i class="ri-file-pdf-line me-1"></i>Export PDF</button>
+                <button class="btn btn-label-success" onclick="exportToExcel()"><i class="ri-file-excel-2-line me-1"></i>Export Excel</button>
+                <button class="btn btn-label-danger" onclick="exportToPDF()"><i class="ri-file-pdf-line me-1"></i>Export PDF</button>
             </div>
         </div>
                 {% if pembayaran_list %}
@@ -95,7 +105,7 @@
                 <thead><tr><th>No. Pembayaran</th><th>Penyewa</th><th>Tanggal</th><th>Jumlah</th><th>Metode</th></tr></thead>
                 <tbody>
                     {% for b in pembayaran_list %}
-                    <tr><td class="fw-medium">{{ b.nomor_pembayaran }}</td><td>{{ b.tagihan.kontrak.penyewa.nama }}</td><td>{{ b.tanggal_bayar|date:"d/m/Y" }}</td><td class="fw-bold text-success">Rp {{ b.jumlah_bayar|floatformat:0|intcomma }}</td><td><span class="badge bg-label-info rounded-pill">{{ b.nama_metode_bayar }}</span></td></tr>
+                    <tr><td class="fw-medium">{{ b.nomor_pembayaran }}</td><td>{{ b.tagihan.kontrak.penyewa.nama }}</td><td>{{ b.tanggal_bayar|date:"d/m/Y" }}</td><td class="fw-bold text-success">Rp {{ b.jumlah_bayar|floatformat:0|thousands }}</td><td><span class="badge bg-label-info rounded-pill">{{ b.nama_metode_bayar }}</span></td></tr>
                     {% endfor %}
                 </tbody>
                 <tfoot class="table-footer-summary">
@@ -103,7 +113,7 @@
                         <td colspan="3" class="text-start ps-4 py-3" style="vertical-align: middle;">
                             <div class="d-flex align-items-center"><i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i><div class="text-start"><strong class="d-block" style="font-size: 1rem;">RINGKASAN</strong><small class="text-muted" style="font-size: 0.75rem;">{{ total_transaksi }} Transaksi</small></div></div>
                         </td>
-                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-success d-flex align-items-center gap-1 mb-2" style="font-size: 0.9rem; padding: 0.5rem 0.75rem; min-width: 120px;"><i class="ri-money-dollar-circle-line"></i><span>Rp {{ total_pemasukan|floatformat:0|intcomma }}</span></span><small class="text-muted fw-medium" style="font-size: 0.75rem;">Total Pemasukan</small></div></td>
+                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-success d-flex align-items-center gap-1 mb-2" style="font-size: var(--fs-ui-value); padding: 0.5rem 0.75rem; min-width: 120px;"><i class="ri-money-dollar-circle-line"></i><span>Rp {{ total_pemasukan|floatformat:0|thousands }}</span></span><small class="text-muted fw-medium" style="font-size: 0.75rem;">Total Pemasukan</small></div></td>
                         <td class="py-3"></td>
                     </tr>
                 </tfoot>
@@ -169,7 +179,7 @@ var FOOTER_LABEL = 'RINGKASAN ({{ total_transaksi }} Transaksi Pemasukan)';
 function toggleColumns() { SimkosExport.toggleColumns('#dataTable'); }
 function selectAllColumns() { document.querySelectorAll('.column-checkbox').forEach(function(cb){cb.checked=true;}); toggleColumns(); }
 function deselectAllColumns() { document.querySelectorAll('.column-checkbox').forEach(function(cb){cb.checked=false;}); toggleColumns(); }
-function exportExcel() { SimkosExport.buildExcel('#dataTable', EXCEL_INFO, FOOTER_DATA, FOOTER_LABEL, 'LAPORAN PEMASUKAN', 'Laporan_Pemasukan'); }
-function exportPDF()   { SimkosExport.buildPDF('#dataTable',   PDF_INFO,   FOOTER_DATA, FOOTER_LABEL, 'LAPORAN PEMASUKAN', 'Laporan_Pemasukan'); }
+function exportToExcel() { SimkosExport.buildExcel('#dataTable', EXCEL_INFO, FOOTER_DATA, FOOTER_LABEL, 'LAPORAN PEMASUKAN', 'Laporan_Pemasukan'); }
+function exportToPDF()   { SimkosExport.buildPDF('#dataTable',   PDF_INFO,   FOOTER_DATA, FOOTER_LABEL, 'LAPORAN PEMASUKAN', 'Laporan_Pemasukan'); }
 </script>
 {% endblock page_js %}

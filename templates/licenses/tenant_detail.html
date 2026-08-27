@@ -48,52 +48,52 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <h5 class="mb-0"><i class="ri-information-line me-2"></i>Informasi Tenant</h5>
+                    <h5 class="mb-0 fs-card-title"><i class="ri-information-line me-2"></i>Informasi Tenant</h5>
                     <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <span class="badge bg-label-{{ tenant.software_color }}">{{ tenant.software_label }}</span>
+                        <span class="badge bg-label-{{ tenant.software_color }} fs-value-secondary">{{ tenant.software_label }}</span>
                         <span class="badge bg-label-success"><i class="ri-checkbox-circle-line me-1"></i>Aktif</span>
                     </div>
                 </div>
                 <div class="card-body">
                     <!-- Row 1: Informasi Dasar -->
-                    <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 0.08em;">
+                    <h6 class="text-muted text-uppercase mb-3" style="font-size: var(--fs-ui-xxs); letter-spacing: 0.08em;">
                         <i class="ri-database-2-line me-1"></i>Informasi Database
                     </h6>
                     <div class="row g-3 mb-4">
-                        <div class="col-sm-6 col-lg-3">
+                        <div class="col-6">
                             <div class="p-3 rounded" style="background: #f8f7fa;">
-                                <label class="form-label text-muted mb-1 d-block" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;">Nama Tenant</label>
+                                <label class="form-label text-muted mb-1 d-block" style="font-size: var(--fs-ui-xxs); text-transform: uppercase; letter-spacing: 0.05em;">Nama Tenant</label>
                                 <div class="fw-semibold">{{ tenant.nama }}</div>
                             </div>
                         </div>
-                        <div class="col-sm-6 col-lg-3">
+                        <div class="col-6">
                             <div class="p-3 rounded" style="background: #f8f7fa;">
-                                <label class="form-label text-muted mb-1 d-block" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;">Schema Database</label>
-                                <div><span class="badge bg-label-info"><i class="ri-database-2-line me-1"></i>{{ tenant.schema_name }}</span></div>
+                                <label class="form-label text-muted mb-1 d-block" style="font-size: var(--fs-ui-xxs); text-transform: uppercase; letter-spacing: 0.05em;">Schema Database</label>
+                                <div><span class="badge bg-label-info fs-value-secondary"><i class="ri-database-2-line me-1"></i>{{ tenant.schema_name }}</span></div>
                             </div>
                         </div>
-                        <div class="col-sm-6 col-lg-3">
+                        <div class="col-6">
                             <div class="p-3 rounded" style="background: #f8f7fa;">
-                                <label class="form-label text-muted mb-1 d-block" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;">Domain / Subdomain</label>
+                                <label class="form-label text-muted mb-1 d-block" style="font-size: var(--fs-ui-xxs); text-transform: uppercase; letter-spacing: 0.05em;">Domain / Subdomain</label>
                                 <div>
                                     {% for domain in tenant.domains %}
-                                    <span class="badge bg-label-primary"><i class="ri-global-line me-1"></i>{{ domain }}</span>
+                                    <span class="badge bg-label-primary fs-value-secondary"><i class="ri-global-line me-1"></i>{{ domain }}</span>
                                     {% empty %}
                                     <span class="text-muted">-</span>
                                     {% endfor %}
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-6 col-lg-3">
+                        <div class="col-6">
                             <div class="p-3 rounded" style="background: #f8f7fa;">
-                                <label class="form-label text-muted mb-1 d-block" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;">Tanggal Dibuat</label>
+                                <label class="form-label text-muted mb-1 d-block" style="font-size: var(--fs-ui-xxs); text-transform: uppercase; letter-spacing: 0.05em;">Tanggal Dibuat</label>
                                 <div class="fw-medium">{{ tenant.created_at|truncatechars:10 }}</div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Row 2: Statistik -->
-                    <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 0.08em;">
+                    <h6 class="text-muted text-uppercase mb-3" style="font-size: var(--fs-ui-xxs); letter-spacing: 0.08em;">
                         <i class="ri-bar-chart-line me-1"></i>Statistik Database
                     </h6>
                     <div class="row g-3 mb-4">
@@ -128,19 +128,19 @@
 
                     <!-- Row 3: Superuser Details -->
                     {% if tenant.superusers %}
-                    <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 0.08em;">
+                    <h6 class="text-muted text-uppercase mb-3" style="font-size: var(--fs-ui-xxs); letter-spacing: 0.08em;">
                         <i class="ri-shield-user-line me-1"></i>Akun Superuser
                     </h6>
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
-                                    <th style="font-size: 0.8rem;">ID</th>
-                                    <th style="font-size: 0.8rem;">Username</th>
-                                    <th style="font-size: 0.8rem;">Email</th>
-                                    <th style="font-size: 0.8rem;">Password</th>
-                                    <th style="font-size: 0.8rem;">Status</th>
-                                    <th style="font-size: 0.8rem;">Dibuat</th>
+                                    <th style="font-size: var(--fs-ui-sm);">ID</th>
+                                    <th style="font-size: var(--fs-ui-sm);">Username</th>
+                                    <th style="font-size: var(--fs-ui-sm);">Email</th>
+                                    <th style="font-size: var(--fs-ui-sm);">Password</th>
+                                    <th style="font-size: var(--fs-ui-sm);">Status</th>
+                                    <th style="font-size: var(--fs-ui-sm);">Dibuat</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -155,12 +155,12 @@
                                             <code class="fw-semibold" style="color: #7367f0;">{{ su.username }}</code>
                                         </div>
                                     </td>
-                                    <td><span style="font-size: 0.85rem;">{{ su.email|default:"-" }}</span></td>
+                                    <td><span style="font-size: var(--fs-ui-sm);">{{ su.email|default:"-" }}</span></td>
                                     <td>
-                                        <span class="text-muted" style="font-size: 0.8rem;">
+                                        <span class="text-muted" style="font-size: var(--fs-ui-sm);">
                                             <i class="ri-lock-line me-1"></i>Terenkripsi
                                         </span>
-                                        <small class="d-block text-muted" style="font-size: 0.7rem;">Hanya tampil saat pembuatan</small>
+                                        <small class="d-block text-muted" style="font-size: var(--fs-ui-xxs);">Hanya tampil saat pembuatan</small>
                                     </td>
                                     <td>
                                         {% if su.is_active %}
@@ -169,7 +169,7 @@
                                         <span class="badge bg-label-danger">Nonaktif</span>
                                         {% endif %}
                                     </td>
-                                    <td><span style="font-size: 0.85rem;">{{ su.date_joined|truncatechars:10 }}</span></td>
+                                    <td><span style="font-size: var(--fs-ui-sm);">{{ su.date_joined|truncatechars:10 }}</span></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -238,7 +238,7 @@
             html: '<p>Apakah Anda yakin ingin menghapus tenant <strong>"' + tenantName + '"</strong> dari <strong>' + softwareCode + '</strong>?</p>' +
                   '<div class="alert alert-danger d-flex align-items-start mt-2 mb-0 text-start" style="background:rgba(255,62,29,0.08);border:1px solid rgba(255,62,29,0.3);border-radius:8px;padding:12px 16px;">' +
                   '<i class="ri-error-warning-line me-2 fs-5 text-danger" style="margin-top:2px"></i>' +
-                  '<div class="text-danger" style="font-size:0.85rem;"><strong>PERINGATAN:</strong> Menghapus tenant akan menghapus SELURUH database klien ini secara permanen.</div></div>',
+                  '<div class="text-danger" style="font-size: var(--fs-ui-sm);"><strong>PERINGATAN:</strong> Menghapus tenant akan menghapus SELURUH database klien ini secara permanen.</div></div>',
             showCancelButton: true,
             confirmButtonText: '<i class="ri-delete-bin-line me-1"></i>Ya, Hapus Permanen',
             cancelButtonText: '<i class="ri-close-line me-1"></i>Batal',

@@ -99,7 +99,11 @@ class ProfilView(LoginRequiredMixin, TemplateView):
                 if request.POST.get('remove_avatar') == '1':
                     profile.avatar = None
                 elif request.FILES.get('avatar'):
-                    profile.avatar = request.FILES['avatar']
+                    avatar_file = request.FILES['avatar']
+                    if avatar_file.size > 800 * 1024:
+                        messages.error(request, 'Ukuran foto profil maksimal 800KB. File yang diupload terlalu besar.')
+                    else:
+                        profile.avatar = avatar_file
                 profile.save()
             except Exception as e:
                 logger.warning("Gagal memproses file: %s", e)
@@ -201,15 +205,19 @@ class ManajemenDataView(LoginRequiredMixin, ReadPermissionMixin, TemplateView):
             context['db_size'] = 0
             context['db_size_mb'] = 0
         from apps.licenses.models import Product, Client, LicenseKey
-        from apps.pembelian.models import PembelianLisensi, PembelianLisensiItem
+        try:
+            from apps.pembelian.models import PembelianLisensi, PembelianLisensiItem
+        except ImportError:
+            PembelianLisensi = None
+            PembelianLisensiItem = None
         from apps.automation.models import LogNotifikasi
         from .models import BackupHistory
 
         total_produk = Product.objects.count()
         total_klien = Client.objects.count()
         total_lisensi = LicenseKey.objects.count()
-        total_transaksi = PembelianLisensi.objects.count()
-        total_item = PembelianLisensiItem.objects.count()
+        total_transaksi = PembelianLisensi.objects.count() if PembelianLisensi else 0
+        total_item = PembelianLisensiItem.objects.count() if PembelianLisensiItem else 0
         total_log_notifikasi = LogNotifikasi.objects.count()
 
         context['total_produk'] = total_produk
@@ -381,13 +389,19 @@ def reset_data(request):
         if konfirmasi == 'HAPUS SEMUA':
             try:
                 from apps.licenses.models import Product, Client, LicenseKey
-                from apps.pembelian.models import PembelianLisensi, PembelianLisensiItem
+                try:
+                    from apps.pembelian.models import PembelianLisensi, PembelianLisensiItem
+                except ImportError:
+                    PembelianLisensi = None
+                    PembelianLisensiItem = None
                 media_root = str(settings.MEDIA_ROOT)
                 media_deleted = 0
 
                 with transaction.atomic():
-                    PembelianLisensiItem.objects.all().delete()
-                    PembelianLisensi.objects.all().delete()
+                    if PembelianLisensiItem:
+                        PembelianLisensiItem.objects.all().delete()
+                    if PembelianLisensi:
+                        PembelianLisensi.objects.all().delete()
                     LicenseKey.objects.all().delete()
                     Client.objects.all().delete()
                     Product.objects.all().delete()

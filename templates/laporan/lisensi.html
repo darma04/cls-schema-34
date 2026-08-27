@@ -37,44 +37,64 @@
     </div>
 
     <!-- Summary Cards -->
-    <div class="row mb-4 g-3">
-        <div class="col-6 col-lg-3">
+    <div class="row g-6 mb-6">
+        <div class="col-6 col-md-3 col-lg-3">
             <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div><p class="text-muted mb-1">Total Lisensi</p><h4 class="mb-0">{{ total_lisensi }}</h4><small class="text-muted">seluruh lisensi</small></div>
-                        <div class="avatar"><span class="avatar-initial rounded bg-label-primary"><i class="ri-key-2-line ri-24px"></i></span></div>
-                    </div>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-primary">
+<i class="ri-key-2-line ri-24px"></i></span>
+</div>
+<div>
+<p class="text-muted mb-1">Total Lisensi</p><h5 class="mb-0 fw-bold fs-value-primary">{{ total_lisensi }}</h5><small class="text-muted">seluruh lisensi</small>
+</div>
+</div>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
+        <div class="col-6 col-md-3 col-lg-3">
             <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div><p class="text-muted mb-1">Lisensi Aktif</p><h4 class="mb-0 text-success">{{ lisensi_aktif }}</h4><small class="text-success"><i class="ri-checkbox-circle-line"></i> sedang aktif</small></div>
-                        <div class="avatar"><span class="avatar-initial rounded bg-label-success"><i class="ri-checkbox-circle-line ri-24px"></i></span></div>
-                    </div>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-success">
+<i class="ri-checkbox-circle-line ri-24px"></i></span>
+</div>
+<div>
+<p class="text-muted mb-1">Lisensi Aktif</p><h5 class="mb-0 text-success fw-bold fs-value-primary">{{ lisensi_aktif }}</h5><small class="text-success"><i class="ri-checkbox-circle-line"></i> sedang aktif</small>
+</div>
+</div>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
+        <div class="col-6 col-md-3 col-lg-3">
             <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div><p class="text-muted mb-1">Kadaluarsa</p><h4 class="mb-0 text-danger">{{ lisensi_kadaluarsa }}</h4><small class="text-danger"><i class="ri-close-circle-line"></i> melewati batas</small></div>
-                        <div class="avatar"><span class="avatar-initial rounded bg-label-danger"><i class="ri-close-circle-line ri-24px"></i></span></div>
-                    </div>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-danger">
+<i class="ri-close-circle-line ri-24px"></i></span>
+</div>
+<div>
+<p class="text-muted mb-1">Kadaluarsa</p><h5 class="mb-0 text-danger fw-bold fs-value-primary">{{ lisensi_kadaluarsa }}</h5><small class="text-danger"><i class="ri-close-circle-line"></i> melewati batas</small>
+</div>
+</div>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
+        <div class="col-6 col-md-3 col-lg-3">
             <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div><p class="text-muted mb-1">Suspended</p><h4 class="mb-0 text-warning">{{ lisensi_suspended }}</h4><small class="text-warning"><i class="ri-forbid-line"></i> dihentikan</small></div>
-                        <div class="avatar"><span class="avatar-initial rounded bg-label-warning"><i class="ri-forbid-line ri-24px"></i></span></div>
-                    </div>
+                    <div class="d-flex align-items-center gap-3">
+<div class="avatar flex-shrink-0">
+<span class="avatar-initial rounded bg-label-warning">
+<i class="ri-forbid-line ri-24px"></i></span>
+</div>
+<div>
+<p class="text-muted mb-1">Suspended</p><h5 class="mb-0 text-warning fw-bold fs-value-primary">{{ lisensi_suspended }}</h5><small class="text-warning"><i class="ri-forbid-line"></i> dihentikan</small>
+</div>
+</div>
                 </div>
             </div>
         </div>
@@ -166,7 +186,7 @@
 
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Data Lisensi</h5>
+            <h5 class="mb-0 fs-card-title">Data Lisensi</h5>
             <div class="d-flex gap-2">
                 <button class="btn btn-sm btn-label-success" onclick="exportToExcel()"><i
                         class="ri-file-excel-2-line me-1"></i>Export Excel</button>
@@ -227,9 +247,9 @@
                         <td colspan="3" class="text-start ps-4 py-3" style="vertical-align: middle;">
                             <div class="d-flex align-items-center"><i class="ri-calculator-line me-2 text-primary" style="font-size: 1.5rem;"></i><div class="text-start"><strong class="d-block" style="font-size: 1rem;">RINGKASAN</strong><small class="text-muted" style="font-size: 0.75rem;">{{ total_lisensi }} Lisensi</small></div></div>
                         </td>
-                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-success d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ lisensi_aktif }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Aktif</small></div></td>
-                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-danger d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ lisensi_kadaluarsa }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Kadaluarsa</small></div></td>
-                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-warning d-flex align-items-center gap-1 mb-1" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;"><span>{{ lisensi_suspended }}</span></span><small class="text-muted" style="font-size: 0.7rem;">Suspended</small></div></td>
+                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-success d-flex align-items-center gap-1 mb-1" style="font-size: var(--fs-ui-sm); padding: 0.4rem 0.6rem;"><span>{{ lisensi_aktif }}</span></span><small class="text-muted" style="font-size: var(--fs-ui-xxs);">Aktif</small></div></td>
+                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-danger d-flex align-items-center gap-1 mb-1" style="font-size: var(--fs-ui-sm); padding: 0.4rem 0.6rem;"><span>{{ lisensi_kadaluarsa }}</span></span><small class="text-muted" style="font-size: var(--fs-ui-xxs);">Kadaluarsa</small></div></td>
+                        <td class="py-3" style="vertical-align: middle;"><div class="d-flex flex-column align-items-center"><span class="badge bg-label-warning d-flex align-items-center gap-1 mb-1" style="font-size: var(--fs-ui-sm); padding: 0.4rem 0.6rem;"><span>{{ lisensi_suspended }}</span></span><small class="text-muted" style="font-size: var(--fs-ui-xxs);">Suspended</small></div></td>
                         <td class="py-3"></td>
                     </tr>
                 </tfoot>
@@ -273,7 +293,7 @@
 
 {% block page_js %}
 <style>
-    .dataTables_wrapper .dataTables_info { padding: 1rem 1.5rem; font-size: 0.875rem; color: #697a8d }
+    .dataTables_wrapper .dataTables_info { padding: 1rem 1.5rem; font-size: 0.875rem;  }
     .dataTables_wrapper .dataTables_paginate { padding: 1rem 1.5rem }
     .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter { padding: 0 1.5rem 1rem 1.5rem }
     .dataTables_wrapper .dataTables_filter input { border: 1px solid #d9dee3; border-radius: 0.375rem; padding: 0.4375rem 0.875rem }

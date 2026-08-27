@@ -296,7 +296,7 @@ def _call_gemini(config, system_prompt, user_message, ssl_ctx):
     data = json.dumps(payload).encode('utf-8')
     req = urllib.request.Request(url, data=data, method='POST')
     req.add_header('Content-Type', 'application/json')
-    req.add_header('x-goog-api-key', api_key)
+    req.add_header('x-goog-api-key', config.api_key)
     with urllib.request.urlopen(req, timeout=60, context=ssl_ctx) as resp:
         result = json.loads(resp.read().decode('utf-8'))
     candidates = result.get('candidates', [])
@@ -322,7 +322,7 @@ def _call_openai(config, system_prompt, user_message, ssl_ctx):
     data = json.dumps(payload).encode('utf-8')
     req = urllib.request.Request(url, data=data, method='POST')
     req.add_header('Content-Type', 'application/json')
-    req.add_header('x-goog-api-key', api_key)
+    req.add_header('x-goog-api-key', config.api_key)
     req.add_header('Authorization', f'Bearer {config.api_key}')
     with urllib.request.urlopen(req, timeout=60, context=ssl_ctx) as resp:
         result = json.loads(resp.read().decode('utf-8'))
@@ -347,7 +347,7 @@ def _call_groq(config, system_prompt, user_message, ssl_ctx):
     data = json.dumps(payload).encode('utf-8')
     req = urllib.request.Request(url, data=data, method='POST')
     req.add_header('Content-Type', 'application/json')
-    req.add_header('x-goog-api-key', api_key)
+    req.add_header('x-goog-api-key', config.api_key)
     req.add_header('Authorization', f'Bearer {config.api_key}')
     with urllib.request.urlopen(req, timeout=60, context=ssl_ctx) as resp:
         result = json.loads(resp.read().decode('utf-8'))
